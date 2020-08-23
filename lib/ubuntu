@@ -36,31 +36,11 @@ if ! is_repository_configured 'vscode'; then
 	message '  %s' 'done adding Visual Studio Code repository.'
 fi
 
-if ! is_repository_configured 'spotify'; then
-	message '  %s' 'adding Spotify repository...'
-	add_key https://download.spotify.com/debian/pubkey.gpg
-	add_repository 'spotify' 'deb http://repository.spotify.com stable non-free'
-	message '  %s' 'done adding Spotify repository.'
-fi
-
 if ! is_repository_configured 'slack'; then
 	message '  %s' 'adding Slack repository...'
 	add_key https://packagecloud.io/slacktechnologies/slack/gpgkey
 	add_repository 'slack' 'deb https://packagecloud.io/slacktechnologies/slack/ubuntu/ bionic main'
 	message '  %s' 'done adding Slack repository.'
-fi
-
-if ! is_repository_configured 'signal'; then
-	message '  %s' 'adding Signal repository...'
-	add_key https://updates.signal.org/desktop/apt/keys.asc
-	add_repository 'signal' 'deb [arch=amd64] https://updates.signal.org/desktop/apt xenial main'
-	message '  %s' 'done adding Signal repository.'
-fi
-
-if ! is_repository_configured 'nextcloud'; then
-	message '  %s' 'adding Nextcloud repository...'
-	request-sudo add-apt-repository --yes ppa:nextcloud-devs/client
-	message '  %s' 'done adding Nextcloud repository.'
 fi
 
 if ! is_repository_configured 'diff-so-fancy'; then

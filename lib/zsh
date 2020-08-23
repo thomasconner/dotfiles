@@ -34,12 +34,3 @@ fi
 ln -sf "$_dir"/../zsh/* "$data_dir"
 ln -sf "$_dir"/../.zshrc "$HOME"
 message "done initializing Zsh configuration."
-
-z_path="$(xdg_data)"/zsh-z
-if ! [ -d "$z_path" ]; then
-	message "installing z..."
-	if ! git clone --depth 1 https://github.com/agkozak/zsh-z.git "$z_path" > /dev/null; then
-		fatal 'failed to clone zsh-z'
-	fi
-	message "done installing z."
-fi

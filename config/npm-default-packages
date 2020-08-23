@@ -13,8 +13,5 @@ yarn
 # Automatic merge resolution for package-lock.json
 npm-merge-driver
 
-# Command-line help
-tldr
-
 # SVG optimizer
 svgo
