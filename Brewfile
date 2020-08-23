@@ -66,6 +66,7 @@ cask "kap"
 cask "qlmarkdown"
 cask "sketch"
 cask "visual-studio-code"
+cask "figma"
 
 # fonts
 tap "homebrew/cask-fonts"
