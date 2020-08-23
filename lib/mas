@@ -1,0 +1,4 @@
+#!/usr/bin/env bash
+
+# Install Magnet
+mas install 441258766

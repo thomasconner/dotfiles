@@ -67,6 +67,13 @@ cask "qlmarkdown"
 cask "sketch"
 cask "visual-studio-code"
 cask "figma"
+cask "parallels"
+cask "cleanmymac"
+cask "kaleidoscope"
+cask "iterm2"
+cask "tower"
+cask "mas"
+cask "paw"
 
 # fonts
 tap "homebrew/cask-fonts"

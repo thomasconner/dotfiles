@@ -58,6 +58,7 @@ message "running OS-specific scripts..."
 if "$_dir"/../bin/is-macos; then
 	"$_dir"/macos
 	"$_dir"/brew
+	"$_dir"/mas
 elif "$_dir"/../bin/is-linux; then
 	"$_dir"/linux
 	if command -v lsb_release > /dev/null && \
