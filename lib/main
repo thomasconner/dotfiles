@@ -78,4 +78,7 @@ fi
 "$_dir"/zsh
 "$_dir"/profile-picture
 
+# Quiet new terminal prompts
+touch ~/.hushlogin
+
 message "done. start a new login shell or run 'source .zshrc'."
