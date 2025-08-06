@@ -2,7 +2,7 @@
 
 # === CONFIGURATION ===
 TIMESHIFT_DIR="/mnt/Secondary/timeshift/snapshots"
-RCLONE_REMOTE="b2:ConnerTechnology/backups/linux-desktop/timeshift-snapshots"
+RCLONE_REMOTE="b2:ConnerTechnology/backups/linux-desktop/timeshift/snapshots"
 LOG_FILE="/var/log/timeshift-b2-backup.log"
 DATE=$(date +"%Y-%m-%d_%H-%M-%S")
 
