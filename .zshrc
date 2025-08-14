@@ -97,13 +97,16 @@ zstyle ':completion:*' menu select
 
 # alias scripts='cd $SCRIPTS'
 
+# SSH
+
+alias bwatestbench='ssh bwatestbench'
+
 # Repos
 
 alias repos='cd $REPOS'
 alias ghrepos='cd $GHREPOS'
 alias bwarepos='cd $GHREPOS/BlueWaterAutonomy'
 alias ctrepos='cd $GHREPOS/ConnerTechnology'
-alias 6rsrepos='cd $GHREPOS/6RiverSystems'
 
 # ls
 
