@@ -28,6 +28,7 @@ plugins=(
   golang
   kubectl
   zsh-autosuggestions
+  zsh-completions
 )
 
 source $ZSH/oh-my-zsh.sh

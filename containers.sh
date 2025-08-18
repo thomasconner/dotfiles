@@ -9,3 +9,4 @@ set -e
 ./shell/install.sh
 ./zsh/install.sh
 ./git/install.sh
+./vscode/install.sh
