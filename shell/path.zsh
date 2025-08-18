@@ -7,7 +7,6 @@ path=(
   $HOME/.nodenv/bin
   $GOPATH/bin
   $GOROOT/bin
-  $SCRIPTS
 )
 
 # Remove duplicate entries and non-existent directories
