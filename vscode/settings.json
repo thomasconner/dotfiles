@@ -71,6 +71,8 @@
   "files.insertFinalNewline": true,
   "files.trimFinalNewlines": true,
   "files.trimTrailingWhitespace": true,
+  "git.autofetch": true,
+  "git.confirmSync": false,
   "github.copilot.enable": {
     "*": true,
     "editor": true,
