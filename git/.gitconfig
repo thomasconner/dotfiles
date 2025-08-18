@@ -1,0 +1,21 @@
+[include]
+  path = ~/.gitconfig.local
+[alias]
+  ignored = !git ls-files -v | grep "^[[:lower:]]"
+[core]
+  excludesfile = ~/.gitignore
+[color]
+  ui = true
+[diff]
+  compactionHeuristic = true
+  noprefix = true
+[fetch]
+  prune = true
+[gpg]
+  format = ssh
+[init]
+  defaultBranch = main
+[pull]
+  ff = only
+[user]
+  name = Thomas Conner
