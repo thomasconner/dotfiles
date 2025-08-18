@@ -14,4 +14,4 @@ export PATH=$PATH:$GOPATH/bin
 export PATH=$PATH:$GOROOT/bin
 
 # GREP
-export GREP_COLOR="1;35"
+export GREP_COLOR="mt=1;35"
