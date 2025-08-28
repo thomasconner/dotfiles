@@ -6,6 +6,7 @@ set -e
 # Installation
 ###
 # ./fonts/install.sh
+./fonts/install.sh
 ./git/install.sh
 ./node/install.sh
 ./ruby/install.sh
