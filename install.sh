@@ -10,9 +10,7 @@ set -e
 ./node/install.sh
 ./ruby/install.sh
 ./shell/install.sh
-./vscode/install.sh
 ./zsh/install.sh
-
 
 ###
 # Manual notifications
