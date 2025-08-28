@@ -29,6 +29,7 @@ fi
 NODE_VERSION=22.17.1
 echo "Installing ${NODE_VERSION} version of node"
 nodenv install "${NODE_VERSION}" --skip-existing
+nodenv global "${NODE_VERSION}"
 
 # echo "Installing node packages"
 NODE_PACKAGES=()
