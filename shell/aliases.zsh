@@ -1,5 +1,6 @@
 # Blue Water Autonomy
-alias bwatestbench='ssh bwatestbench'
+alias bwatestbench110='ssh bwatestbench110'
+alias bwatestbench199='ssh bwatestbench199'
 
 # OS
 alias ..='cd ../'
