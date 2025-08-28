@@ -5,6 +5,7 @@ path=(
   $HOME/bin
   $HOME/.local/bin
   $HOME/.nodenv/bin
+  $HOME/.rbenv/bin
   $GOPATH/bin
   $GOROOT/bin
 )

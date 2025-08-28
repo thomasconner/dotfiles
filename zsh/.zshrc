@@ -21,11 +21,15 @@ ZSH_THEME=""
 # Example format: plugins=(rails git textmate ruby lighthouse)
 # Add wisely, as too many plugins slow down shell startup.
 plugins=(
+  bundler
   common-aliases
   docker
   git
   golang
   kubectl
+  rake
+  rbenv
+  ruby
   zsh-autosuggestions
   zsh-completions
 )
@@ -55,13 +59,18 @@ setopt SHARE_HISTORY      # Share history between sessions
 
 eval "$(nodenv init -)"
 
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ RBENV ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+eval "$(rbenv init - zsh)"
+
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ Completion ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 fpath+=($HOME/.zfunc)
 fpath+=($HOME/.nodenv/completions)
+fpath+=($HOME/.rbenv/completions)
 
-autoload -Uz compinit
-compinit -u
+autoload -U compinit
+compinit
 
 zstyle ':completion:*' menu select
 
