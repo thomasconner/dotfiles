@@ -1,4 +1,4 @@
-#!/usr/bin/env sh
+#!/usr/bin/env bash
 
 set -e
 
@@ -10,6 +10,7 @@ set -e
 ./node/install.sh
 ./ruby/install.sh
 ./shell/install.sh
+./tmux/install.sh
 ./zsh/install.sh
 
 ###

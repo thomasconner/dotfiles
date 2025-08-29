@@ -1,14 +1,16 @@
-#!/usr/bin/env sh
+#!/usr/bin/env bash
 
 set -e
 
 echo "🚀 git configuration"
 
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
 # Check if the file exists
 if [ ! -f "${HOME}/.gitconfig.local" ]; then
-  cp "${PWD}/git/.gitconfig.local" "${HOME}/.gitconfig.local"
+  cp "$SCRIPT_DIR/.gitconfig.local" "${HOME}/.gitconfig.local"
   echo "ℹ️ git configuration: created ${HOME}/.gitconfig.local - Please update it!!"
 fi
 
-ln -sf "${PWD}/git/.gitconfig" "${HOME}/.gitconfig"
-ln -sf "${PWD}/git/.gitignore" "${HOME}/.gitignore"
+ln -sf "$SCRIPT_DIR/.gitconfig" "${HOME}/.gitconfig"
+ln -sf "$SCRIPT_DIR/.gitignore" "${HOME}/.gitignore"
