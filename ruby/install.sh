@@ -23,7 +23,7 @@ if  [ -d "${HOME}/.rbenv/plugins/ruby-build" ]; then
   printf "ruby-build is already installed\n"
   git -C "${HOME}/.rbenv/plugins/ruby-build" pull --ff-only
 else
-  sudo apt update && apt install -y autoconf bison build-essential libssl-dev libyaml-dev libreadline6-dev zlib1g-dev libncurses5-dev libffi-dev libgdbm6 libgdbm-dev
+  sudo apt update && sudo apt install -y autoconf bison build-essential libssl-dev libyaml-dev libreadline6-dev zlib1g-dev libncurses5-dev libffi-dev libgdbm6 libgdbm-dev
   git clone https://github.com/rbenv/ruby-build.git "${HOME}/.rbenv/plugins/ruby-build"
 fi
 
