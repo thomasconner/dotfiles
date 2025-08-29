@@ -4,7 +4,6 @@ set -e
 
 echo "🚀 Nerd Fonts installation"
 
-# Ensure git is installed
 if ! command -v git >/dev/null 2>&1; then
   echo "❌ git is not installed. Installing..."
   sudo apt update && sudo apt install -y git
