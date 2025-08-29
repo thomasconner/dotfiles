@@ -34,7 +34,7 @@ else
   nodenv global "${NODE_VERSION}"
 fi
 
-NODE_PACKAGES=(claude ngrok)
+NODE_PACKAGES=(@anthropic-ai/claude-code ngrok)
 for pkg in "${NODE_PACKAGES[@]}"; do
   printf "installing %s\n" "${pkg}"
   npm install -g "${pkg}"

@@ -57,17 +57,29 @@ setopt SHARE_HISTORY      # Share history between sessions
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ NODENV ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-eval "$(nodenv init -)"
+if [ -d "${HOME}/.nodenv" ]; then
+  eval "$(nodenv init -)"
+fi
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ RBENV ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-eval "$(rbenv init - zsh)"
+if [ -d "${HOME}/.rbenv" ]; then
+  eval "$(rbenv init - zsh)"
+fi
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ Completion ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-fpath+=($HOME/.zfunc)
-fpath+=($HOME/.nodenv/completions)
-fpath+=($HOME/.rbenv/completions)
+if [ -d "${HOME}/.zfunc" ]; then
+  fpath+=($HOME/.zfunc)
+fi
+
+if [ -d "${HOME}/.nodenv" ]; then
+  fpath+=($HOME/.nodenv/completions)
+fi
+
+if [ -d "${HOME}/.rbenv" ]; then
+  fpath+=($HOME/.rbenv/completions)
+fi
 
 autoload -U compinit
 compinit
