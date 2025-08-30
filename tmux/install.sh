@@ -2,7 +2,7 @@
 
 set -e
 
-echo "🚀 tmux installation"
+echo "tmux installation"
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
@@ -14,12 +14,10 @@ fi
 
 if [ ! -f "${HOME}/.tmux.conf" ]; then
   cp "$SCRIPT_DIR/.tmux.conf" "${HOME}/.tmux.conf"
-  echo "ℹ️ tmux configuration: created ${HOME}/.tmux.conf"
+  echo "tmux configuration: created ${HOME}/.tmux.conf"
 fi
 
 if tmux ls >/dev/null 2>&1; then
   tmux source-file "${HOME}/.tmux.conf"
   echo "Reloaded tmux config for running server."
-else
-  echo "No tmux server running; nothing to reload."
 fi

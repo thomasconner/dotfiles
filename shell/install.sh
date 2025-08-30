@@ -2,11 +2,11 @@
 
 set -e
 
-echo "🚀 Shell installation"
+echo "Shell installation"
 
 # Ensure curl is installed
 if ! command -v curl >/dev/null 2>&1; then
-  echo "❌ curl is not installed. Installing..."
+  echo "curl is not installed. Installing..."
   sudo apt update && sudo apt install -y curl
 fi
 
@@ -18,7 +18,7 @@ fi
 
 # Ensure git is installed
 if ! command -v git >/dev/null 2>&1; then
-  echo "❌ git is not installed. Installing..."
+  echo "git is not installed. Installing..."
   sudo apt update && sudo apt install -y git
 fi
 

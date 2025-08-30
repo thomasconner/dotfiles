@@ -2,19 +2,47 @@
 
 set -e
 
-echo "🚀 Nerd Fonts installation"
+echo "Nerd Fonts installation"
 
-if ! command -v git >/dev/null 2>&1; then
-  echo "❌ git is not installed. Installing..."
-  sudo apt update && sudo apt install -y git
+# Nerd Fonts to install
+FONTS=("FiraCode" "JetBrainsMono" "Hack" "Ubuntu" "UbuntuMono")
+
+# Version of Nerd Fonts release
+VERSION="3.4.0"
+
+# Install location
+FONT_DIR="$HOME/.local/share/fonts"
+
+mkdir -p "$FONT_DIR"
+
+if ! command -v wget >/dev/null 2>&1; then
+  echo "wget is not installed. Installing..."
+  sudo apt update && sudo apt install -y wget
 fi
 
-if [ -d "${HOME}/.nerd-fonts" ]; then
-  printf "✅ nerd-fonts already installed, updating...\n"
-  git -C "${HOME}/.nerd-fonts" pull --ff-only
-else
-  printf "⬇️ Cloning nerd-fonts repository...\n"
-  git clone --depth 1 https://github.com/ryanoasis/nerd-fonts.git "${HOME}/.nerd-fonts"
+for FONT in "${FONTS[@]}"; do
+  ZIP_URL="https://github.com/ryanoasis/nerd-fonts/releases/download/v$VERSION/${FONT}.zip"
+  TMP_ZIP="/tmp/${FONT}.zip"
+
+  echo "Downloading $FONT Nerd Font..."
+  wget -q "$ZIP_URL" -O "$TMP_ZIP"
+
+  if [ $? -ne 0 ]; then
+    echo "❌ Failed to download $FONT"
+    continue
+  fi
+
+  echo "Extracting $FONT..."
+  unzip -oq "$TMP_ZIP" -d "$FONT_DIR"
+
+  echo "Cleaning up $TMP_ZIP..."
+  rm -f "$TMP_ZIP"
+done
+
+# Refresh font cache (Linux only)
+if command -v fc-cache &>/dev/null; then
+  echo "Updating font cache..."
+  fc-cache -fv "$FONT_DIR"
 fi
 
-bash "${HOME}/.nerd-fonts/install.sh"
+echo "All selected Nerd Fonts installed!"

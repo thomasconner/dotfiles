@@ -2,11 +2,11 @@
 
 set -e
 
-echo "🚀 zsh installation"
+echo "zsh installation"
 
 # Ensure git is installed
 if ! command -v git >/dev/null 2>&1; then
-  echo "❌ git is not installed. Installing..."
+  echo "git is not installed. Installing..."
   sudo apt update && sudo apt install -y git
 fi
 
