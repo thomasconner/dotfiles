@@ -11,6 +11,7 @@ set -e
 ./ruby/install.sh
 ./shell/install.sh
 ./tmux/install.sh
+./warp/install.sh
 ./zsh/install.sh
 
 ###

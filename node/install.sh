@@ -4,29 +4,17 @@ set -e
 
 echo "Node configuration"
 
+# Source shared utilities
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+source "$SCRIPT_DIR/../scripts/utils.sh"
+
 if command -v node >/dev/null 2>&1; then
     echo "Node.js is installed: $(node -v)"
 else
-  if ! command -v git >/dev/null 2>&1; then
-    echo "git is not installed. Installing..."
-    sudo apt update && sudo apt install -y git
-  fi
-
-  if [ -d "${HOME}/.nodenv" ]; then
-    printf "nodenv is already installed, updating\n"
-    git -C "${HOME}/.nodenv" pull --ff-only
-  else
-    git clone https://github.com/nodenv/nodenv.git "${HOME}/.nodenv"
-  fi
+  ensure_git_repo "https://github.com/nodenv/nodenv.git" "${HOME}/.nodenv"
+  ensure_git_repo "https://github.com/nodenv/node-build.git" "${HOME}/.nodenv/plugins/node-build"
 
   eval "$($HOME/.nodenv/bin/nodenv init -)"
-
-  if  [ -d "${HOME}/.nodenv/plugins/node-build" ]; then
-    printf "node-build is already installed, updating\n"
-    git -C "${HOME}/.nodenv/plugins/node-build" pull --ff-only
-  else
-    git clone https://github.com/nodenv/node-build.git "${HOME}/.nodenv/plugins/node-build"
-  fi
 fi
 
 if command -v nodenv >/dev/null 2>&1; then

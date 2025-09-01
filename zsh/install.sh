@@ -1,28 +1,15 @@
-#!/usr/bin/env sh
+#!/usr/bin/env bash
 
 set -e
 
 echo "zsh installation"
 
-# Ensure git is installed
-if ! command -v git >/dev/null 2>&1; then
-  echo "git is not installed. Installing..."
-  sudo apt update && sudo apt install -y git
-fi
+# Source shared utilities
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+source "$SCRIPT_DIR/../scripts/utils.sh"
 
-
-if [ -d "${HOME}/.oh-my-zsh/custom/plugins/zsh-autosuggestions" ]; then
-  printf "zsh-autosuggestions is already installed, updating\n"
-  git -C "${HOME}/.oh-my-zsh/custom/plugins/zsh-autosuggestions" pull --ff-only
-else
-  git clone https://github.com/zsh-users/zsh-autosuggestions "${HOME}/.oh-my-zsh/custom/plugins/zsh-autosuggestions"
-fi
-
-if [ -d "${HOME}/.oh-my-zsh/custom/plugins/zsh-completions" ]; then
-  printf "zsh-completions is already installed, updating\n"
-  git -C "${HOME}/.oh-my-zsh/custom/plugins/zsh-completions" pull --ff-only
-else
-  git clone https://github.com/zsh-users/zsh-completions.git "${HOME}/.oh-my-zsh/custom/plugins/zsh-completions"
-fi
+# Install zsh plugins
+ensure_git_repo "https://github.com/zsh-users/zsh-autosuggestions" "${HOME}/.oh-my-zsh/custom/plugins/zsh-autosuggestions"
+ensure_git_repo "https://github.com/zsh-users/zsh-completions.git" "${HOME}/.oh-my-zsh/custom/plugins/zsh-completions"
 
 ln -sf "${PWD}/zsh/.zshrc" "${HOME}/.zshrc"

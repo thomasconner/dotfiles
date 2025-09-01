@@ -9,7 +9,8 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 if command -v tmux >/dev/null 2>&1; then
   echo "tmux is installed: $(tmux -V)"
 else
-  sudo apt update && sudo apt install -y tmux
+  sudo apt update
+  sudo apt install -y tmux
 fi
 
 if [ ! -f "${HOME}/.tmux.conf" ]; then

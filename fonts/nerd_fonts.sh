@@ -17,17 +17,24 @@ mkdir -p "$FONT_DIR"
 
 if ! command -v wget >/dev/null 2>&1; then
   echo "wget is not installed. Installing..."
-  sudo apt update && sudo apt install -y wget
+  sudo apt update
+  sudo apt install -y wget
 fi
 
 for FONT in "${FONTS[@]}"; do
+  FONT_FILE=$(find "$FONT_DIR" -iname "${FONT}*.ttf" -o -iname "${FONT}*.otf" | head -n 1)
+
+  if [ -n "$FONT_FILE" ]; then
+    echo "$FONT already installed at $FONT_FILE, skipping..."
+    continue
+  fi
+
   ZIP_URL="https://github.com/ryanoasis/nerd-fonts/releases/download/v$VERSION/${FONT}.zip"
   TMP_ZIP="/tmp/${FONT}.zip"
 
   echo "Downloading $FONT Nerd Font..."
-  wget -q "$ZIP_URL" -O "$TMP_ZIP"
 
-  if [ $? -ne 0 ]; then
+  if ! wget -q "$ZIP_URL" -O "$TMP_ZIP"; then
     echo "❌ Failed to download $FONT"
     continue
   fi

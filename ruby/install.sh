@@ -4,30 +4,15 @@ set -e
 
 echo "Ruby configuration"
 
+# Source shared utilities
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+source "$SCRIPT_DIR/../scripts/utils.sh"
+
 if command -v ruby >/dev/null 2>&1; then
     echo "Ruby is installed: $(ruby -v)"
 else
-  if ! command -v git >/dev/null 2>&1; then
-    echo "git is not installed. Installing..."
-    sudo apt update && sudo apt install -y git
-  fi
-
-  if [ -d "${HOME}/.rbenv" ]; then
-    printf "rbenv is already installed, updating\n"
-    git -C "${HOME}/.rbenv" pull --ff-only
-  else
-    git clone https://github.com/rbenv/rbenv.git "${HOME}/.rbenv"
-  fi
-
-  eval "$($HOME/.rbenv/bin/rbenv init - zsh)"
-
-  if  [ -d "${HOME}/.rbenv/plugins/ruby-build" ]; then
-    printf "ruby-build is already installed\n"
-    git -C "${HOME}/.rbenv/plugins/ruby-build" pull --ff-only
-  else
-    sudo apt update && sudo apt install -y autoconf bison build-essential libssl-dev libyaml-dev libreadline6-dev zlib1g-dev libncurses5-dev libffi-dev libgdbm6 libgdbm-dev
-    git clone https://github.com/rbenv/ruby-build.git "${HOME}/.rbenv/plugins/ruby-build"
-  fi
+  ensure_git_repo "https://github.com/rbenv/rbenv.git" "${HOME}/.rbenv"
+  ensure_git_repo "https://github.com/rbenv/ruby-build.git" "${HOME}/.rbenv/plugins/ruby-build"
 fi
 
 if command -v rbenv >/dev/null 2>&1; then
