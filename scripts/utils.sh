@@ -22,6 +22,25 @@ ensure_curl_installed() {
   fi
 }
 
+# Ensure wget is installed
+ensure_wget_installed() {
+  if ! command -v wget >/dev/null 2>&1; then
+    echo "wget is not installed. Installing..."
+    sudo apt update
+    sudo apt install -y wget
+    echo "wget installed successfully"
+  fi
+}
+
+ensure_gpg_installed() {
+  if ! command -v gpg >/dev/null 2>&1; then
+    echo "gpg is not installed. Installing..."
+    sudo apt update
+    sudo apt install -y gpg
+    echo "gpg installed successfully"
+  fi
+}
+
 # Check if a directory exists and is a git repository, then pull or clone
 ensure_git_repo() {
   local repo_url="$1"

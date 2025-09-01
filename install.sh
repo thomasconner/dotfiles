@@ -5,13 +5,12 @@ set -e
 ###
 # Installation
 ###
+./apps/install.sh
 ./fonts/install.sh
 ./git/install.sh
 ./node/install.sh
 ./ruby/install.sh
 ./shell/install.sh
-./tmux/install.sh
-./warp/install.sh
 ./zsh/install.sh
 
 ###
