@@ -13,9 +13,20 @@ if command -v ruby >/dev/null 2>&1; then
 else
   ensure_git_repo "https://github.com/rbenv/rbenv.git" "${HOME}/.rbenv"
   ensure_git_repo "https://github.com/rbenv/ruby-build.git" "${HOME}/.rbenv/plugins/ruby-build"
+
+  if [ -n "$ZSH_VERSION" ]; then
+    eval "$("${HOME}/.rbenv/bin/rbenv" init - zsh)"
+  elif [ -n "$BASH_VERSION" ]; then
+    eval "$("${HOME}/.rbenv/bin/rbenv" init - bash)"
+  else
+    echo "Unknown shell, please add rbenv to your shell configuration manually."
+  fi
 fi
 
 if command -v rbenv >/dev/null 2>&1; then
+  sudo apt update
+  sudo apt install -y build-essential autoconf libssl-dev libyaml-dev zlib1g-dev libffi-dev libgmp-dev rustc
+
   RUBY_VERSION=3.4.5
   echo "Ensuring Ruby ${RUBY_VERSION} with rbenv"
 

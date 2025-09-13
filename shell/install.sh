@@ -8,6 +8,10 @@ echo "Shell installation"
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 source "$SCRIPT_DIR/../scripts/utils.sh"
 
+sudo apt update
+sudo apt install -y zsh
+chsh -s "$(which zsh)"
+
 # Ensure curl is installed
 ensure_curl_installed
 
