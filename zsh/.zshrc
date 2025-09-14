@@ -30,7 +30,6 @@ plugins=(
   rake
   rbenv
   ruby
-  tmux
   zsh-autosuggestions
   zsh-completions
 )
