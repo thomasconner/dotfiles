@@ -45,7 +45,7 @@ if command -v nodenv >/dev/null 2>&1; then
   echo "Using Node.js version: $(node -v)"
 fi
 
-NODE_PACKAGES=(@anthropic-ai/claude-code ngrok)
+NODE_PACKAGES=(ngrok)
 for pkg in "${NODE_PACKAGES[@]}"; do
   if npm list -g --depth=0 | grep -q " ${pkg}@"; then
     printf "Updating %s\n" "${pkg}"

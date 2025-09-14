@@ -69,22 +69,62 @@ fi
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ Completion ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-if [ -d "${HOME}/.zfunc" ]; then
-  fpath+=($HOME/.zfunc)
+# Dedupe fpath entries
+typeset -U fpath
+
+# oh-my-zsh zsh-completions (ensure this is BEFORE compinit)
+# Adjust if you keep plugins elsewhere
+ZSH_CUSTOM="${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}"
+if [ -d "$ZSH_CUSTOM/plugins/zsh-completions/src" ]; then
+  fpath=("$ZSH_CUSTOM/plugins/zsh-completions/src" $fpath)
 fi
 
-if [ -d "${HOME}/.nodenv" ]; then
-  fpath+=($HOME/.nodenv/completions)
+# User completions
+[ -d "$HOME/.zfunc" ] && fpath+=("$HOME/.zfunc")
+
+# nodenv/rbenv completions (use NODENV_ROOT/RBENV_ROOT if present)
+if command -v nodenv >/dev/null 2>&1; then
+  : "${NODENV_ROOT:=${NODENV_ROOT:-$HOME/.nodenv}}"
+  [ -d "$NODENV_ROOT/completions" ] && fpath+=("$NODENV_ROOT/completions")
+elif [ -d "$HOME/.nodenv" ]; then
+  fpath+=("$HOME/.nodenv/completions")
 fi
 
-if [ -d "${HOME}/.rbenv" ]; then
-  fpath+=($HOME/.rbenv/completions)
+if command -v rbenv >/dev/null 2>&1; then
+  : "${RBENV_ROOT:=${RBENV_ROOT:-$HOME/.rbenv}}"
+  [ -d "$RBENV_ROOT/completions" ] && fpath+=("$RBENV_ROOT/completions")
+elif [ -d "$HOME/.rbenv" ]; then
+  fpath+=("$HOME/.rbenv/completions")
 fi
 
-autoload -U compinit
-compinit
+autoload -Uz compinit
+zmodload zsh/complist 2>/dev/null || true
 
+# Use cached .zcompdump; create if missing, skip expensive checks on first run
+ZCDUMP="${ZDOTDIR:-$HOME}/.zcompdump"
+if [[ -f "$ZCDUMP" ]]; then
+  compinit -d "$ZCDUMP"
+else
+  compinit -C -d "$ZCDUMP"
+fi
+# Interactive menu when multiple matches
 zstyle ':completion:*' menu select
+
+# Show descriptions and group results nicely
+zstyle ':completion:*' descriptions ' (%d)'
+zstyle ':completion:*' group-name ''
+
+# Case-insensitive + smart separators matching
+zstyle ':completion:*' matcher-list \
+  'm:{a-z}={A-Za-z}' \
+  'r:|[._-]=* r:|=*'
+
+# Don’t complete uninteresting files
+zstyle ':completion:*:complete:(^rm):*:*files' ignored-patterns '*?.o' '*~'
+
+# Use cache for some completers (speeds up)
+zstyle ':completion:*' use-cache on
+zstyle ':completion:*' cache-path "${XDG_CACHE_HOME:-$HOME/.cache}/zsh"
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ SSH ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
