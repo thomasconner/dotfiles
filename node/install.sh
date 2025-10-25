@@ -18,7 +18,11 @@ else
 fi
 
 if command -v nodenv >/dev/null 2>&1; then
-  NODE_VERSION=24.6.0
+  echo "Updating nodenv and node-build plugins"
+  git -C "${HOME}/.nodenv" pull
+  git -C "${HOME}/.nodenv/plugins/node-build" pull
+
+  NODE_VERSION=24.10.0
   echo "Ensuring Node.js ${NODE_VERSION} with nodenv"
 
   # Install if missing
