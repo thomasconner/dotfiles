@@ -11,7 +11,7 @@ source "$SCRIPT_DIR/../scripts/utils.sh"
 if [ "$SHELL" != "$(which zsh)" ]; then
   sudo apt update
   sudo apt install -y zsh
-  chsh -s "$(which zsh)"
+  sudo chsh -s "$(which zsh)"
 fi
 
 if [ -d "${HOME}/.oh-my-zsh" ]; then
