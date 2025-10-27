@@ -42,14 +42,11 @@ if command -v nodenv >/dev/null 2>&1; then
     echo "Node.js ${NODE_VERSION} is already the global version"
   fi
 
-  # Rehash to refresh shims
-  nodenv rehash
-
   # Show installed version
   echo "Using Node.js version: $(node -v)"
 fi
 
-NODE_PACKAGES=(ngrok)
+NODE_PACKAGES=(@anthropic-ai/claude-code ngrok)
 for pkg in "${NODE_PACKAGES[@]}"; do
   if npm list -g --depth=0 | grep -q " ${pkg}@"; then
     printf "Updating %s\n" "${pkg}"
@@ -59,3 +56,7 @@ for pkg in "${NODE_PACKAGES[@]}"; do
     npm install -g "${pkg}"
   fi
 done
+
+if command -v nodenv >/dev/null 2>&1; then
+  nodenv rehash
+fi
