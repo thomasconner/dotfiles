@@ -17,5 +17,3 @@
   defaultBranch = main
 [pull]
   ff = only
-[user]
-  name = Thomas Conner

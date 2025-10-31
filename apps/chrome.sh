@@ -20,14 +20,16 @@ echo "Google Chrome is not installed. Installing..."
 ensure_wget_installed
 
 # Download and install Chrome
-cd /tmp
+TEMP_DIR=$(mktemp -d)
+cd "$TEMP_DIR"
 wget -q -O google-chrome-stable_current_amd64.deb https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb
 sudo dpkg -i google-chrome-stable_current_amd64.deb
 
 # Fix any dependency issues
-sudo apt-get install -f -y
+sudo apt install -f -y
 
 # Clean up
-rm -f google-chrome-stable_current_amd64.deb
+cd - > /dev/null
+rm -rf "$TEMP_DIR"
 
 echo "Google Chrome installed successfully: $(google-chrome --version)"

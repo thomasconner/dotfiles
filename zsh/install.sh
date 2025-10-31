@@ -31,6 +31,12 @@ ln -sf "${SCRIPT_DIR}/../shell/aliases.zsh" "${HOME}/.oh-my-zsh/custom/aliases.z
 ln -sf "${SCRIPT_DIR}/../shell/exports.zsh" "${HOME}/.oh-my-zsh/custom/exports.zsh"
 ln -sf "${SCRIPT_DIR}/../shell/path.zsh" "${HOME}/.oh-my-zsh/custom/path.zsh"
 
+# Copy exports.local.zsh if it doesn't exist (like .gitconfig.local)
+if [ ! -f "${HOME}/.oh-my-zsh/custom/exports.local.zsh" ]; then
+  cp "${SCRIPT_DIR}/../shell/exports.local.zsh" "${HOME}/.oh-my-zsh/custom/exports.local.zsh"
+  echo "Created ${HOME}/.oh-my-zsh/custom/exports.local.zsh - Please customize it!"
+fi
+
 # Install zsh plugins
 ensure_git_repo "https://github.com/zsh-users/zsh-autosuggestions" "${HOME}/.oh-my-zsh/custom/plugins/zsh-autosuggestions"
 ensure_git_repo "https://github.com/zsh-users/zsh-completions.git" "${HOME}/.oh-my-zsh/custom/plugins/zsh-completions"

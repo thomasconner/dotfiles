@@ -18,15 +18,17 @@ echo "Slack is not installed. Installing..."
 
 ensure_wget_installed
 
-# Download and install Slack
-cd /tmp
-wget -O slack-desktop.deb https://downloads.slack-edge.com/releases/linux/4.38.125/prod/x64/slack-desktop-4.38.125-amd64.deb
+# Download and install Slack (latest version)
+TEMP_DIR=$(mktemp -d)
+cd "$TEMP_DIR"
+wget -O slack-desktop.deb https://downloads.slack-edge.com/releases/linux/slack-desktop-amd64.deb
 sudo dpkg -i slack-desktop.deb
 
 # Fix any dependency issues
-sudo apt-get install -f -y
+sudo apt install -f -y
 
 # Clean up
-rm -f slack-desktop.deb
+cd - > /dev/null
+rm -rf "$TEMP_DIR"
 
 echo "Slack installed successfully"

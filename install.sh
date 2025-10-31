@@ -6,6 +6,7 @@ set -e
 # Installation
 ###
 ./apps/install.sh
+./cli/install.sh
 ./fonts/install.sh
 ./git/install.sh
 ./node/install.sh

@@ -4,6 +4,10 @@ set -e
 
 echo "Nerd Fonts installation"
 
+# Source shared utilities
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+source "$SCRIPT_DIR/../scripts/utils.sh"
+
 # Nerd Fonts to install
 FONTS=("FiraCode" "JetBrainsMono" "Hack" "Ubuntu" "UbuntuMono")
 
@@ -15,11 +19,8 @@ FONT_DIR="$HOME/.local/share/fonts"
 
 mkdir -p "$FONT_DIR"
 
-if ! command -v wget >/dev/null 2>&1; then
-  echo "wget is not installed. Installing..."
-  sudo apt update
-  sudo apt install -y wget
-fi
+ensure_wget_installed
+ensure_unzip_installed
 
 for FONT in "${FONTS[@]}"; do
   FONT_FILE=$(find "$FONT_DIR" -iname "${FONT}*.ttf" -o -iname "${FONT}*.otf" | head -n 1)

@@ -41,6 +41,16 @@ ensure_gpg_installed() {
   fi
 }
 
+# Ensure unzip is installed
+ensure_unzip_installed() {
+  if ! command -v unzip >/dev/null 2>&1; then
+    echo "unzip is not installed. Installing..."
+    sudo apt update
+    sudo apt install -y unzip
+    echo "unzip installed successfully"
+  fi
+}
+
 # Check if a directory exists and is a git repository, then pull or clone
 ensure_git_repo() {
   local repo_url="$1"
