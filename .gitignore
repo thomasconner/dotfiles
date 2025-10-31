@@ -1,0 +1,17 @@
+# Claude Code local settings
+.claude/
+
+# Backup files
+*.backup-*
+
+# macOS
+.DS_Store
+
+# Vim
+*.swp
+*.swo
+*~
+
+# Temporary files
+*.tmp
+.temp/

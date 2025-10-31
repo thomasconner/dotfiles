@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-set -e
+set -euo pipefail
 
 echo "CLI tools installation (gh, kubectl, doctl)"
 
@@ -58,13 +58,12 @@ if command -v kubectl >/dev/null 2>&1; then
     echo "Updating kubectl from $CURRENT_VERSION to $LATEST_VERSION..."
 
     TEMP_DIR=$(mktemp -d)
+    register_cleanup_trap "$TEMP_DIR"
     cd "$TEMP_DIR"
     curl -LO "https://dl.k8s.io/release/${LATEST_VERSION}/bin/linux/amd64/kubectl"
     curl -LO "https://dl.k8s.io/release/${LATEST_VERSION}/bin/linux/amd64/kubectl.sha256"
     echo "$(cat kubectl.sha256)  kubectl" | sha256sum --check
     sudo install -o root -g root -m 0755 kubectl /usr/local/bin/kubectl
-    cd - > /dev/null
-    rm -rf "$TEMP_DIR"
 
     echo "kubectl updated: $(kubectl version --client --short 2>/dev/null || kubectl version --client)"
   else
@@ -74,13 +73,12 @@ else
   echo "Installing kubectl ${LATEST_VERSION}..."
 
   TEMP_DIR=$(mktemp -d)
+  register_cleanup_trap "$TEMP_DIR"
   cd "$TEMP_DIR"
   curl -LO "https://dl.k8s.io/release/${LATEST_VERSION}/bin/linux/amd64/kubectl"
   curl -LO "https://dl.k8s.io/release/${LATEST_VERSION}/bin/linux/amd64/kubectl.sha256"
   echo "$(cat kubectl.sha256)  kubectl" | sha256sum --check
   sudo install -o root -g root -m 0755 kubectl /usr/local/bin/kubectl
-  cd - > /dev/null
-  rm -rf "$TEMP_DIR"
 
   echo "kubectl installed: $(kubectl version --client --short 2>/dev/null || kubectl version --client)"
 fi
@@ -101,11 +99,10 @@ if command -v doctl >/dev/null 2>&1; then
     echo "Updating doctl from $CURRENT_VERSION to $LATEST_VERSION..."
 
     TEMP_DIR=$(mktemp -d)
+    register_cleanup_trap "$TEMP_DIR"
     cd "$TEMP_DIR"
     curl -sL "https://github.com/digitalocean/doctl/releases/download/v${LATEST_VERSION}/doctl-${LATEST_VERSION}-linux-amd64.tar.gz" | tar -xz
     sudo install -o root -g root -m 0755 doctl /usr/local/bin/doctl
-    cd - > /dev/null
-    rm -rf "$TEMP_DIR"
 
     echo "doctl updated: $(doctl version)"
   else
@@ -115,11 +112,10 @@ else
   echo "Installing doctl ${LATEST_VERSION}..."
 
   TEMP_DIR=$(mktemp -d)
+  register_cleanup_trap "$TEMP_DIR"
   cd "$TEMP_DIR"
   curl -sL "https://github.com/digitalocean/doctl/releases/download/v${LATEST_VERSION}/doctl-${LATEST_VERSION}-linux-amd64.tar.gz" | tar -xz
   sudo install -o root -g root -m 0755 doctl /usr/local/bin/doctl
-  cd - > /dev/null
-  rm -rf "$TEMP_DIR"
 
   echo "doctl installed: $(doctl version)"
 fi

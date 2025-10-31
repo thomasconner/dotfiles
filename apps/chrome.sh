@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-set -e
+set -euo pipefail
 
 echo "Google Chrome installation"
 
@@ -21,15 +21,12 @@ ensure_wget_installed
 
 # Download and install Chrome
 TEMP_DIR=$(mktemp -d)
+register_cleanup_trap "$TEMP_DIR"
 cd "$TEMP_DIR"
 wget -q -O google-chrome-stable_current_amd64.deb https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb
 sudo dpkg -i google-chrome-stable_current_amd64.deb
 
 # Fix any dependency issues
 sudo apt install -f -y
-
-# Clean up
-cd - > /dev/null
-rm -rf "$TEMP_DIR"
 
 echo "Google Chrome installed successfully: $(google-chrome --version)"

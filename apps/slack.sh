@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-set -e
+set -euo pipefail
 
 echo "Slack installation"
 
@@ -20,15 +20,12 @@ ensure_wget_installed
 
 # Download and install Slack (latest version)
 TEMP_DIR=$(mktemp -d)
+register_cleanup_trap "$TEMP_DIR"
 cd "$TEMP_DIR"
 wget -O slack-desktop.deb https://downloads.slack-edge.com/releases/linux/slack-desktop-amd64.deb
 sudo dpkg -i slack-desktop.deb
 
 # Fix any dependency issues
 sudo apt install -f -y
-
-# Clean up
-cd - > /dev/null
-rm -rf "$TEMP_DIR"
 
 echo "Slack installed successfully"

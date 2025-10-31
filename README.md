@@ -27,10 +27,49 @@ cd ~/.dotfiles
 ./containers.sh
 ```
 
+### Installation Options
+```bash
+./install.sh --help        # Show all available options
+./install.sh --dry-run     # Preview changes without installing
+./install.sh --verbose     # Show detailed output
+./install.sh --version     # Show version information
+```
+
+### Testing
+```bash
+./test.sh                  # Run automated tests in Docker
+```
+
 ### Post-Installation
 ```bash
 omz update  # Update Oh My Zsh (manual step)
 ```
+
+## New Features (v2.0.0)
+
+### Robustness & Safety
+- ✅ **Enhanced Error Handling**: All scripts use `set -euo pipefail` for better error detection
+- ✅ **Automatic Cleanup**: Temporary directories cleaned up on exit/failure
+- ✅ **File Backups**: Existing config files backed up before modification
+- ✅ **Dry-Run Mode**: Preview changes with `--dry-run` flag
+- ✅ **Verbose Mode**: Debug output with `--verbose` flag
+
+### Code Quality
+- ✅ **Colored Logging**: Structured logging with levels (INFO, SUCCESS, WARNING, ERROR)
+- ✅ **ShellCheck Integration**: Linting configuration for code quality
+- ✅ **Automated Testing**: Docker-based tests for Ubuntu 20.04, 22.04, 24.04
+- ✅ **GitHub Actions CI**: Automated testing on every commit
+
+### Cross-Platform Support
+- ✅ **Multi-OS Detection**: Automatic OS/distribution detection
+- ✅ **Package Manager Abstraction**: Works with apt, dnf, pacman, brew, pkg
+- ✅ **Platform-Specific Logic**: Handles OS-specific package names
+
+### Developer Experience
+- ✅ **Progress Indicators**: Spinner animations for long-running operations
+- ✅ **Version Tracking**: Semver versioning with `--version` flag
+- ✅ **Help System**: Comprehensive help with `--help` flag
+- ✅ **Safe Symlinks**: Backup before overwriting with dry-run support
 
 ## Components
 

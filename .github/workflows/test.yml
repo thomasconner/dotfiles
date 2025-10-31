@@ -1,0 +1,99 @@
+name: Test Dotfiles
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+  workflow_dispatch:
+
+jobs:
+  shellcheck:
+    name: ShellCheck
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Run ShellCheck
+        uses: ludeeus/action-shellcheck@master
+        with:
+          scandir: '.'
+          severity: warning
+          additional_files: '*.sh'
+
+  test-ubuntu:
+    name: Test on Ubuntu ${{ matrix.ubuntu-version }}
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        ubuntu-version: ['20.04', '22.04', '24.04']
+      fail-fast: false
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Test dry-run mode
+        run: ./containers.sh --dry-run
+
+      - name: Run installation
+        run: ./containers.sh
+
+      - name: Verify installations
+        run: |
+          command -v git || exit 1
+          command -v zsh || exit 1
+          command -v gh || exit 1
+          command -v kubectl || exit 1
+          command -v doctl || exit 1
+
+      - name: Verify config files
+        run: |
+          [ -f ~/.gitconfig ] || exit 1
+          [ -f ~/.zshrc ] || exit 1
+
+      - name: Test version flag
+        run: ./containers.sh --version
+
+  test-ubuntu-full:
+    name: Test Full Installation (Desktop)
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Test dry-run mode
+        run: ./install.sh --dry-run
+
+      - name: Run installation (skip GUI apps)
+        run: |
+          # Run everything except GUI apps for CI
+          ./cli/install.sh
+          ./fonts/install.sh
+          ./git/install.sh
+          ./node/install.sh
+          ./ruby/install.sh
+          ./zsh/install.sh
+
+      - name: Verify CLI tools
+        run: |
+          command -v git || exit 1
+          command -v zsh || exit 1
+          command -v gh || exit 1
+          command -v kubectl || exit 1
+          command -v doctl || exit 1
+          command -v node || exit 1
+          command -v ruby || exit 1
+
+      - name: Verify versions
+        run: |
+          git --version
+          zsh --version
+          gh --version
+          kubectl version --client
+          doctl version
+          node --version
+          ruby --version
