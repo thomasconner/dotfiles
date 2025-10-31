@@ -20,12 +20,12 @@ if command -v gh >/dev/null 2>&1; then
     echo "Adding gh repository for future updates..."
     ensure_curl_installed
     ensure_gpg_installed
-    curl -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg | sudo gpg --dearmor -o /usr/share/keyrings/githubcli-archive-keyring.gpg
-    echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/githubcli-archive-keyring.gpg] https://cli.github.com/packages stable main" | sudo tee /etc/apt/sources.list.d/github-cli.list > /dev/null
+    curl -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg | maybe_sudo gpg --dearmor -o /usr/share/keyrings/githubcli-archive-keyring.gpg
+    echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/githubcli-archive-keyring.gpg] https://cli.github.com/packages stable main" | maybe_sudo tee /etc/apt/sources.list.d/github-cli.list > /dev/null
   fi
 
-  sudo apt update
-  sudo apt upgrade -y gh
+  maybe_sudo apt update
+  maybe_sudo apt upgrade -y gh
   echo "gh is up to date: $(gh --version | head -n1)"
 else
   echo "Installing gh (GitHub CLI)..."
@@ -33,11 +33,11 @@ else
   ensure_gpg_installed
 
   # Add GitHub CLI repository
-  curl -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg | sudo gpg --dearmor -o /usr/share/keyrings/githubcli-archive-keyring.gpg
-  echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/githubcli-archive-keyring.gpg] https://cli.github.com/packages stable main" | sudo tee /etc/apt/sources.list.d/github-cli.list > /dev/null
+  curl -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg | maybe_sudo gpg --dearmor -o /usr/share/keyrings/githubcli-archive-keyring.gpg
+  echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/githubcli-archive-keyring.gpg] https://cli.github.com/packages stable main" | maybe_sudo tee /etc/apt/sources.list.d/github-cli.list > /dev/null
 
-  sudo apt update
-  sudo apt install -y gh
+  maybe_sudo apt update
+  maybe_sudo apt install -y gh
 
   echo "gh installed: $(gh --version | head -n1)"
 fi
@@ -63,7 +63,7 @@ if command -v kubectl >/dev/null 2>&1; then
     curl -LO "https://dl.k8s.io/release/${LATEST_VERSION}/bin/linux/amd64/kubectl"
     curl -LO "https://dl.k8s.io/release/${LATEST_VERSION}/bin/linux/amd64/kubectl.sha256"
     echo "$(cat kubectl.sha256)  kubectl" | sha256sum --check
-    sudo install -o root -g root -m 0755 kubectl /usr/local/bin/kubectl
+    maybe_sudo install -o root -g root -m 0755 kubectl /usr/local/bin/kubectl
 
     echo "kubectl updated: $(kubectl version --client --short 2>/dev/null || kubectl version --client)"
   else
@@ -78,7 +78,7 @@ else
   curl -LO "https://dl.k8s.io/release/${LATEST_VERSION}/bin/linux/amd64/kubectl"
   curl -LO "https://dl.k8s.io/release/${LATEST_VERSION}/bin/linux/amd64/kubectl.sha256"
   echo "$(cat kubectl.sha256)  kubectl" | sha256sum --check
-  sudo install -o root -g root -m 0755 kubectl /usr/local/bin/kubectl
+  maybe_sudo install -o root -g root -m 0755 kubectl /usr/local/bin/kubectl
 
   echo "kubectl installed: $(kubectl version --client --short 2>/dev/null || kubectl version --client)"
 fi
@@ -102,7 +102,7 @@ if command -v doctl >/dev/null 2>&1; then
     register_cleanup_trap "$TEMP_DIR"
     cd "$TEMP_DIR"
     curl -sL "https://github.com/digitalocean/doctl/releases/download/v${LATEST_VERSION}/doctl-${LATEST_VERSION}-linux-amd64.tar.gz" | tar -xz
-    sudo install -o root -g root -m 0755 doctl /usr/local/bin/doctl
+    maybe_sudo install -o root -g root -m 0755 doctl /usr/local/bin/doctl
 
     echo "doctl updated: $(doctl version)"
   else
@@ -115,7 +115,7 @@ else
   register_cleanup_trap "$TEMP_DIR"
   cd "$TEMP_DIR"
   curl -sL "https://github.com/digitalocean/doctl/releases/download/v${LATEST_VERSION}/doctl-${LATEST_VERSION}-linux-amd64.tar.gz" | tar -xz
-  sudo install -o root -g root -m 0755 doctl /usr/local/bin/doctl
+  maybe_sudo install -o root -g root -m 0755 doctl /usr/local/bin/doctl
 
   echo "doctl installed: $(doctl version)"
 fi

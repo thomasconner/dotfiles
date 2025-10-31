@@ -11,8 +11,8 @@ source "$SCRIPT_DIR/../../scripts/utils.sh"
 if command -v tmux >/dev/null 2>&1; then
   echo "tmux is installed: $(tmux -V)"
 else
-  sudo apt update
-  sudo apt install -y tmux
+  maybe_sudo apt update
+  maybe_sudo apt install -y tmux
 fi
 
 ln -sf "$SCRIPT_DIR/.tmux.conf" "${HOME}/.tmux.conf"

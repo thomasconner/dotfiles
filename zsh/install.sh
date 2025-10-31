@@ -9,9 +9,12 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 source "$SCRIPT_DIR/../scripts/utils.sh"
 
 if [ "$SHELL" != "$(which zsh)" ]; then
-  sudo apt update
-  sudo apt install -y zsh
-  sudo chsh -s "$(which zsh)"
+  maybe_sudo apt update
+  maybe_sudo apt install -y zsh
+  # Only try to change shell if not root and not in Docker/CI
+  if [ "$EUID" -ne 0 ] && [ -t 0 ]; then
+    maybe_sudo chsh -s "$(which zsh)"
+  fi
 fi
 
 if [ -d "${HOME}/.oh-my-zsh" ]; then

@@ -24,9 +24,9 @@ TEMP_DIR=$(mktemp -d)
 register_cleanup_trap "$TEMP_DIR"
 cd "$TEMP_DIR"
 wget -q -O google-chrome-stable_current_amd64.deb https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb
-sudo dpkg -i google-chrome-stable_current_amd64.deb
+maybe_sudo dpkg -i google-chrome-stable_current_amd64.deb
 
 # Fix any dependency issues
-sudo apt install -f -y
+maybe_sudo apt install -f -y
 
 echo "Google Chrome installed successfully: $(google-chrome --version)"

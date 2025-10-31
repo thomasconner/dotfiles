@@ -76,5 +76,6 @@ fi
 ###
 # Installation
 ###
+./cli/install.sh
 ./git/install.sh
 ./zsh/install.sh

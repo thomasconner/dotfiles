@@ -260,6 +260,15 @@ get_package_manager() {
   esac
 }
 
+# Helper to run command with sudo if not root
+maybe_sudo() {
+  if [ "$EUID" -eq 0 ]; then
+    "$@"
+  else
+    sudo "$@"
+  fi
+}
+
 # Install a package using the appropriate package manager
 install_package() {
   local package="$1"
@@ -278,20 +287,20 @@ install_package() {
 
   case "$pm" in
     apt)
-      sudo apt update
-      sudo apt install -y "$package"
+      maybe_sudo apt update
+      maybe_sudo apt install -y "$package"
       ;;
     dnf)
-      sudo dnf install -y "$package"
+      maybe_sudo dnf install -y "$package"
       ;;
     pacman)
-      sudo pacman -S --noconfirm "$package"
+      maybe_sudo pacman -S --noconfirm "$package"
       ;;
     brew)
       brew install "$package"
       ;;
     pkg)
-      sudo pkg install -y "$package"
+      maybe_sudo pkg install -y "$package"
       ;;
     *)
       log_error "Unsupported package manager or OS: $pm ($os)"

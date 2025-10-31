@@ -24,8 +24,8 @@ else
 fi
 
 if command -v rbenv >/dev/null 2>&1; then
-  sudo apt update
-  sudo apt install -y build-essential autoconf libssl-dev libyaml-dev zlib1g-dev libffi-dev libgmp-dev rustc
+  maybe_sudo apt update
+  maybe_sudo apt install -y build-essential autoconf libssl-dev libyaml-dev zlib1g-dev libffi-dev libgmp-dev rustc
 
   RUBY_VERSION=3.4.5
   echo "Ensuring Ruby ${RUBY_VERSION} with rbenv"

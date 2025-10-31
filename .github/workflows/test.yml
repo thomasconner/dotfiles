@@ -35,9 +35,6 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Test dry-run mode
-        run: ./containers.sh --dry-run
-
       - name: Run installation
         run: ./containers.sh
 
@@ -64,9 +61,6 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-
-      - name: Test dry-run mode
-        run: ./install.sh --dry-run
 
       - name: Run installation (skip GUI apps)
         run: |

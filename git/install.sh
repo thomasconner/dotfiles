@@ -4,7 +4,12 @@ set -euo pipefail
 
 echo "git configuration"
 
+# Source shared utilities
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+source "$SCRIPT_DIR/../scripts/utils.sh"
+
+# Ensure git is installed
+ensure_git_installed
 
 # Check if the file exists
 if [ ! -f "${HOME}/.gitconfig.local" ]; then

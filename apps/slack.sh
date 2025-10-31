@@ -23,9 +23,9 @@ TEMP_DIR=$(mktemp -d)
 register_cleanup_trap "$TEMP_DIR"
 cd "$TEMP_DIR"
 wget -O slack-desktop.deb https://downloads.slack-edge.com/releases/linux/slack-desktop-amd64.deb
-sudo dpkg -i slack-desktop.deb
+maybe_sudo dpkg -i slack-desktop.deb
 
 # Fix any dependency issues
-sudo apt install -f -y
+maybe_sudo apt install -f -y
 
 echo "Slack installed successfully"

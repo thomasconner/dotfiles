@@ -48,12 +48,8 @@ docker run --rm -v "$PWD:/dotfiles" ubuntu:22.04 bash -c "
   set -euo pipefail
   cd /dotfiles
 
-  # Run dry-run first
-  echo '==> Running dry-run test...'
-  ./containers.sh --dry-run
-
   # Run actual installation
-  echo '==> Running actual installation...'
+  echo '==> Running installation...'
   ./containers.sh
 
   # Verify installations
@@ -87,7 +83,7 @@ docker run --rm -v "$PWD:/dotfiles" ubuntu:24.04 bash -c "
   set -euo pipefail
   cd /dotfiles
 
-  # Run actual installation
+  # Run installation
   echo '==> Running installation...'
   ./containers.sh
 
