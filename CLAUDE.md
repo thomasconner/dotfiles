@@ -51,6 +51,55 @@ Example:
 
 Each script handles its own dependencies and will install required tools (git, curl, wget, gpg) as needed.
 
+### System Updates
+```bash
+./update.sh [OPTIONS]
+```
+Updates all installed components including system packages, dotfiles components, and development tools. Supports the same options as installation scripts.
+
+The update script handles:
+- **System packages**: Uses the detected package manager (apt, dnf, pacman, brew, pkg) to upgrade all installed packages and clean up orphaned packages
+- **Firmware updates**: Runs fwupdmgr to check and apply firmware updates
+- **Oh My Zsh**: Updates the framework and all installed plugins (zsh-autosuggestions, zsh-completions)
+- **Pure prompt**: Updates the Pure theme from its git repository
+- **Version managers**: Updates nodenv, rbenv, and their plugin managers (node-build, ruby-build)
+- **CLI tools**: Updates gh (GitHub CLI) via package manager, provides version info and update links for kubectl, doctl, helm
+- **Global packages**: Updates npm global packages and Ruby gems
+
+Example:
+```bash
+./update.sh --dry-run    # Preview what would be updated
+./update.sh --verbose    # Show detailed update steps
+```
+
+### System Report
+```bash
+./report.sh [OPTIONS]
+```
+Generates a comprehensive system report showing installed tools, hardware, and environment configuration. This is useful for troubleshooting, documentation, or verifying your setup.
+
+The report includes:
+- **System Information**: OS distribution, kernel version, architecture, hostname, uptime, load average, and container detection
+- **Hardware Information**: CPU model and core count, memory (total/used/available), disk space for root and home partitions
+- **Installed Tools**: Versions of all tools from this dotfiles repository including:
+  - Package managers: nodenv, rbenv
+  - Programming languages: Node.js, npm, Ruby, gem, Go, Python
+  - Shell & terminal: zsh, tmux, bash
+  - Version control: git, gh (GitHub CLI)
+  - CLI tools: jq, kubectl, doctl, helm, Docker
+  - Applications: VSCode, Chrome, Slack
+  - Global packages: npm globals (@anthropic-ai/claude-code, ngrok) and Ruby gems (colorls)
+- **Environment Details**: Current shell, default shell, package manager, OS type, user info, terminal info, color support, editor, important paths (Oh My Zsh, nodenv, rbenv), Git configuration (user name/email), Docker status, SSH key count
+
+Example:
+```bash
+./report.sh              # Generate full system report
+./report.sh --verbose    # Show debug output
+./report.sh --help       # Show help message
+```
+
+The script gracefully handles missing tools and failed version checks, making it safe to run on partial installations.
+
 ## Architecture
 
 ### Component Structure
@@ -64,6 +113,13 @@ Each top-level directory represents a self-contained component:
 - `shell/`: Shared shell configuration (aliases.zsh, exports.zsh, path.zsh)
 - `zsh/`: Zsh setup including Oh My Zsh and .zshrc
 - `scripts/`: Shared utility functions used across install scripts
+
+Top-level scripts:
+- `install.sh`: Full desktop installation orchestrator
+- `containers.sh`: Minimal container/server installation orchestrator
+- `update.sh`: Comprehensive update script for all components
+- `report.sh`: System report generator showing installed tools, hardware, and environment
+- `test.sh`: Docker-based testing framework
 
 ### Shared Utilities (`scripts/utils.sh`)
 Provides reusable functions sourced by all install scripts:
@@ -159,6 +215,14 @@ The Pure prompt theme is:
 3. Loaded via `autoload -U promptinit; promptinit; prompt pure`
 
 ## Making Changes
+
+### Updating Existing Tools
+Use `./update.sh` to update all components at once, or run it with `--dry-run` to preview updates. The update script is idempotent and safe to run multiple times. For individual component updates, you can:
+- Re-run any component's `install.sh` script (they are idempotent)
+- Update git-based components manually with `git pull --ff-only` in their directories
+- Use package manager directly for system packages
+
+The update script is the recommended approach as it handles all components consistently and provides structured logging.
 
 ### Adding New Tools
 1. Create a new directory or add to existing component (e.g., `cli/`)

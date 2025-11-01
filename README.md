@@ -40,10 +40,23 @@ cd ~/.dotfiles
 ./test.sh                  # Run automated tests in Docker
 ```
 
-### Post-Installation
+### Updating
 ```bash
-omz update  # Update Oh My Zsh (manual step)
+./update.sh                # Update all components
+./update.sh --dry-run      # Preview updates
 ```
+
+### System Report
+```bash
+./report.sh                # Generate comprehensive system report
+./report.sh --verbose      # Report with debug output
+```
+
+Generate a detailed report showing:
+- **System Info**: OS, kernel, architecture, uptime, load average
+- **Hardware**: CPU, memory, disk usage
+- **Installed Tools**: Versions of all dotfiles components
+- **Environment**: Shell, package manager, Docker status, Git config, SSH keys
 
 ## New Features (v2.0.0)
 
@@ -203,7 +216,22 @@ Extend `shell/exports.zsh` with project-specific environment variables.
 ## Maintenance
 
 ### Updates
-- Run `omz update` periodically to update Oh My Zsh
+```bash
+./update.sh              # Update all components (system packages, dotfiles, tools)
+./update.sh --dry-run    # Preview what would be updated
+./update.sh --verbose    # Show detailed update output
+```
+
+The update script handles:
+- System package updates (apt, dnf, pacman, brew, etc.)
+- Firmware updates (fwupd)
+- Oh My Zsh and zsh plugins
+- Version managers (nodenv, rbenv)
+- CLI tools (gh, kubectl, helm, doctl)
+- NPM global packages and Ruby gems
+
+You can also update components individually:
+- Run `omz update` to update Oh My Zsh only
 - Re-run `./install.sh` to update language versions and packages
 - Individual components can be updated with their specific install scripts
 
