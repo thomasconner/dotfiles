@@ -2,11 +2,22 @@
 
 set -euo pipefail
 
-echo "CLI tools installation (gh, kubectl, doctl)"
+echo "CLI tools installation (jq, gh, kubectl, doctl)"
 
 # Source shared utilities
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 source "$SCRIPT_DIR/../scripts/utils.sh"
+
+###
+# jq (JSON processor)
+###
+if command -v jq >/dev/null 2>&1; then
+  echo "jq is already installed: $(jq --version)"
+else
+  echo "Installing jq..."
+  install_package jq
+  echo "jq installed: $(jq --version)"
+fi
 
 ###
 # GitHub CLI (gh)
