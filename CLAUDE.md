@@ -23,7 +23,7 @@ Installs all components: apps, CLI tools, fonts, git config, Node.js, Ruby, and 
 ```bash
 ./containers.sh [OPTIONS]
 ```
-Installs only: CLI tools (jq, gh, kubectl, doctl), git config, and zsh. Excludes desktop apps and fonts.
+Installs only: CLI tools (jq, gh, kubectl, doctl, helm), git config, and zsh. Excludes desktop apps and fonts.
 
 ### Installation Options
 All installation scripts support these flags:
@@ -41,7 +41,7 @@ Example:
 ### Individual Component Installation
 ```bash
 ./apps/install.sh      # Desktop apps (Chrome, Slack, VSCode, tmux)
-./cli/install.sh       # CLI tools (jq, gh, kubectl, doctl)
+./cli/install.sh       # CLI tools (jq, gh, kubectl, doctl, helm)
 ./fonts/install.sh     # Nerd Fonts for terminal
 ./git/install.sh       # Git configuration and aliases
 ./node/install.sh      # Node.js via nodenv + global packages
@@ -56,7 +56,7 @@ Each script handles its own dependencies and will install required tools (git, c
 ### Component Structure
 Each top-level directory represents a self-contained component:
 - `apps/`: Desktop applications with individual install scripts
-- `cli/`: Command-line tools (jq, gh, kubectl, doctl)
+- `cli/`: Command-line tools (jq, gh, kubectl, doctl, helm)
 - `fonts/`: Nerd Fonts installation
 - `git/`: Git configuration files (.gitconfig, .gitignore, .gitconfig.local)
 - `node/`: Node.js version management via nodenv

@@ -2,7 +2,7 @@
 
 set -euo pipefail
 
-echo "CLI tools installation (jq, gh, kubectl, doctl)"
+echo "CLI tools installation (jq, gh, kubectl, doctl, helm)"
 
 # Source shared utilities
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
@@ -129,6 +129,45 @@ else
   maybe_sudo install -o root -g root -m 0755 doctl /usr/local/bin/doctl
 
   echo "doctl installed: $(doctl version)"
+fi
+
+###
+# helm (Kubernetes package manager)
+###
+ensure_curl_installed
+
+# Get latest version from GitHub
+LATEST_VERSION=$(curl -s https://api.github.com/repos/helm/helm/releases/latest | grep '"tag_name"' | sed -E 's/.*"v([^"]+)".*/\1/')
+
+if command -v helm >/dev/null 2>&1; then
+  CURRENT_VERSION=$(helm version --short | grep -oP 'v\K[0-9.]+')
+  echo "helm is installed: $CURRENT_VERSION"
+
+  if [ "$CURRENT_VERSION" != "$LATEST_VERSION" ]; then
+    echo "Updating helm from $CURRENT_VERSION to $LATEST_VERSION..."
+
+    TEMP_DIR=$(mktemp -d)
+    register_cleanup_trap "$TEMP_DIR"
+    cd "$TEMP_DIR"
+    curl -fsSL "https://get.helm.sh/helm-v${LATEST_VERSION}-linux-amd64.tar.gz" -o helm.tar.gz
+    tar -xzf helm.tar.gz
+    maybe_sudo install -o root -g root -m 0755 linux-amd64/helm /usr/local/bin/helm
+
+    echo "helm updated: $(helm version --short)"
+  else
+    echo "helm is already up to date"
+  fi
+else
+  echo "Installing helm ${LATEST_VERSION}..."
+
+  TEMP_DIR=$(mktemp -d)
+  register_cleanup_trap "$TEMP_DIR"
+  cd "$TEMP_DIR"
+  curl -fsSL "https://get.helm.sh/helm-v${LATEST_VERSION}-linux-amd64.tar.gz" -o helm.tar.gz
+  tar -xzf helm.tar.gz
+  maybe_sudo install -o root -g root -m 0755 linux-amd64/helm /usr/local/bin/helm
+
+  echo "helm installed: $(helm version --short)"
 fi
 
 echo "CLI tools installation complete!"
