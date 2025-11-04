@@ -7,7 +7,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 This is a modular dotfiles repository for Linux development environments with cross-platform support (v2.0.0). The architecture emphasizes:
 - **Idempotent installations**: All scripts can be run multiple times safely
 - **Component modularity**: Each component has its own self-contained install script
-- **Two deployment modes**: Full desktop installation (`install.sh`) and minimal container installation (`containers.sh`)
+- **Two deployment modes**: Full desktop installation (`install.sh`) and minimal devcontainer installation (`devcontainer.sh`)
 - **Cross-platform compatibility**: Supports Ubuntu, Debian, Fedora, Arch, macOS, FreeBSD, and Ubuntu derivatives (Linux Mint, Pop!_OS, etc.)
 - **Docker/container ready**: Works in both root and non-root environments
 
@@ -18,12 +18,6 @@ This is a modular dotfiles repository for Linux development environments with cr
 ./install.sh [OPTIONS]
 ```
 Installs all components: apps, CLI tools, fonts, git config, Node.js, Ruby, and zsh.
-
-### Container/Minimal Installation
-```bash
-./containers.sh [OPTIONS]
-```
-Installs only: CLI tools (jq, gh, kubectl, doctl, helm, age, sops, terraform), git config, and zsh. Excludes desktop apps and fonts.
 
 ### DevContainer Installation
 ```bash
@@ -56,6 +50,20 @@ Example:
 ```
 
 Each script handles its own dependencies and will install required tools (git, curl, wget, gpg) as needed.
+
+### Installation Mode Comparison
+
+| Component | `install.sh` | `devcontainer.sh` | Individual Scripts |
+|-----------|--------------|-------------------|--------------------|
+| Desktop Apps | ✅ | ❌ | `./apps/install.sh` |
+| CLI Tools | ✅ | ❌ | `./cli/install.sh` |
+| Fonts | ✅ | ❌ | `./fonts/install.sh` |
+| Git Config | ✅ | ❌ | `./git/install.sh` |
+| Node.js | ✅ | ❌ | `./node/install.sh` |
+| Ruby | ✅ | ❌ | `./ruby/install.sh` |
+| Zsh/Shell | ✅ | ✅ | `./zsh/install.sh` |
+
+For traditional containers/servers, run individual component scripts as needed instead of using a monolithic installer.
 
 ### System Updates
 ```bash
@@ -122,7 +130,7 @@ Each top-level directory represents a self-contained component:
 
 Top-level scripts:
 - `install.sh`: Full desktop installation orchestrator
-- `containers.sh`: Minimal container/server installation orchestrator
+- `devcontainer.sh`: VS Code DevContainer installation (shell/prompt only)
 - `update.sh`: Comprehensive update script for all components
 - `report.sh`: System report generator showing installed tools, hardware, and environment
 - `test.sh`: Docker-based testing framework
@@ -237,7 +245,7 @@ The update script is the recommended approach as it handles all components consi
    - Checks if already installed before proceeding
    - Handles updates for existing installations
    - Sets `set -e` to fail on errors
-3. Add the script to `install.sh` and/or `containers.sh` as appropriate
+3. Add the script to `install.sh` or call it individually as needed
 4. Make the script executable: `chmod +x path/to/install.sh`
 
 ### Adding Shell Aliases or Environment Variables
@@ -260,6 +268,62 @@ Application scripts (in `apps/`) follow a standard pattern:
 4. Verify installation with version check
 
 See `apps/vscode.sh` or `cli/install.sh` as examples.
+
+## VS Code DevContainer Integration
+
+### Overview
+The `devcontainer.sh` script provides a minimal installation specifically designed for VS Code DevContainers. It follows the principle of separation of concerns:
+- **DevContainer features**: Install development tools (git, gh, kubectl, terraform, node, etc.)
+- **Dotfiles script**: Install shell aesthetics (zsh, prompt, aliases)
+
+### Setup Options
+
+**Option 1: PostCreateCommand (Recommended)**
+Add to your project's `.devcontainer/devcontainer.json`:
+```json
+{
+  "postCreateCommand": "git clone https://github.com/YOUR_USERNAME/dotfiles.git ~/dotfiles && ~/dotfiles/devcontainer.sh"
+}
+```
+
+**Option 2: VS Code Dotfiles Setting**
+Add to `.devcontainer/devcontainer.json`:
+```json
+{
+  "dotfiles": {
+    "repository": "https://github.com/YOUR_USERNAME/dotfiles",
+    "targetPath": "~/dotfiles",
+    "installCommand": "~/dotfiles/devcontainer.sh"
+  }
+}
+```
+
+### Example DevContainer Configuration
+See `.devcontainer/devcontainer.json` for a complete example showing:
+- How to install CLI tools via devcontainer features
+- How to set zsh as the default terminal
+- How to integrate dotfiles automatically
+
+### What Gets Installed
+The `devcontainer.sh` script only installs:
+1. zsh (if not present)
+2. Oh My Zsh framework
+3. Pure prompt theme
+4. Shell configuration (aliases, exports, path)
+5. Zsh plugins (autosuggestions, completions)
+
+It does NOT install:
+- CLI tools (kubectl, helm, terraform, gh, etc.) - use devcontainer features
+- Language version managers (nodenv, rbenv) - use devcontainer features
+- Desktop applications
+- Fonts
+
+### Why This Approach?
+1. **Faster container creation**: Skips tool installation that devcontainer already provides
+2. **No conflicts**: Avoids duplicate or conflicting tool versions
+3. **Declarative**: Tools defined in devcontainer.json, not shell scripts
+4. **Best practices**: Follows VS Code devcontainer conventions
+5. **Idempotent**: Safe to rebuild containers without issues
 
 ## Key Conventions
 
@@ -302,7 +366,7 @@ The repository uses semantic versioning tracked in the `VERSION` file:
 ## Troubleshooting
 
 **VS Code DevContainers:**
-- Use `./devcontainer.sh` instead of `./containers.sh` for minimal setup
+- Use `./devcontainer.sh` for minimal shell/prompt setup
 - This skips CLI tool installation (kubectl, helm, etc.) and only sets up the shell/prompt
 - If you need git config, run `./git/install.sh` separately
 - The script will skip `chsh` if running in a non-interactive environment

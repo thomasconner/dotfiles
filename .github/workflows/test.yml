@@ -23,8 +23,8 @@ jobs:
           severity: warning
           additional_files: '*.sh'
 
-  test-ubuntu:
-    name: Test on Ubuntu ${{ matrix.ubuntu-version }}
+  test-devcontainer:
+    name: Test DevContainer Setup on Ubuntu ${{ matrix.ubuntu-version }}
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -35,24 +35,23 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Run installation
-        run: ./containers.sh
+      - name: Run devcontainer installation
+        run: ./devcontainer.sh
 
-      - name: Verify installations
+      - name: Verify zsh installation
         run: |
-          command -v git || exit 1
           command -v zsh || exit 1
-          command -v gh || exit 1
-          command -v kubectl || exit 1
-          command -v doctl || exit 1
+          [ -d ~/.oh-my-zsh ] || exit 1
+          [ -d ~/.zsh/pure ] || exit 1
 
       - name: Verify config files
         run: |
-          [ -f ~/.gitconfig ] || exit 1
           [ -f ~/.zshrc ] || exit 1
+          [ -f ~/.oh-my-zsh/custom/aliases.zsh ] || exit 1
+          [ -f ~/.oh-my-zsh/custom/exports.zsh ] || exit 1
 
       - name: Test version flag
-        run: ./containers.sh --version
+        run: ./devcontainer.sh --version
 
   test-ubuntu-full:
     name: Test Full Installation (Desktop)

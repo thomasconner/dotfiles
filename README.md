@@ -20,12 +20,22 @@ cd ~/.dotfiles
 ./install.sh
 ```
 
-### Container/Minimal Installation
+### DevContainer Installation (VS Code)
+For VS Code DevContainers, use the minimal setup that only installs shell/prompt:
 ```bash
 git clone https://github.com/thomasconner/dotfiles.git ~/.dotfiles
 cd ~/.dotfiles
-./containers.sh
+./devcontainer.sh
 ```
+
+Or add to your `.devcontainer/devcontainer.json`:
+```json
+{
+  "postCreateCommand": "git clone https://github.com/YOUR_USERNAME/dotfiles.git ~/dotfiles && ~/dotfiles/devcontainer.sh"
+}
+```
+
+See `.devcontainer/README.md` for complete setup examples.
 
 ### Installation Options
 ```bash
@@ -60,6 +70,12 @@ Generate a detailed report showing:
 
 ## New Features (v2.0.0)
 
+### DevContainer Support
+- ✅ **VS Code Integration**: Dedicated `devcontainer.sh` script for DevContainers
+- ✅ **Minimal Installation**: Only installs shell/prompt, not CLI tools
+- ✅ **Example Configuration**: Complete `.devcontainer/` example with features
+- ✅ **Best Practices**: Separates tool installation (features) from shell config (dotfiles)
+
 ### Robustness & Safety
 - ✅ **Enhanced Error Handling**: All scripts use `set -euo pipefail` for better error detection
 - ✅ **Automatic Cleanup**: Temporary directories cleaned up on exit/failure
@@ -85,6 +101,19 @@ Generate a detailed report showing:
 - ✅ **Safe Symlinks**: Backup before overwriting with dry-run support
 
 ## Components
+
+### CLI Tools (`cli/`)
+Command-line tools for cloud, containers, and secrets management:
+- **jq**: JSON processor
+- **gh**: GitHub CLI
+- **kubectl**: Kubernetes CLI
+- **doctl**: DigitalOcean CLI
+- **helm**: Kubernetes package manager
+- **age**: File encryption tool
+- **sops**: Secrets management
+- **terraform**: Infrastructure as code
+
+Note: For DevContainers, use devcontainer features instead of this script.
 
 ### Shell Configuration (`shell/`)
 - **aliases.zsh**: System shortcuts and development aliases
@@ -122,6 +151,13 @@ Generate a detailed report showing:
 - Nerd Fonts installation for enhanced terminal symbols
 
 ## Installation Scripts
+
+### Top-Level Scripts
+- `install.sh`: Full desktop installation (all components)
+- `devcontainer.sh`: VS Code DevContainer installation (shell/prompt only)
+- `update.sh`: Update all installed components
+- `report.sh`: Generate system report
+- `test.sh`: Run automated tests
 
 Each component has its own `install.sh` script that is:
 - **Idempotent**: Safe to run multiple times
@@ -176,10 +212,12 @@ Each component has its own `install.sh` script that is:
 
 ## System Requirements
 
-- **OS**: Linux (Ubuntu/Mint with apt package manager)
+- **OS**: Linux (Ubuntu, Debian, Fedora, Arch), macOS, FreeBSD
+- **Package Managers**: apt, dnf, pacman, brew, pkg (auto-detected)
 - **Shell**: zsh (will be configured automatically)
-- **Terminal**: Warp recommended, tmux supported
-- **Dependencies**: curl, git, build-essential (auto-installed)
+- **Terminal**: Any modern terminal; Warp recommended, tmux supported
+- **Containers**: Works in Docker, VS Code DevContainers (root and non-root)
+- **Dependencies**: curl, git, build-essential (auto-installed as needed)
 
 ## Architecture
 
@@ -195,7 +233,31 @@ Each component is self-contained with its own installation script, making it eas
 - Clear separation between system and user configurations
 
 ### Container Optimization
-The `containers.sh` script provides a minimal installation suitable for Docker containers, excluding desktop-specific components like fonts and GUI applications.
+- **devcontainer.sh**: Minimal installation for VS Code DevContainers (shell/prompt only)
+  - Installs: zsh, Oh My Zsh, Pure prompt, shell configuration
+  - Assumes all CLI tools are provided by devcontainer features
+  - Perfect for when you just want a nice terminal without tool installation
+  - For traditional containers/servers, run individual component scripts as needed (`./cli/install.sh`, `./git/install.sh`, `./zsh/install.sh`)
+
+## Troubleshooting
+
+### VS Code DevContainers
+If you're using VS Code DevContainers:
+1. Use `./devcontainer.sh` for minimal shell/prompt setup
+2. Install CLI tools via devcontainer features (not dotfiles scripts)
+3. The script automatically handles root vs non-root containers
+4. After installation, run `exec zsh` or restart the terminal
+5. See `.devcontainer/README.md` and example `devcontainer.json` for setup
+
+### Container Environments
+- Scripts use `maybe_sudo` for Docker/container compatibility
+- Shell changes (`chsh`) are skipped in non-interactive environments
+- All scripts work in both root and non-root containers
+
+### Ubuntu Derivatives (Linux Mint, Pop!_OS, etc.)
+- Scripts automatically detect and use Ubuntu base codenames for repositories
+- Example: Linux Mint 22.2 uses Ubuntu 24.04 (noble) repositories
+- Ensures compatibility with third-party package repositories
 
 ## Customization
 

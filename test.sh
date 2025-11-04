@@ -40,29 +40,28 @@ if ! command -v docker >/dev/null 2>&1; then
   exit 1
 fi
 
-echo -e "${BLUE}==> Testing Ubuntu 22.04 (containers.sh)${NC}"
+echo -e "${BLUE}==> Testing Ubuntu 22.04 (devcontainer.sh)${NC}"
 echo ""
 
-# Test minimal installation
+# Test minimal devcontainer installation
 docker run --rm -v "$PWD:/dotfiles" ubuntu:22.04 bash -c "
   set -euo pipefail
   cd /dotfiles
 
   # Run actual installation
   echo '==> Running installation...'
-  ./containers.sh
+  ./devcontainer.sh
 
   # Verify installations
   echo '==> Verifying installations...'
-  command -v git >/dev/null || exit 1
   command -v zsh >/dev/null || exit 1
-  command -v gh >/dev/null || exit 1
-  command -v kubectl >/dev/null || exit 1
-  command -v doctl >/dev/null || exit 1
+  [ -d ~/.oh-my-zsh ] || exit 1
+  [ -d ~/.zsh/pure ] || exit 1
 
   # Verify config files
-  [ -f ~/.gitconfig ] || exit 1
   [ -f ~/.zshrc ] || exit 1
+  [ -f ~/.oh-my-zsh/custom/aliases.zsh ] || exit 1
+  [ -f ~/.oh-my-zsh/custom/exports.zsh ] || exit 1
 
   echo '==> All checks passed!'
 "
@@ -76,7 +75,7 @@ else
 fi
 
 echo ""
-echo -e "${BLUE}==> Testing Ubuntu 24.04 (containers.sh)${NC}"
+echo -e "${BLUE}==> Testing Ubuntu 24.04 (devcontainer.sh)${NC}"
 echo ""
 
 docker run --rm -v "$PWD:/dotfiles" ubuntu:24.04 bash -c "
@@ -85,13 +84,13 @@ docker run --rm -v "$PWD:/dotfiles" ubuntu:24.04 bash -c "
 
   # Run installation
   echo '==> Running installation...'
-  ./containers.sh
+  ./devcontainer.sh
 
   # Verify installations
   echo '==> Verifying installations...'
-  command -v git >/dev/null || exit 1
   command -v zsh >/dev/null || exit 1
-  command -v gh >/dev/null || exit 1
+  [ -d ~/.oh-my-zsh ] || exit 1
+  [ -d ~/.zsh/pure ] || exit 1
 
   echo '==> All checks passed!'
 "
