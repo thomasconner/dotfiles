@@ -8,7 +8,7 @@ This is a modular dotfiles repository for Linux development environments with cr
 - **Idempotent installations**: All scripts can be run multiple times safely
 - **Component modularity**: Each component has its own self-contained install script
 - **Two deployment modes**: Full desktop installation (`install.sh`) and minimal container installation (`containers.sh`)
-- **Cross-platform compatibility**: Supports Ubuntu, Debian, Fedora, Arch, macOS, FreeBSD
+- **Cross-platform compatibility**: Supports Ubuntu, Debian, Fedora, Arch, macOS, FreeBSD, and Ubuntu derivatives (Linux Mint, Pop!_OS, etc.)
 - **Docker/container ready**: Works in both root and non-root environments
 
 ## Installation Commands
@@ -23,7 +23,13 @@ Installs all components: apps, CLI tools, fonts, git config, Node.js, Ruby, and 
 ```bash
 ./containers.sh [OPTIONS]
 ```
-Installs only: CLI tools (jq, gh, kubectl, doctl, helm), git config, and zsh. Excludes desktop apps and fonts.
+Installs only: CLI tools (jq, gh, kubectl, doctl, helm, age, sops, terraform), git config, and zsh. Excludes desktop apps and fonts.
+
+### DevContainer Installation
+```bash
+./devcontainer.sh [OPTIONS]
+```
+Minimal installation for VS Code DevContainers. Installs only: zsh, Oh My Zsh, Pure prompt, and shell configuration. Assumes all CLI tools are provided by the devcontainer. Perfect for when you just want a nice terminal prompt without installing development tools.
 
 ### Installation Options
 All installation scripts support these flags:
@@ -41,7 +47,7 @@ Example:
 ### Individual Component Installation
 ```bash
 ./apps/install.sh      # Desktop apps (Chrome, Slack, VSCode, tmux)
-./cli/install.sh       # CLI tools (jq, gh, kubectl, doctl, helm)
+./cli/install.sh       # CLI tools (jq, gh, kubectl, doctl, helm, age, sops, terraform)
 ./fonts/install.sh     # Nerd Fonts for terminal
 ./git/install.sh       # Git configuration and aliases
 ./node/install.sh      # Node.js via nodenv + global packages
@@ -63,7 +69,7 @@ The update script handles:
 - **Oh My Zsh**: Updates the framework and all installed plugins (zsh-autosuggestions, zsh-completions)
 - **Pure prompt**: Updates the Pure theme from its git repository
 - **Version managers**: Updates nodenv, rbenv, and their plugin managers (node-build, ruby-build)
-- **CLI tools**: Updates gh (GitHub CLI) via package manager, provides version info and update links for kubectl, doctl, helm
+- **CLI tools**: Updates gh (GitHub CLI) and terraform via package manager, updates age and sops from GitHub releases, provides version info and update links for kubectl, doctl, helm
 - **Global packages**: Updates npm global packages and Ruby gems
 
 Example:
@@ -86,7 +92,7 @@ The report includes:
   - Programming languages: Node.js, npm, Ruby, gem, Go, Python
   - Shell & terminal: zsh, tmux, bash
   - Version control: git, gh (GitHub CLI)
-  - CLI tools: jq, kubectl, doctl, helm, Docker
+  - CLI tools: jq, kubectl, doctl, helm, age, sops, terraform, Docker
   - Applications: VSCode, Chrome, Slack
   - Global packages: npm globals (@anthropic-ai/claude-code, ngrok) and Ruby gems (colorls)
 - **Environment Details**: Current shell, default shell, package manager, OS type, user info, terminal info, color support, editor, important paths (Oh My Zsh, nodenv, rbenv), Git configuration (user name/email), Docker status, SSH key count
@@ -105,7 +111,7 @@ The script gracefully handles missing tools and failed version checks, making it
 ### Component Structure
 Each top-level directory represents a self-contained component:
 - `apps/`: Desktop applications with individual install scripts
-- `cli/`: Command-line tools (jq, gh, kubectl, doctl, helm)
+- `cli/`: Command-line tools (jq, gh, kubectl, doctl, helm, age, sops, terraform)
 - `fonts/`: Nerd Fonts installation
 - `git/`: Git configuration files (.gitconfig, .gitignore, .gitconfig.local)
 - `node/`: Node.js version management via nodenv
@@ -294,6 +300,20 @@ The repository uses semantic versioning tracked in the `VERSION` file:
   - **v1.x**: Initial modular dotfiles implementation
 
 ## Troubleshooting
+
+**VS Code DevContainers:**
+- Use `./devcontainer.sh` instead of `./containers.sh` for minimal setup
+- This skips CLI tool installation (kubectl, helm, etc.) and only sets up the shell/prompt
+- If you need git config, run `./git/install.sh` separately
+- The script will skip `chsh` if running in a non-interactive environment
+- After installation, run `exec zsh` or restart your terminal to activate zsh
+- Add `"postCreateCommand": "./devcontainer.sh"` to your `.devcontainer/devcontainer.json` for automatic setup
+
+**Ubuntu Derivatives (Linux Mint, Pop!_OS, etc.):**
+- Scripts automatically detect Ubuntu-based derivatives and use the base Ubuntu codename for repositories
+- This is handled by reading `UBUNTU_CODENAME` from `/etc/os-release`
+- Example: Linux Mint 22.2 (zara) uses Ubuntu 24.04 (noble) repositories
+- If you see repository errors like "does not have a Release file", ensure the script uses the Ubuntu base codename
 
 **Docker/Container Environments:**
 - If you see `sudo: command not found`, ensure scripts use `maybe_sudo` not `sudo`

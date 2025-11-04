@@ -2,7 +2,7 @@
 
 set -euo pipefail
 
-echo "CLI tools installation (jq, gh, kubectl, doctl, helm)"
+echo "CLI tools installation (jq, gh, kubectl, doctl, helm, age, sops, terraform)"
 
 # Source shared utilities
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
@@ -32,6 +32,16 @@ if command -v gh >/dev/null 2>&1; then
     ensure_curl_installed
     ensure_gpg_installed
     curl -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg | maybe_sudo gpg --dearmor -o /usr/share/keyrings/githubcli-archive-keyring.gpg
+
+    # Use Ubuntu base codename for derivatives (e.g., Linux Mint)
+    CODENAME=$(lsb_release -cs)
+    if [ -f /etc/os-release ]; then
+      source /etc/os-release
+      if [ -n "${UBUNTU_CODENAME:-}" ]; then
+        CODENAME="$UBUNTU_CODENAME"
+      fi
+    fi
+
     echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/githubcli-archive-keyring.gpg] https://cli.github.com/packages stable main" | maybe_sudo tee /etc/apt/sources.list.d/github-cli.list > /dev/null
   fi
 
@@ -45,6 +55,16 @@ else
 
   # Add GitHub CLI repository
   curl -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg | maybe_sudo gpg --dearmor -o /usr/share/keyrings/githubcli-archive-keyring.gpg
+
+  # Use Ubuntu base codename for derivatives (e.g., Linux Mint)
+  CODENAME=$(lsb_release -cs)
+  if [ -f /etc/os-release ]; then
+    source /etc/os-release
+    if [ -n "${UBUNTU_CODENAME:-}" ]; then
+      CODENAME="$UBUNTU_CODENAME"
+    fi
+  fi
+
   echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/githubcli-archive-keyring.gpg] https://cli.github.com/packages stable main" | maybe_sudo tee /etc/apt/sources.list.d/github-cli.list > /dev/null
 
   maybe_sudo apt update
@@ -168,6 +188,114 @@ else
   maybe_sudo install -o root -g root -m 0755 linux-amd64/helm /usr/local/bin/helm
 
   echo "helm installed: $(helm version --short)"
+fi
+
+###
+# age (file encryption tool)
+###
+ensure_curl_installed
+
+# Get latest version from GitHub
+LATEST_VERSION=$(curl -s https://api.github.com/repos/FiloSottile/age/releases/latest | grep '"tag_name"' | sed -E 's/.*"v([^"]+)".*/\1/')
+
+if command -v age >/dev/null 2>&1; then
+  CURRENT_VERSION=$(age --version 2>&1 | grep -oP 'v\K[0-9.]+' || echo "unknown")
+  echo "age is installed: $CURRENT_VERSION"
+
+  if [ "$CURRENT_VERSION" != "$LATEST_VERSION" ]; then
+    echo "Updating age from $CURRENT_VERSION to $LATEST_VERSION..."
+
+    TEMP_DIR=$(mktemp -d)
+    register_cleanup_trap "$TEMP_DIR"
+    cd "$TEMP_DIR"
+    curl -sL "https://github.com/FiloSottile/age/releases/download/v${LATEST_VERSION}/age-v${LATEST_VERSION}-linux-amd64.tar.gz" | tar -xz
+    maybe_sudo install -o root -g root -m 0755 age/age /usr/local/bin/age
+    maybe_sudo install -o root -g root -m 0755 age/age-keygen /usr/local/bin/age-keygen
+
+    echo "age updated: $(age --version 2>&1 | head -n1)"
+  else
+    echo "age is already up to date"
+  fi
+else
+  echo "Installing age ${LATEST_VERSION}..."
+
+  TEMP_DIR=$(mktemp -d)
+  register_cleanup_trap "$TEMP_DIR"
+  cd "$TEMP_DIR"
+  curl -sL "https://github.com/FiloSottile/age/releases/download/v${LATEST_VERSION}/age-v${LATEST_VERSION}-linux-amd64.tar.gz" | tar -xz
+  maybe_sudo install -o root -g root -m 0755 age/age /usr/local/bin/age
+  maybe_sudo install -o root -g root -m 0755 age/age-keygen /usr/local/bin/age-keygen
+
+  echo "age installed: $(age --version 2>&1 | head -n1)"
+fi
+
+###
+# sops (secrets management)
+###
+ensure_curl_installed
+
+# Get latest version from GitHub
+LATEST_VERSION=$(curl -s https://api.github.com/repos/getsops/sops/releases/latest | grep '"tag_name"' | sed -E 's/.*"v([^"]+)".*/\1/')
+
+if command -v sops >/dev/null 2>&1; then
+  CURRENT_VERSION=$(sops --version 2>&1 | grep -oP 'sops \K[0-9.]+')
+  echo "sops is installed: $CURRENT_VERSION"
+
+  if [ "$CURRENT_VERSION" != "$LATEST_VERSION" ]; then
+    echo "Updating sops from $CURRENT_VERSION to $LATEST_VERSION..."
+
+    TEMP_DIR=$(mktemp -d)
+    register_cleanup_trap "$TEMP_DIR"
+    cd "$TEMP_DIR"
+    curl -sL "https://github.com/getsops/sops/releases/download/v${LATEST_VERSION}/sops-v${LATEST_VERSION}.linux.amd64" -o sops
+    maybe_sudo install -o root -g root -m 0755 sops /usr/local/bin/sops
+
+    echo "sops updated: $(sops --version 2>&1)"
+  else
+    echo "sops is already up to date"
+  fi
+else
+  echo "Installing sops ${LATEST_VERSION}..."
+
+  TEMP_DIR=$(mktemp -d)
+  register_cleanup_trap "$TEMP_DIR"
+  cd "$TEMP_DIR"
+  curl -sL "https://github.com/getsops/sops/releases/download/v${LATEST_VERSION}/sops-v${LATEST_VERSION}.linux.amd64" -o sops
+  maybe_sudo install -o root -g root -m 0755 sops /usr/local/bin/sops
+
+  echo "sops installed: $(sops --version 2>&1)"
+fi
+
+###
+# terraform (infrastructure as code)
+###
+ensure_curl_installed
+ensure_gpg_installed
+
+if command -v terraform >/dev/null 2>&1; then
+  CURRENT_VERSION=$(terraform version -json 2>/dev/null | grep -oP '"terraform_version":\s*"\K[^"]+' || terraform version | grep -oP 'Terraform v\K[0-9.]+')
+  echo "terraform is installed: $CURRENT_VERSION"
+  echo "Run 'sudo apt update && sudo apt upgrade terraform' to update terraform"
+else
+  echo "Installing terraform..."
+
+  # Use Ubuntu base codename for derivatives (e.g., Linux Mint)
+  CODENAME=$(lsb_release -cs)
+  if [ -f /etc/os-release ]; then
+    source /etc/os-release
+    if [ -n "${UBUNTU_CODENAME:-}" ]; then
+      CODENAME="$UBUNTU_CODENAME"
+    fi
+  fi
+
+  # Add HashiCorp GPG key and repository
+  curl -fsSL https://apt.releases.hashicorp.com/gpg | maybe_sudo gpg --dearmor -o /usr/share/keyrings/hashicorp-archive-keyring.gpg
+  echo "deb [signed-by=/usr/share/keyrings/hashicorp-archive-keyring.gpg] https://apt.releases.hashicorp.com $CODENAME main" | maybe_sudo tee /etc/apt/sources.list.d/hashicorp.list > /dev/null
+
+  maybe_sudo apt update
+  maybe_sudo apt install -y terraform
+
+  echo "terraform installed: $(terraform version | head -n1)"
 fi
 
 echo "CLI tools installation complete!"

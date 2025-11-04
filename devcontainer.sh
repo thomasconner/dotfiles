@@ -14,11 +14,13 @@ VERBOSE=false
 
 show_help() {
   cat << EOF
-Dotfiles Installer v${VERSION} (Container/Minimal)
+Dotfiles Installer v${VERSION} (DevContainer)
 
 Usage: $0 [OPTIONS]
 
-Install dotfiles for container/minimal environment.
+Install dotfiles for VS Code DevContainer environment.
+This minimal installation only sets up zsh, Oh My Zsh, Pure prompt, and shell configuration.
+It assumes all CLI tools are provided by the devcontainer.
 
 OPTIONS:
   -n, --dry-run     Show what would be done without making changes
@@ -48,7 +50,7 @@ while [[ $# -gt 0 ]]; do
       shift
       ;;
     --version)
-      echo "Dotfiles v${VERSION} (Container/Minimal)"
+      echo "Dotfiles v${VERSION} (DevContainer)"
       exit 0
       ;;
     --help|-h)
@@ -63,7 +65,7 @@ while [[ $# -gt 0 ]]; do
   esac
 done
 
-echo "Dotfiles Installer v${VERSION} (Container/Minimal)"
+echo "Dotfiles Installer v${VERSION} (DevContainer)"
 echo ""
 
 if [ "$DRY_RUN" = true ]; then
@@ -74,8 +76,18 @@ if [ "$DRY_RUN" = true ]; then
 fi
 
 ###
-# Installation
+# Minimal DevContainer Installation
 ###
-./cli/install.sh
-./git/install.sh
+# Only install shell/prompt - rely on devcontainer for CLI tools
 ./zsh/install.sh
+
+echo ""
+echo "======================================"
+echo "DevContainer setup complete!"
+echo "======================================"
+echo ""
+echo "To activate zsh, run: exec zsh"
+echo "Or restart your terminal."
+echo ""
+echo "Note: CLI tools (kubectl, helm, etc.) should be"
+echo "provided by your devcontainer configuration."
