@@ -8,11 +8,20 @@ echo "zsh installation"
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 source "$SCRIPT_DIR/../scripts/utils.sh"
 
-if [ "$SHELL" != "$(which zsh)" ]; then
+# Install zsh if not already installed
+if ! command -v zsh >/dev/null 2>&1; then
+  log_info "Installing zsh..."
   maybe_sudo apt update
   maybe_sudo apt install -y zsh
+else
+  log_info "zsh is already installed: $(zsh --version)"
+fi
+
+# Set zsh as default shell if not already set
+if [ "$SHELL" != "$(which zsh)" ]; then
   # Only try to change shell if not root and not in Docker/CI
   if [ "$EUID" -ne 0 ] && [ -t 0 ]; then
+    log_info "Setting zsh as default shell..."
     maybe_sudo chsh -s "$(which zsh)"
   fi
 fi
