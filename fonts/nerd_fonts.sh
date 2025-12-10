@@ -8,14 +8,20 @@ echo "Nerd Fonts installation"
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 source "$SCRIPT_DIR/../scripts/utils.sh"
 
+OS=$(detect_os)
+
 # Nerd Fonts to install
 FONTS=("FiraCode" "JetBrainsMono" "Hack" "Ubuntu" "UbuntuMono")
 
 # Version of Nerd Fonts release
 VERSION="3.4.0"
 
-# Install location
-FONT_DIR="$HOME/.local/share/fonts"
+# Set font directory based on OS
+if [[ "$OS" == "macos" ]]; then
+  FONT_DIR="$HOME/Library/Fonts"
+else
+  FONT_DIR="$HOME/.local/share/fonts"
+fi
 
 mkdir -p "$FONT_DIR"
 
@@ -23,7 +29,7 @@ ensure_wget_installed
 ensure_unzip_installed
 
 for FONT in "${FONTS[@]}"; do
-  FONT_FILE=$(find "$FONT_DIR" -iname "${FONT}*.ttf" -o -iname "${FONT}*.otf" | head -n 1)
+  FONT_FILE=$(find "$FONT_DIR" -iname "${FONT}*.ttf" -o -iname "${FONT}*.otf" 2>/dev/null | head -n 1)
 
   if [ -n "$FONT_FILE" ]; then
     echo "$FONT already installed at $FONT_FILE, skipping..."
@@ -36,7 +42,7 @@ for FONT in "${FONTS[@]}"; do
   echo "Downloading $FONT Nerd Font..."
 
   if ! wget -q "$ZIP_URL" -O "$TMP_ZIP"; then
-    echo "❌ Failed to download $FONT"
+    echo "Failed to download $FONT"
     continue
   fi
 
@@ -47,8 +53,8 @@ for FONT in "${FONTS[@]}"; do
   rm -f "$TMP_ZIP"
 done
 
-# Refresh font cache (Linux only)
-if command -v fc-cache &>/dev/null; then
+# Refresh font cache (Linux only - macOS automatically detects new fonts)
+if [[ "$OS" != "macos" ]] && command -v fc-cache &>/dev/null; then
   echo "Updating font cache..."
   fc-cache -fv "$FONT_DIR"
 fi

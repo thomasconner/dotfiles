@@ -20,19 +20,26 @@ ZSH_THEME=""
 # Custom plugins may be added to $ZSH_CUSTOM/plugins/
 # Example format: plugins=(rails git textmate ruby lighthouse)
 # Add wisely, as too many plugins slow down shell startup.
+
+# Base plugins (always available)
 plugins=(
-  bundler
   common-aliases
-  docker
-  git
-  golang
-  kubectl
-  rake
-  rbenv
-  ruby
   zsh-autosuggestions
   zsh-completions
 )
+
+# Fix autosuggestion color (use a visible gray instead of default black)
+ZSH_AUTOSUGGEST_HIGHLIGHT_STYLE='fg=244'
+
+# Conditionally load plugins that require installed tools
+command -v git &>/dev/null && plugins+=(git)
+command -v docker &>/dev/null && plugins+=(docker)
+command -v kubectl &>/dev/null && plugins+=(kubectl)
+command -v go &>/dev/null && plugins+=(golang)
+command -v ruby &>/dev/null && plugins+=(ruby)
+command -v rake &>/dev/null && plugins+=(rake)
+command -v bundle &>/dev/null && plugins+=(bundler)
+[[ -d "$HOME/.rbenv" ]] && plugins+=(rbenv)
 
 source $ZSH/oh-my-zsh.sh
 
@@ -40,7 +47,9 @@ source $ZSH/oh-my-zsh.sh
 
 PURE_GIT_PULL=0
 
-fpath+=($HOME/.zsh/pure)
+# Add Pure prompt paths to fpath
+# Both the pure directory and functions directory for compatibility
+fpath+=("$HOME/.zsh/pure" "$HOME/.zsh/functions")
 
 autoload -U promptinit; promptinit
 prompt pure

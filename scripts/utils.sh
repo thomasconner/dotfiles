@@ -233,6 +233,49 @@ detect_os() {
   esac
 }
 
+# Detect CPU architecture
+# Returns: amd64, arm64
+detect_arch() {
+  local arch
+  arch=$(uname -m)
+  case "$arch" in
+    x86_64)
+      echo "amd64"
+      ;;
+    aarch64|arm64)
+      echo "arm64"
+      ;;
+    *)
+      echo "$arch"
+      ;;
+  esac
+}
+
+# Get Homebrew prefix (differs between Intel and Apple Silicon Macs)
+get_brew_prefix() {
+  if [[ "$(detect_os)" == "macos" ]]; then
+    if [[ "$(detect_arch)" == "arm64" ]]; then
+      echo "/opt/homebrew"
+    else
+      echo "/usr/local"
+    fi
+  else
+    echo "/home/linuxbrew/.linuxbrew"
+  fi
+}
+
+# Check if running on macOS
+is_macos() {
+  [[ "$(detect_os)" == "macos" ]]
+}
+
+# Check if running on Linux
+is_linux() {
+  local os
+  os=$(detect_os)
+  [[ "$os" != "macos" && "$os" != "freebsd" && "$os" != "windows" && "$os" != "unknown" ]]
+}
+
 # Get the package manager for the current OS
 get_package_manager() {
   local os
@@ -370,6 +413,98 @@ ensure_unzip_installed() {
     install_package unzip
     log_success "unzip installed successfully"
   fi
+}
+
+# Ensure Homebrew is installed (macOS)
+ensure_brew_installed() {
+  if command -v brew >/dev/null 2>&1; then
+    log_debug "Homebrew is already installed"
+    return 0
+  fi
+
+  if [[ "$(detect_os)" != "macos" ]]; then
+    log_warning "Homebrew installation is only supported on macOS"
+    return 1
+  fi
+
+  log_info "Homebrew is not installed. Installing..."
+
+  if [[ "${DRY_RUN:-false}" == "true" ]]; then
+    log_info "[DRY RUN] Would install Homebrew"
+    return 0
+  fi
+
+  /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+
+  # Add Homebrew to PATH for the current session
+  local brew_prefix
+  brew_prefix=$(get_brew_prefix)
+  if [[ -x "${brew_prefix}/bin/brew" ]]; then
+    eval "$("${brew_prefix}/bin/brew" shellenv)"
+  fi
+
+  log_success "Homebrew installed successfully"
+}
+
+# Ensure Xcode Command Line Tools are installed (macOS)
+ensure_xcode_cli_installed() {
+  if [[ "$(detect_os)" != "macos" ]]; then
+    log_debug "Xcode CLI tools are only needed on macOS"
+    return 0
+  fi
+
+  # Check if xcode-select is available and tools are installed
+  if xcode-select -p &>/dev/null; then
+    log_debug "Xcode Command Line Tools are already installed"
+    return 0
+  fi
+
+  log_info "Xcode Command Line Tools are not installed. Installing..."
+
+  if [[ "${DRY_RUN:-false}" == "true" ]]; then
+    log_info "[DRY RUN] Would install Xcode Command Line Tools"
+    return 0
+  fi
+
+  # Trigger the installation prompt
+  xcode-select --install 2>/dev/null || true
+
+  # Wait for installation to complete (user interaction required)
+  log_info "Please complete the Xcode Command Line Tools installation in the popup dialog..."
+  log_info "Waiting for installation to complete..."
+
+  # Poll until the tools are installed
+  until xcode-select -p &>/dev/null; do
+    sleep 5
+  done
+
+  log_success "Xcode Command Line Tools installed successfully"
+}
+
+# Install a Homebrew cask (macOS GUI applications)
+install_brew_cask() {
+  local cask="$1"
+
+  if [[ "$(detect_os)" != "macos" ]]; then
+    log_error "Homebrew casks are only supported on macOS"
+    return 1
+  fi
+
+  ensure_brew_installed
+
+  if [[ "${DRY_RUN:-false}" == "true" ]]; then
+    log_info "[DRY RUN] Would install cask: $cask"
+    return 0
+  fi
+
+  if brew list --cask "$cask" &>/dev/null; then
+    log_info "$cask is already installed"
+    return 0
+  fi
+
+  log_info "Installing $cask..."
+  brew install --cask "$cask"
+  log_success "$cask installed successfully"
 }
 
 # Check if a directory exists and is a git repository, then pull or clone

@@ -1,7 +1,19 @@
 # Path
+
+# Homebrew paths (macOS)
+# Apple Silicon Macs use /opt/homebrew, Intel Macs use /usr/local
+if [[ -d "/opt/homebrew" ]]; then
+  # Apple Silicon
+  eval "$(/opt/homebrew/bin/brew shellenv 2>/dev/null)" || true
+elif [[ -d "/usr/local/Homebrew" ]]; then
+  # Intel Mac
+  eval "$(/usr/local/bin/brew shellenv 2>/dev/null)" || true
+fi
+
 path=(
   $path
   /usr/local/bin
+  /usr/local/sbin
   $HOME/bin
   $HOME/.local/bin
   $HOME/.nodenv/bin

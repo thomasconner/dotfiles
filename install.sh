@@ -76,13 +76,13 @@ fi
 ###
 # Installation
 ###
-./apps/install.sh
-./cli/install.sh
-./fonts/install.sh
-./git/install.sh
-./node/install.sh
-./ruby/install.sh
-./zsh/install.sh
+"${SCRIPT_DIR}/apps/install.sh"
+"${SCRIPT_DIR}/cli/install.sh"
+"${SCRIPT_DIR}/fonts/install.sh"
+"${SCRIPT_DIR}/git/install.sh"
+"${SCRIPT_DIR}/node/install.sh"
+"${SCRIPT_DIR}/ruby/install.sh"
+"${SCRIPT_DIR}/zsh/install.sh"
 
 ###
 # Manual notifications

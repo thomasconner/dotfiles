@@ -9,7 +9,8 @@
 # - Oh My Zsh and plugins
 # - Git repositories (Pure prompt, etc.)
 # - CLI tools (gh, kubectl, doctl, helm)
-# - Firmware updates (fwupd)
+# - Firmware updates (fwupd) - Linux only
+# - macOS software updates
 #
 # Usage:
 #   ./update.sh [OPTIONS]
@@ -53,7 +54,8 @@ This script updates:
     - Node.js and Ruby to latest configured versions
     - Oh My Zsh and plugins
     - Git repositories and CLI tools
-    - Firmware (fwupd)
+    - Firmware (fwupd) - Linux only
+    - macOS software updates
 
 EOF
 }
@@ -162,6 +164,18 @@ update_system_packages() {
             log_info "Upgrading packages..."
             run_cmd brew upgrade
 
+            log_info "Upgrading casks..."
+            # Some casks may fail (disabled, requires password, etc.) - continue anyway
+            if [[ "$DRY_RUN" == "false" ]]; then
+                brew upgrade --cask 2>&1 | while read -r line; do
+                    if [[ "$line" == *"has been disabled"* ]] || [[ "$line" == *"Error"* ]]; then
+                        log_warning "$line"
+                    else
+                        echo "$line"
+                    fi
+                done || true
+            fi
+
             log_info "Cleaning up old versions..."
             run_cmd brew cleanup
             ;;
@@ -182,10 +196,39 @@ update_system_packages() {
 }
 
 # ============================================================================
-# Firmware Updates
+# macOS Software Updates
+# ============================================================================
+
+update_macos_software() {
+    if [[ "$OS" != "macos" ]]; then
+        return
+    fi
+
+    log_step "Checking macOS Software Updates"
+
+    if [[ "$DRY_RUN" == "true" ]]; then
+        log_debug "[DRY-RUN] Would check: softwareupdate -l"
+    else
+        log_info "Checking for macOS updates..."
+        softwareupdate -l 2>&1 || true
+
+        log_info "To install macOS updates, run: sudo softwareupdate -ia"
+    fi
+
+    log_success "macOS software update check complete"
+    echo
+}
+
+# ============================================================================
+# Firmware Updates (Linux only)
 # ============================================================================
 
 update_firmware() {
+    if [[ "$OS" == "macos" ]]; then
+        # macOS handles firmware through system updates
+        return
+    fi
+
     log_step "Checking Firmware Updates"
 
     if ! command -v fwupdmgr >/dev/null 2>&1; then
@@ -394,7 +437,7 @@ update_cli_tools() {
                     maybe_sudo dnf upgrade -y gh
                     ;;
                 brew)
-                    brew upgrade gh
+                    brew upgrade gh 2>/dev/null || log_info "gh is already up to date"
                     ;;
                 *)
                     log_info "Manual update required for gh on $OS"
@@ -403,22 +446,27 @@ update_cli_tools() {
         fi
     fi
 
-    # Update kubectl
-    if command -v kubectl >/dev/null 2>&1; then
-        log_info "Current kubectl version: $(kubectl version --client --short 2>/dev/null || kubectl version --client)"
-        log_info "To update kubectl, visit: https://kubernetes.io/docs/tasks/tools/"
-    fi
+    # For macOS with Homebrew, all CLI tools are updated via brew upgrade
+    if [[ "$OS" == "macos" ]]; then
+        log_info "CLI tools updated via Homebrew (see system packages update above)"
+    else
+        # Update kubectl
+        if command -v kubectl >/dev/null 2>&1; then
+            log_info "Current kubectl version: $(kubectl version --client --short 2>/dev/null || kubectl version --client)"
+            log_info "To update kubectl, re-run: ./cli/install.sh"
+        fi
 
-    # Update doctl
-    if command -v doctl >/dev/null 2>&1; then
-        log_info "Current doctl version: $(doctl version)"
-        log_info "To update doctl, visit: https://docs.digitalocean.com/reference/doctl/how-to/install/"
-    fi
+        # Update doctl
+        if command -v doctl >/dev/null 2>&1; then
+            log_info "Current doctl version: $(doctl version)"
+            log_info "To update doctl, re-run: ./cli/install.sh"
+        fi
 
-    # Update Helm
-    if command -v helm >/dev/null 2>&1; then
-        log_info "Current Helm version: $(helm version --short 2>/dev/null || helm version)"
-        log_info "To update Helm, visit: https://helm.sh/docs/intro/install/"
+        # Update Helm
+        if command -v helm >/dev/null 2>&1; then
+            log_info "Current Helm version: $(helm version --short 2>/dev/null || helm version)"
+            log_info "To update Helm, re-run: ./cli/install.sh"
+        fi
     fi
 
     log_success "CLI tools checked"
@@ -487,6 +535,7 @@ main() {
 
     # Run all update functions
     update_system_packages
+    update_macos_software
     update_firmware
     update_oh_my_zsh
     update_zsh_plugins

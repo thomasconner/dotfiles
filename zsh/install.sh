@@ -8,11 +8,19 @@ echo "zsh installation"
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 source "$SCRIPT_DIR/../scripts/utils.sh"
 
+OS=$(detect_os)
+
 # Install zsh if not already installed
 if ! command -v zsh >/dev/null 2>&1; then
-  log_info "Installing zsh..."
-  maybe_sudo apt update
-  maybe_sudo apt install -y zsh
+  if [[ "$OS" == "macos" ]]; then
+    # macOS comes with zsh pre-installed, but install via brew if missing
+    log_info "Installing zsh via Homebrew..."
+    ensure_brew_installed
+    brew install zsh
+  else
+    log_info "Installing zsh..."
+    install_package zsh
+  fi
 else
   log_info "zsh is already installed: $(zsh --version)"
 fi
@@ -22,7 +30,17 @@ if [ "$SHELL" != "$(which zsh)" ]; then
   # Only try to change shell if not root and not in Docker/CI
   if [ "$EUID" -ne 0 ] && [ -t 0 ]; then
     log_info "Setting zsh as default shell..."
-    maybe_sudo chsh -s "$(which zsh)"
+    # On macOS, zsh might not be in /etc/shells if installed via brew
+    if [[ "$OS" == "macos" ]]; then
+      ZSH_PATH=$(which zsh)
+      if ! grep -q "$ZSH_PATH" /etc/shells; then
+        log_info "Adding $ZSH_PATH to /etc/shells..."
+        echo "$ZSH_PATH" | sudo tee -a /etc/shells
+      fi
+      chsh -s "$ZSH_PATH"
+    else
+      maybe_sudo chsh -s "$(which zsh)"
+    fi
   fi
 fi
 
@@ -35,9 +53,14 @@ fi
 
 # Ensure Pure prompt is installed/updated
 ensure_git_repo "https://github.com/sindresorhus/pure.git" "${HOME}/.zsh/pure"
+
+# Create symlinks that promptinit expects
+# Pure needs prompt_pure_setup and async in fpath
 mkdir -p "${HOME}/.zsh/functions"
 ln -sf "${HOME}/.zsh/pure/pure.zsh" "${HOME}/.zsh/functions/prompt_pure_setup"
 ln -sf "${HOME}/.zsh/pure/async.zsh" "${HOME}/.zsh/functions/async"
+
+log_success "Pure prompt installed at ${HOME}/.zsh/pure"
 
 ln -sf "${SCRIPT_DIR}/../shell/aliases.zsh" "${HOME}/.oh-my-zsh/custom/aliases.zsh"
 ln -sf "${SCRIPT_DIR}/../shell/exports.zsh" "${HOME}/.oh-my-zsh/custom/exports.zsh"

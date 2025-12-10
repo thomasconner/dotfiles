@@ -162,8 +162,17 @@ Provides reusable functions sourced by all install scripts:
 **Cross-Platform Support:**
 - `maybe_sudo()`: Runs commands with sudo only if not root (Docker-compatible)
 - `detect_os()`: Detects OS (ubuntu, debian, fedora, arch, macos, freebsd)
+- `detect_arch()`: Detects CPU architecture (amd64, arm64)
 - `get_package_manager()`: Returns package manager (apt, dnf, pacman, brew, pkg)
+- `get_brew_prefix()`: Returns Homebrew prefix (/opt/homebrew for Apple Silicon, /usr/local for Intel)
+- `is_macos()`: Returns true if running on macOS
+- `is_linux()`: Returns true if running on Linux
 - `install_package(name)`: Installs package using correct package manager
+
+**macOS-Specific Functions:**
+- `ensure_brew_installed()`: Installs Homebrew if missing
+- `ensure_xcode_cli_installed()`: Installs Xcode Command Line Tools if missing
+- `install_brew_cask(name)`: Installs a Homebrew cask (GUI application)
 
 **IMPORTANT for Docker/Container Compatibility:**
 Always use `maybe_sudo` instead of `sudo` directly. This function detects if running as root (EUID=0) and skips sudo, making scripts work in Docker containers where sudo is not installed.
@@ -393,3 +402,18 @@ The repository uses semantic versioning tracked in the `VERSION` file:
 - Use `--verbose` to see detailed bash execution with `set -x`
 - Helpful for debugging installation issues
 - Shows all commands as they execute
+
+**macOS Installation:**
+- Homebrew is required and will be installed automatically if missing
+- Xcode Command Line Tools are required for building Ruby and will be installed automatically
+- Apple Silicon Macs (M1/M2/M3+) use `/opt/homebrew`, Intel Macs use `/usr/local`
+- CLI tools are installed via Homebrew: `brew install jq gh kubectl doctl helm age sops terraform`
+- Desktop apps are installed via Homebrew Cask: `brew install --cask google-chrome slack visual-studio-code`
+- Fonts are installed to `~/Library/Fonts` (no cache refresh needed on macOS)
+- The `path.zsh` file automatically detects and configures Homebrew paths
+
+**macOS-Specific Notes:**
+- zsh is the default shell on modern macOS, but the script handles both pre-installed and brew-installed zsh
+- If changing the default shell fails, ensure the shell path is in `/etc/shells`
+- For Apple Silicon, ensure Rosetta 2 is installed if running any Intel-only binaries
+- The update script checks for macOS system updates via `softwareupdate` command

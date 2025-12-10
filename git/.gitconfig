@@ -19,3 +19,6 @@
   ff = only
 [url "ssh://git@github.com/"]
 	insteadOf = https://github.com/
+[user]
+	email = thomas.conner@connertechnology.io
+	name = thomasconner

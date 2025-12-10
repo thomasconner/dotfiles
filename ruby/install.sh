@@ -8,6 +8,8 @@ echo "Ruby configuration"
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 source "$SCRIPT_DIR/../scripts/utils.sh"
 
+OS=$(detect_os)
+
 if command -v ruby >/dev/null 2>&1; then
     echo "Ruby is installed: $(ruby -v)"
 else
@@ -24,8 +26,24 @@ else
 fi
 
 if command -v rbenv >/dev/null 2>&1; then
-  maybe_sudo apt update
-  maybe_sudo apt install -y build-essential autoconf libssl-dev libyaml-dev zlib1g-dev libffi-dev libgmp-dev rustc
+  # Install build dependencies based on OS
+  if [[ "$OS" == "macos" ]]; then
+    log_info "Installing Ruby build dependencies for macOS..."
+    ensure_xcode_cli_installed
+    ensure_brew_installed
+
+    # Install required libraries via Homebrew
+    for pkg in openssl readline libyaml gmp; do
+      if ! brew list "$pkg" &>/dev/null; then
+        log_info "Installing $pkg..."
+        brew install "$pkg"
+      fi
+    done
+  else
+    log_info "Installing Ruby build dependencies for Linux..."
+    maybe_sudo apt update
+    maybe_sudo apt install -y build-essential autoconf libssl-dev libyaml-dev zlib1g-dev libffi-dev libgmp-dev rustc
+  fi
 
   RUBY_VERSION=3.4.5
   echo "Ensuring Ruby ${RUBY_VERSION} with rbenv"
@@ -63,7 +81,7 @@ for gem in "${RUBY_GEMS[@]}"; do
     printf "Updating %s\n" "${gem}"
     gem update "${gem}"
   else
-    printf "⬇Installing %s\n" "${gem}"
+    printf "Installing %s\n" "${gem}"
     gem install "${gem}"
   fi
 done
