@@ -1,17 +1,24 @@
-# Claude Code local settings
+# Claude Code
 .claude/
-
-# Backup files
-*.backup-*
 
 # macOS
 .DS_Store
+._*
 
-# Vim
+# Editors
 *.swp
 *.swo
 *~
+.idea/
+.vscode/
 
-# Temporary files
+# Backups
+*.backup-*
+*.bak
+
+# Temporary
 *.tmp
 .temp/
+
+# Local overrides (user-specific, not tracked)
+shell/exports.local.zsh
