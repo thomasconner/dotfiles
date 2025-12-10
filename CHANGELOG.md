@@ -2,6 +2,17 @@
 
 All notable changes to this project will be documented in this file.
 
+## [5.0.1] - 2024-12-10
+
+### Fixed
+- gh.sh and terraform.sh no longer require lsb_release
+- Git component verification in CI uses correct file paths
+- DevContainers documentation expanded with examples
+
+### Changed
+- GitHub Actions workflow updated for ctdev CLI
+- Removed ShellCheck (false positives on zsh config files)
+
 ## [5.0.0] - 2024-12-10
 
 ### Added
