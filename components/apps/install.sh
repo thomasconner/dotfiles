@@ -19,5 +19,6 @@ log_step "Installing applications"
 "$SCRIPT_DIR/tradingview.sh"
 "$SCRIPT_DIR/linear.sh"
 "$SCRIPT_DIR/cleanmymac.sh"
+"$SCRIPT_DIR/dbeaver.sh"
 
 log_success "Applications installation complete"

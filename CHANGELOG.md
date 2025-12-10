@@ -2,6 +2,11 @@
 
 All notable changes to this project will be documented in this file.
 
+## [5.0.3] - 2024-12-10
+
+### Added
+- DBeaver Community Edition installer with macOS (Homebrew), Debian/Ubuntu (apt), Fedora (dnf), and Arch (pacman) support
+
 ## [5.0.2] - 2024-12-10
 
 ### Fixed
