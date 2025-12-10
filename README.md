@@ -55,11 +55,33 @@ ctdev install git                                              # Interactive pro
 
 ## DevContainers
 
+Add to `.devcontainer/devcontainer.json`:
+
 ```json
 {
   "postCreateCommand": "git clone https://github.com/thomasconner/dotfiles ~/dotfiles && ~/dotfiles/ctdev install zsh"
 }
 ```
+
+For additional tools:
+
+```json
+{
+  "postCreateCommand": "git clone https://github.com/thomasconner/dotfiles ~/dotfiles && ~/dotfiles/ctdev install zsh git cli"
+}
+```
+
+**Recommended components for DevContainers:**
+
+| Component | Use Case |
+|-----------|----------|
+| `zsh` | Shell, prompt, aliases (always recommended) |
+| `git` | Git config and global gitignore |
+| `cli` | CLI tools (gh, jq, etc.) |
+| `node` | Node.js development |
+| `ruby` | Ruby development |
+
+**Note:** `apps` and `fonts` are desktop-only and should be skipped in DevContainers.
 
 ## Platform Support
 
