@@ -1,0 +1,30 @@
+#!/usr/bin/env bash
+
+set -euo pipefail
+
+# Source shared utilities
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+DOTFILES_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
+source "$DOTFILES_ROOT/lib/utils.sh"
+
+log_info "Installing Claude desktop app"
+
+OS=$(detect_os)
+
+# Check if Claude is already installed
+if [[ "$OS" == "macos" ]]; then
+  if [[ -d "/Applications/Claude.app" ]]; then
+    log_info "Claude is already installed"
+    exit 0
+  fi
+else
+  # Linux: Claude desktop app is currently macOS only
+  log_warning "Claude desktop app is currently only available for macOS"
+  log_info "For Linux, use Claude via web at https://claude.ai"
+  exit 0
+fi
+
+log_info "Claude is not installed. Installing..."
+
+install_brew_cask claude
+log_success "Claude desktop app installed successfully"

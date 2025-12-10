@@ -1,0 +1,8 @@
+# IDEs
+*.code-workspace
+
+# OS
+.DS_Store
+
+# Tools
+.husky/post-commit
