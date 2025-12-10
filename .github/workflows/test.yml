@@ -2,9 +2,9 @@ name: Test Dotfiles
 
 on:
   push:
-    branches: [ main, master ]
+    branches: [main]
   pull_request:
-    branches: [ main, master ]
+    branches: [main]
   workflow_dispatch:
 
 jobs:
@@ -21,22 +21,70 @@ jobs:
         with:
           scandir: '.'
           severity: warning
-          additional_files: '*.sh'
 
-  test-devcontainer:
-    name: Test DevContainer Setup on Ubuntu ${{ matrix.ubuntu-version }}
+  syntax-check:
+    name: Bash Syntax Check
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        ubuntu-version: ['20.04', '22.04', '24.04']
-      fail-fast: false
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Run devcontainer installation
-        run: ./devcontainer.sh
+      - name: Check all shell scripts
+        run: |
+          find . -name "*.sh" -type f | while read -r file; do
+            bash -n "$file" || exit 1
+          done
+          bash -n ./ctdev || exit 1
+
+  test-cli:
+    name: Test ctdev CLI
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Test --help flag
+        run: ./ctdev --help
+
+      - name: Test --version flag
+        run: ./ctdev --version
+
+      - name: Test list command
+        run: ./ctdev list
+
+      - name: Test doctor command
+        run: ./ctdev doctor
+
+      - name: Test info command
+        run: ./ctdev info
+
+      - name: Test dry-run install
+        run: ./ctdev --dry-run install
+
+  test-ubuntu:
+    name: Test on Ubuntu ${{ matrix.ubuntu-version }}
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        ubuntu-version: ['22.04', '24.04']
+      fail-fast: false
+
+    container:
+      image: ubuntu:${{ matrix.ubuntu-version }}
+
+    steps:
+      - name: Install git
+        run: |
+          apt-get update
+          apt-get install -y git sudo
+
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install zsh component
+        run: ./ctdev install zsh
 
       - name: Verify zsh installation
         run: |
@@ -50,43 +98,55 @@ jobs:
           [ -f ~/.oh-my-zsh/custom/aliases.zsh ] || exit 1
           [ -f ~/.oh-my-zsh/custom/exports.zsh ] || exit 1
 
-      - name: Test version flag
-        run: ./devcontainer.sh --version
+      - name: Install git component
+        run: ./ctdev install git
 
-  test-ubuntu-full:
-    name: Test Full Installation (Desktop)
-    runs-on: ubuntu-latest
+      - name: Verify git config
+        run: |
+          [ -f ~/.gitconfig ] || exit 1
+          [ -f ~/.gitignore_global ] || exit 1
+
+      - name: Install CLI tools
+        run: ./ctdev install cli
+
+      - name: Verify CLI tools
+        run: |
+          command -v jq || exit 1
+          command -v gh || exit 1
+
+      - name: Run doctor
+        run: ./ctdev doctor
+
+  test-macos:
+    name: Test on macOS
+    runs-on: macos-latest
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Run installation (skip GUI apps)
+      - name: Test CLI commands
         run: |
-          # Run everything except GUI apps for CI
-          ./cli/install.sh
-          ./fonts/install.sh
-          ./git/install.sh
-          ./node/install.sh
-          ./ruby/install.sh
-          ./zsh/install.sh
+          ./ctdev --version
+          ./ctdev list
+          ./ctdev doctor
+          ./ctdev info
 
-      - name: Verify CLI tools
-        run: |
-          command -v git || exit 1
-          command -v zsh || exit 1
-          command -v gh || exit 1
-          command -v kubectl || exit 1
-          command -v doctl || exit 1
-          command -v node || exit 1
-          command -v ruby || exit 1
+      - name: Test dry-run install
+        run: ./ctdev --dry-run install
 
-      - name: Verify versions
+      - name: Install zsh component
+        run: ./ctdev install zsh
+
+      - name: Verify zsh installation
         run: |
-          git --version
-          zsh --version
-          gh --version
-          kubectl version --client
-          doctl version
-          node --version
-          ruby --version
+          [ -d ~/.oh-my-zsh ] || exit 1
+          [ -d ~/.zsh/pure ] || exit 1
+          [ -f ~/.zshrc ] || exit 1
+
+      - name: Install git component
+        run: ./ctdev install git
+
+      - name: Verify git config
+        run: |
+          [ -f ~/.gitconfig ] || exit 1
