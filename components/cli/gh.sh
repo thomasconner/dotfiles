@@ -30,15 +30,6 @@ elif [[ "$PM" == "apt" ]]; then
   # Add GitHub CLI repository
   curl -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg | maybe_sudo gpg --dearmor -o /usr/share/keyrings/githubcli-archive-keyring.gpg
 
-  # Use Ubuntu base codename for derivatives (e.g., Linux Mint)
-  CODENAME=$(lsb_release -cs)
-  if [ -f /etc/os-release ]; then
-    source /etc/os-release
-    if [ -n "${UBUNTU_CODENAME:-}" ]; then
-      CODENAME="$UBUNTU_CODENAME"
-    fi
-  fi
-
   echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/githubcli-archive-keyring.gpg] https://cli.github.com/packages stable main" | maybe_sudo tee /etc/apt/sources.list.d/github-cli.list > /dev/null
 
   maybe_sudo apt update

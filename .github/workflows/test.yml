@@ -21,7 +21,8 @@ jobs:
         with:
           scandir: '.'
           severity: warning
-          ignore_paths: shell components/zsh/.zshrc
+          ignore_paths: shell components/zsh
+          ignore_names: "*.zsh .zshrc"
 
   syntax-check:
     name: Bash Syntax Check
