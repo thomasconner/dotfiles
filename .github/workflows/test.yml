@@ -21,6 +21,7 @@ jobs:
         with:
           scandir: '.'
           severity: warning
+          ignore_paths: shell components/zsh/.zshrc
 
   syntax-check:
     name: Bash Syntax Check
@@ -78,7 +79,7 @@ jobs:
       - name: Install git
         run: |
           apt-get update
-          apt-get install -y git sudo
+          apt-get install -y git sudo curl
 
       - name: Checkout code
         uses: actions/checkout@v4
@@ -99,12 +100,13 @@ jobs:
           [ -f ~/.oh-my-zsh/custom/exports.zsh ] || exit 1
 
       - name: Install git component
-        run: ./ctdev install git
+        run: ./components/git/install.sh --name "CI Test" --email "ci@test.com"
 
       - name: Verify git config
         run: |
           [ -f ~/.gitconfig ] || exit 1
-          [ -f ~/.gitignore_global ] || exit 1
+          [ -f ~/.gitignore ] || exit 1
+          [ -f ~/.gitconfig.local ] || exit 1
 
       - name: Install CLI tools
         run: ./ctdev install cli
@@ -145,8 +147,9 @@ jobs:
           [ -f ~/.zshrc ] || exit 1
 
       - name: Install git component
-        run: ./ctdev install git
+        run: ./components/git/install.sh --name "CI Test" --email "ci@test.com"
 
       - name: Verify git config
         run: |
           [ -f ~/.gitconfig ] || exit 1
+          [ -f ~/.gitconfig.local ] || exit 1
