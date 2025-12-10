@@ -41,7 +41,7 @@ else
   ensure_unzip_installed
 
   for FONT in "${FONTS[@]}"; do
-    FONT_FILE=$(find "$FONT_DIR" -iname "${FONT}*.ttf" -o -iname "${FONT}*.otf" 2>/dev/null | head -n 1)
+    FONT_FILE=$(find "$FONT_DIR" \( -iname "${FONT}*.ttf" -o -iname "${FONT}*.otf" \) -print -quit 2>/dev/null)
 
     if [ -n "$FONT_FILE" ]; then
       log_info "$FONT already installed at $FONT_FILE, skipping..."
