@@ -27,13 +27,16 @@ elif [[ "$PM" == "apt" ]]; then
   ensure_curl_installed
   ensure_gpg_installed
 
-  # Use Ubuntu base codename for derivatives (e.g., Linux Mint)
-  CODENAME=$(lsb_release -cs)
+  # Get codename from os-release
+  CODENAME=""
   if [ -f /etc/os-release ]; then
     source /etc/os-release
-    if [ -n "${UBUNTU_CODENAME:-}" ]; then
-      CODENAME="$UBUNTU_CODENAME"
-    fi
+    CODENAME="${UBUNTU_CODENAME:-${VERSION_CODENAME:-}}"
+  fi
+
+  if [ -z "$CODENAME" ]; then
+    log_error "Could not determine distribution codename"
+    exit 1
   fi
 
   # Add HashiCorp GPG key and repository
