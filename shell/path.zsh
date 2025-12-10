@@ -1,5 +1,12 @@
 # Path
 
+# User binaries first (for ctdev and other user-installed tools)
+path=(
+  $HOME/.local/bin
+  $HOME/bin
+  $path
+)
+
 # Homebrew paths (macOS)
 # Apple Silicon Macs use /opt/homebrew, Intel Macs use /usr/local
 if [[ -d "/opt/homebrew" ]]; then
@@ -14,8 +21,6 @@ path=(
   $path
   /usr/local/bin
   /usr/local/sbin
-  $HOME/bin
-  $HOME/.local/bin
   $HOME/.nodenv/bin
   $HOME/.rbenv/bin
   $GOPATH/bin
