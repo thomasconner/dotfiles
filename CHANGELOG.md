@@ -2,6 +2,11 @@
 
 All notable changes to this project will be documented in this file.
 
+## [5.0.4] - 2024-12-11
+
+### Added
+- Auto-update check: ctdev now checks if the repo is behind origin before running any command and prompts to pull the latest changes
+
 ## [5.0.3] - 2024-12-10
 
 ### Added

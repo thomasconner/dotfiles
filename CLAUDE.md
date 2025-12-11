@@ -20,6 +20,8 @@ ctdev setup                     # Symlink ctdev to ~/.local/bin
 
 **Flags:** `--help`, `--verbose`, `--dry-run`, `--version`
 
+**Auto-update:** ctdev checks for repo updates before any command and prompts to pull if behind origin.
+
 ## Components
 
 | Component | Description |

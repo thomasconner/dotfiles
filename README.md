@@ -24,6 +24,8 @@ ctdev setup                     # Symlink ctdev to ~/.local/bin
 
 **Flags:** `--help`, `--dry-run`, `--verbose`, `--version`
 
+**Auto-update:** When running any command, ctdev checks for updates and prompts to pull the latest changes before proceeding.
+
 ## Components
 
 | Component | Description |
