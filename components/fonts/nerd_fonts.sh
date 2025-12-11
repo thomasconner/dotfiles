@@ -20,12 +20,18 @@ if [[ "$OS" == "macos" ]]; then
 
   for FONT in "${FONTS[@]}"; do
     # Convert to Homebrew cask naming (lowercase, prefixed)
-    CASK_NAME="font-${FONT,,}-nerd-font"
+    # Use tr for lowercase conversion (bash 3.2 compatible)
+    FONT_LOWER=$(echo "$FONT" | tr '[:upper:]' '[:lower:]')
+    CASK_NAME="font-${FONT_LOWER}-nerd-font"
     # Fix casing for multi-word names
-    CASK_NAME=$(echo "$CASK_NAME" | sed 's/jetbrainsmono/jetbrains-mono/g; s/ubuntumono/ubuntu-mono/g')
+    CASK_NAME=$(echo "$CASK_NAME" | sed 's/jetbrainsmono/jetbrains-mono/g; s/ubuntumono/ubuntu-mono/g; s/firacode/fira-code/g')
 
+    # Check if already installed via Homebrew
     if brew list --cask "$CASK_NAME" &>/dev/null; then
       log_info "$FONT Nerd Font already installed via Homebrew"
+    # Check if font files already exist in ~/Library/Fonts (manual installation)
+    elif ls ~/Library/Fonts/*"${FONT}"*Nerd*.ttf &>/dev/null 2>&1; then
+      log_info "$FONT Nerd Font already installed in ~/Library/Fonts"
     else
       log_info "Installing $FONT Nerd Font via Homebrew..."
       run_cmd brew install --cask "$CASK_NAME"
@@ -72,3 +78,18 @@ else
 fi
 
 log_success "Nerd Fonts installation complete"
+
+# Print setup instructions
+echo ""
+log_info "To use Nerd Font icons, configure your terminal to use a Nerd Font:"
+echo ""
+echo "  iTerm2:"
+echo "    Preferences → Profiles → Text → Font → Select a Nerd Font"
+echo ""
+echo "  Terminal.app:"
+echo "    Preferences → Profiles → Font → Change → Select a Nerd Font"
+echo ""
+echo "  VS Code:"
+echo "    Settings → Terminal › Integrated: Font Family → \"FiraCode Nerd Font\""
+echo ""
+echo "  Installed Nerd Fonts: FiraCode, JetBrainsMono, Hack, Ubuntu, UbuntuMono"
