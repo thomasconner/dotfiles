@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file.
 
+## [5.0.5] - 2024-12-11
+
+### Fixed
+- Nerd Fonts installation on macOS with Bash 3.2 (replaced `${VAR,,}` with `tr` for lowercase conversion)
+- Added detection for manually installed fonts to avoid Homebrew cask conflicts
+
+### Added
+- Terminal configuration instructions printed after fonts installation (iTerm2, Terminal.app, VS Code)
+
 ## [5.0.4] - 2024-12-11
 
 ### Added

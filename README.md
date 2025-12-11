@@ -36,7 +36,7 @@ ctdev setup                     # Symlink ctdev to ~/.local/bin
 | `node` | Node.js via nodenv |
 | `ruby` | Ruby via rbenv |
 | `apps` | Desktop apps (Chrome, VSCode, Slack, 1Password, etc.) |
-| `fonts` | Nerd Fonts (FiraCode, JetBrainsMono, Hack, Ubuntu) |
+| `fonts` | Nerd Fonts (FiraCode, JetBrainsMono, Hack, Ubuntu) - configure your terminal to use a Nerd Font for icons |
 
 ## Examples
 
