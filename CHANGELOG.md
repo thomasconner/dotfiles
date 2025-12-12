@@ -2,6 +2,11 @@
 
 All notable changes to this project will be documented in this file.
 
+## [5.0.6] - 2024-12-12
+
+### Added
+- `devcontainer.sh` for VS Code dotfiles integration (supports `dotfiles.installCommand` setting)
+
 ## [5.0.5] - 2024-12-11
 
 ### Fixed

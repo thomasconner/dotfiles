@@ -57,6 +57,22 @@ ctdev install git                                              # Interactive pro
 
 ## DevContainers
 
+### VS Code Dotfiles Feature (Recommended)
+
+Add to your VS Code `settings.json`:
+
+```json
+{
+  "dotfiles.repository": "https://github.com/thomasconner/dotfiles.git",
+  "dotfiles.targetPath": "~/dotfiles",
+  "dotfiles.installCommand": "./devcontainer.sh"
+}
+```
+
+This automatically installs zsh, Oh My Zsh, and Pure prompt in all your devcontainers.
+
+### Alternative: postCreateCommand
+
 Add to `.devcontainer/devcontainer.json`:
 
 ```json
