@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file.
 
+## [5.1.1] - 2024-12-14
+
+### Changed
+- `ctdev update` now checks if components are installed before updating
+- Shows helpful skip message with install instructions for non-installed components
+- Components without update support (git, fonts, apps, macos) show "No update needed" message
+
+### Fixed
+- Variable scope bug in `lib/components.sh` that caused incorrect component names in output
+
 ## [5.1.0] - 2024-12-14
 
 ### Added
