@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [5.1.0] - 2024-12-14
+
+### Added
+- New `macos` component for configuring macOS system defaults (Dock, Finder, keyboard, dialogs, security)
+- GitHub CLI extensions update in `ctdev update cli`
+
 ## [5.0.6] - 2024-12-12
 
 ### Added

@@ -37,6 +37,7 @@ ctdev setup                     # Symlink ctdev to ~/.local/bin
 | `ruby` | Ruby via rbenv |
 | `apps` | Desktop apps (Chrome, VSCode, Slack, 1Password, etc.) |
 | `fonts` | Nerd Fonts (FiraCode, JetBrainsMono, Hack, Ubuntu) - configure your terminal to use a Nerd Font for icons |
+| `macos` | macOS system defaults (Dock, Finder, keyboard) - run explicitly with `ctdev install macos` |
 
 ## Examples
 
