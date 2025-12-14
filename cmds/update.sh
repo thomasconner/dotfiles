@@ -7,7 +7,7 @@ OS=$(detect_os)
 PKG_MGR=$(get_package_manager)
 
 # ============================================================================
-# Update Functions
+# System Update Functions (always available)
 # ============================================================================
 
 update_system_packages() {
@@ -124,9 +124,11 @@ update_firmware() {
     fi
 }
 
-update_zsh() {
-    log_step "Updating Zsh Components"
+# ============================================================================
+# Component Update Functions
+# ============================================================================
 
+update_zsh() {
     # Oh My Zsh
     if [[ -d "$HOME/.oh-my-zsh/.git" ]]; then
         log_info "Updating Oh My Zsh..."
@@ -176,8 +178,6 @@ update_zsh() {
 }
 
 update_node() {
-    log_step "Updating Node.js Components"
-
     # Update nodenv if installed via git (not Homebrew)
     if [[ -d "$HOME/.nodenv/.git" ]]; then
         log_info "Updating nodenv..."
@@ -210,8 +210,6 @@ update_node() {
 }
 
 update_ruby() {
-    log_step "Updating Ruby Components"
-
     # Update rbenv if installed via git (not Homebrew)
     if [[ -d "$HOME/.rbenv/.git" ]]; then
         log_info "Updating rbenv..."
@@ -245,9 +243,7 @@ update_ruby() {
 }
 
 update_cli() {
-    log_step "Updating CLI Tools"
-
-    # Update GitHub CLI extensions (cross-platform)
+    # Update GitHub CLI extensions
     if command -v gh >/dev/null 2>&1; then
         log_info "Updating GitHub CLI extensions..."
         if [[ "$DRY_RUN" == "true" ]]; then
@@ -257,62 +253,33 @@ update_cli() {
         fi
     fi
 
-    # For macOS with Homebrew, CLI tools are updated via brew upgrade
+    # On macOS, CLI tools are updated via brew upgrade (already done in system packages)
     if [[ "$OS" == "macos" ]]; then
-        log_info "CLI tools updated via Homebrew (see system packages update)"
-        log_success "CLI tools checked"
-        return
+        log_info "CLI tools updated via Homebrew (see system packages)"
     fi
 
-    # Update GitHub CLI on Linux
-    if command -v gh >/dev/null 2>&1; then
-        log_info "Updating GitHub CLI..."
-        if [[ "$DRY_RUN" == "true" ]]; then
-            log_debug "[DRY-RUN] Would update: gh"
-        else
-            case "$PKG_MGR" in
-                apt)
-                    maybe_sudo apt update && maybe_sudo apt install -y gh
-                    ;;
-                dnf)
-                    maybe_sudo dnf upgrade -y gh
-                    ;;
-                *)
-                    log_info "Manual update required for gh on $OS"
-                    ;;
-            esac
-        fi
-    fi
-
-    # Show versions for other tools
-    if command -v kubectl >/dev/null 2>&1; then
-        log_info "Current kubectl: $(kubectl version --client --short 2>/dev/null || kubectl version --client)"
-    fi
-
-    if command -v doctl >/dev/null 2>&1; then
-        log_info "Current doctl: $(doctl version)"
-    fi
-
-    if command -v helm >/dev/null 2>&1; then
-        log_info "Current Helm: $(helm version --short 2>/dev/null || helm version)"
-    fi
-
-    log_success "CLI tools checked"
+    log_success "CLI tools updated"
 }
 
 # ============================================================================
-# Component mapping
+# Components with update support
 # ============================================================================
 
-get_update_function() {
+# Components that have meaningful updates (beyond system package manager)
+UPDATABLE_COMPONENTS="zsh node ruby cli"
+
+has_update_support() {
+    local component="$1"
+    [[ " $UPDATABLE_COMPONENTS " == *" $component "* ]]
+}
+
+run_component_update() {
     local component="$1"
     case "$component" in
-        system) echo "update_system_packages" ;;
-        zsh)    echo "update_zsh" ;;
-        node)   echo "update_node" ;;
-        ruby)   echo "update_ruby" ;;
-        cli)    echo "update_cli" ;;
-        *)      echo "" ;;
+        zsh)  update_zsh ;;
+        node) update_node ;;
+        ruby) update_ruby ;;
+        cli)  update_cli ;;
     esac
 }
 
@@ -321,7 +288,18 @@ get_update_function() {
 # ============================================================================
 
 cmd_update() {
-    local components=("$@")
+    local components=()
+
+    # Parse arguments, filtering out flags
+    for arg in "$@"; do
+        case "$arg" in
+            -h|--help|-v|--verbose|-n|--dry-run)
+                ;;
+            *)
+                components+=("$arg")
+                ;;
+        esac
+    done
 
     log_step "ctdev update"
     if [[ "$DRY_RUN" == "true" ]]; then
@@ -331,41 +309,90 @@ cmd_update() {
     log_info "Package manager: $PKG_MGR"
     echo
 
-    # If no components specified, update all
+    # Always run system updates first
+    update_system_packages
+    echo
+    update_macos_software
+    echo
+    update_firmware
+    echo
+
+    # Determine which components to update
     if [[ ${#components[@]} -eq 0 ]]; then
-        log_info "Updating all components..."
+        # No components specified - update all installed components
+        log_step "Updating installed components"
         echo
 
-        update_system_packages
-        echo
-        update_macos_software
-        echo
-        update_firmware
-        echo
-        update_zsh
-        echo
-        update_node
-        echo
-        update_ruby
-        echo
-        update_cli
-        echo
+        local updated=()
+        local skipped=()
+
+        for component in $UPDATABLE_COMPONENTS; do
+            if is_component_installed "$component"; then
+                log_step "Updating $component"
+                run_component_update "$component"
+                updated+=("$component")
+                echo
+            else
+                skipped+=("$component")
+            fi
+        done
+
+        # Show summary of skipped components
+        if [[ ${#skipped[@]} -gt 0 ]]; then
+            echo
+            log_info "Skipped (not installed):"
+            for component in "${skipped[@]}"; do
+                local desc
+                desc=$(get_component_description "$component")
+                echo "  - $component: $desc"
+                echo "    Install with: ctdev install $component"
+            done
+        fi
     else
-        # Update specified components
-        for component in "${components[@]}"; do
-            local update_fn
-            update_fn=$(get_update_function "$component")
+        # Specific components requested
+        log_step "Updating specified components"
+        echo
 
-            if [[ -z "$update_fn" ]]; then
-                log_warning "No update function for component: $component"
+        local updated=()
+        local skipped=()
+        local invalid=()
+
+        for component in "${components[@]}"; do
+            # Check if component exists
+            if ! is_valid_component "$component"; then
+                log_error "Unknown component: $component"
+                invalid+=("$component")
                 continue
             fi
 
-            "$update_fn"
+            # Check if component has update support
+            if ! has_update_support "$component"; then
+                log_info "$component: No update needed (managed by system packages or one-time setup)"
+                continue
+            fi
+
+            # Check if component is installed
+            if ! is_component_installed "$component"; then
+                log_warning "$component is not installed, skipping"
+                log_info "  Install with: ctdev install $component"
+                skipped+=("$component")
+                echo
+                continue
+            fi
+
+            log_step "Updating $component"
+            run_component_update "$component"
+            updated+=("$component")
             echo
         done
+
+        if [[ ${#invalid[@]} -gt 0 ]]; then
+            echo
+            log_info "Available components: $(list_components | tr '\n' ' ')"
+        fi
     fi
 
+    # Final summary
     log_step "Update Complete!"
 
     if [[ "$DRY_RUN" == "true" ]]; then

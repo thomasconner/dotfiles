@@ -25,9 +25,9 @@ DEFAULT_INSTALL_ORDER="apps cli fonts git node ruby zsh"
 
 # List all available components
 list_components() {
-    local name desc script
-    for component in "${COMPONENTS[@]}"; do
-        IFS=':' read -r name desc script <<< "$component"
+    local name desc script entry
+    for entry in "${COMPONENTS[@]}"; do
+        IFS=':' read -r name desc script <<< "$entry"
         echo "$name"
     done
 }
@@ -35,9 +35,9 @@ list_components() {
 # Get component description
 get_component_description() {
     local target="$1"
-    local name desc script
-    for component in "${COMPONENTS[@]}"; do
-        IFS=':' read -r name desc script <<< "$component"
+    local name desc script entry
+    for entry in "${COMPONENTS[@]}"; do
+        IFS=':' read -r name desc script <<< "$entry"
         if [[ "$name" == "$target" ]]; then
             echo "$desc"
             return 0
@@ -49,9 +49,9 @@ get_component_description() {
 # Get path to component install script
 get_component_install_script() {
     local target="$1"
-    local name desc script
-    for component in "${COMPONENTS[@]}"; do
-        IFS=':' read -r name desc script <<< "$component"
+    local name desc script entry
+    for entry in "${COMPONENTS[@]}"; do
+        IFS=':' read -r name desc script <<< "$entry"
         if [[ "$name" == "$target" ]]; then
             echo "${DOTFILES_ROOT}/${script}"
             return 0
@@ -63,9 +63,9 @@ get_component_install_script() {
 # Check if a component name is valid
 is_valid_component() {
     local target="$1"
-    local name desc script
-    for component in "${COMPONENTS[@]}"; do
-        IFS=':' read -r name desc script <<< "$component"
+    local name desc script entry
+    for entry in "${COMPONENTS[@]}"; do
+        IFS=':' read -r name desc script <<< "$entry"
         if [[ "$name" == "$target" ]]; then
             return 0
         fi
