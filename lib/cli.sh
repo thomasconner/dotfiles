@@ -67,12 +67,14 @@ ctdev install - Install dotfiles components
 Usage: ctdev install [OPTIONS] [COMPONENT...]
 
 If no components are specified, all components will be installed.
+Note: 'macos' is not included by default - run it explicitly.
 
 Components:
     apps       Desktop applications (Chrome, VSCode, Slack, etc.)
     cli        CLI tools (jq, gh, kubectl, btop, etc.)
     fonts      Nerd Fonts for terminal
     git        Git configuration and aliases
+    macos      macOS system defaults (Dock, Finder, keyboard)
     node       Node.js via nodenv
     ruby       Ruby via rbenv
     zsh        Zsh, Oh My Zsh, Pure prompt, plugins
@@ -83,9 +85,10 @@ Options:
     -n, --dry-run    Preview changes without applying
 
 Examples:
-    ctdev install              Install everything
+    ctdev install              Install everything (except macos)
     ctdev install zsh          Minimal setup (shell/prompt only)
     ctdev install zsh git cli  Install specific components
+    ctdev install macos        Configure macOS system defaults
     ctdev install --dry-run    Preview what would be installed
 EOF
 }
@@ -97,15 +100,17 @@ ctdev update - Update dotfiles components
 
 Usage: ctdev update [OPTIONS] [COMPONENT...]
 
-If no components are specified, all components will be updated.
+If no components are specified, all installed components will be updated.
+System packages (brew/apt/etc.) are always updated first.
 
-Components:
-    apps       Desktop applications
-    cli        CLI tools
-    node       Node.js and npm packages
-    ruby       Ruby and gems
+Updatable Components:
+    cli        GitHub CLI extensions
+    node       nodenv, node-build, npm global packages
+    ruby       rbenv, ruby-build, gems
     zsh        Oh My Zsh, plugins, Pure prompt
-    system     System packages (apt/brew/etc.)
+
+Other components (apps, fonts, git, macos) are managed by system
+packages or are one-time setup - no separate update needed.
 
 Options:
     -h, --help       Show this help message
@@ -113,8 +118,8 @@ Options:
     -n, --dry-run    Preview changes without applying
 
 Examples:
-    ctdev update           Update everything
-    ctdev update cli node  Update specific components
+    ctdev update           Update system packages and all components
+    ctdev update zsh node  Update specific components
     ctdev update --dry-run Preview what would be updated
 EOF
 }
@@ -183,6 +188,7 @@ Components:
     cli        CLI tools
     fonts      Nerd Fonts
     git        Git configuration
+    macos      macOS system defaults (resets to Apple defaults)
     node       Node.js (nodenv)
     ruby       Ruby (rbenv)
     zsh        Zsh configuration

@@ -150,6 +150,60 @@ uninstall_apps() {
     log_success "Apps uninstall guidance provided"
 }
 
+uninstall_macos() {
+    log_step "Resetting macOS defaults"
+
+    if [[ "$(uname -s)" != "Darwin" ]]; then
+        log_info "Not on macOS, skipping"
+        return
+    fi
+
+    log_info "Resetting Dock settings..."
+    defaults delete com.apple.dock autohide-delay 2>/dev/null || true
+    defaults delete com.apple.dock autohide-time-modifier 2>/dev/null || true
+    defaults delete com.apple.dock launchanim 2>/dev/null || true
+    defaults delete com.apple.dock show-recents 2>/dev/null || true
+    defaults delete com.apple.dock minimize-to-application 2>/dev/null || true
+
+    log_info "Resetting Finder settings..."
+    defaults delete com.apple.finder AppleShowAllFiles 2>/dev/null || true
+    defaults delete NSGlobalDomain AppleShowAllExtensions 2>/dev/null || true
+    defaults delete com.apple.finder ShowPathbar 2>/dev/null || true
+    defaults delete com.apple.finder ShowStatusBar 2>/dev/null || true
+    defaults delete com.apple.desktopservices DSDontWriteNetworkStores 2>/dev/null || true
+    defaults delete com.apple.desktopservices DSDontWriteUSBStores 2>/dev/null || true
+    defaults delete com.apple.finder FXDefaultSearchScope 2>/dev/null || true
+    defaults delete com.apple.finder FXPreferredViewStyle 2>/dev/null || true
+    defaults delete com.apple.finder QuitMenuItem 2>/dev/null || true
+
+    log_info "Resetting Keyboard settings..."
+    defaults delete NSGlobalDomain NSAutomaticQuoteSubstitutionEnabled 2>/dev/null || true
+    defaults delete NSGlobalDomain NSAutomaticDashSubstitutionEnabled 2>/dev/null || true
+    defaults delete NSGlobalDomain NSAutomaticSpellingCorrectionEnabled 2>/dev/null || true
+    defaults delete NSGlobalDomain NSAutomaticCapitalizationEnabled 2>/dev/null || true
+    defaults delete NSGlobalDomain NSAutomaticPeriodSubstitutionEnabled 2>/dev/null || true
+    defaults delete NSGlobalDomain KeyRepeat 2>/dev/null || true
+    defaults delete NSGlobalDomain InitialKeyRepeat 2>/dev/null || true
+    defaults delete NSGlobalDomain AppleKeyboardUIMode 2>/dev/null || true
+
+    log_info "Resetting Dialog settings..."
+    defaults delete NSGlobalDomain NSNavPanelExpandedStateForSaveMode 2>/dev/null || true
+    defaults delete NSGlobalDomain NSNavPanelExpandedStateForSaveMode2 2>/dev/null || true
+    defaults delete NSGlobalDomain PMPrintingExpandedStateForPrint 2>/dev/null || true
+    defaults delete NSGlobalDomain PMPrintingExpandedStateForPrint2 2>/dev/null || true
+
+    log_info "Resetting Security settings..."
+    defaults delete com.apple.screensaver askForPassword 2>/dev/null || true
+    defaults delete com.apple.screensaver askForPasswordDelay 2>/dev/null || true
+
+    log_info "Applying changes..."
+    killall Dock 2>/dev/null || true
+    killall Finder 2>/dev/null || true
+
+    log_success "macOS defaults reset to Apple defaults"
+    log_info "Note: Some settings may require a logout/restart to take full effect"
+}
+
 # ============================================================================
 # Main command
 # ============================================================================
@@ -192,6 +246,7 @@ cmd_uninstall() {
             fonts) uninstall_fonts ;;
             cli)   uninstall_cli ;;
             apps)  uninstall_apps ;;
+            macos) uninstall_macos ;;
             *)
                 log_warning "No uninstall function for: $component"
                 ;;
