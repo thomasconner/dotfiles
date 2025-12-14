@@ -18,22 +18,25 @@ check_tool() {
         set -e
 
         if [[ $exit_code -eq 0 ]]; then
-            echo "  [✓] $tool: $version"
+            log_check_pass "$tool" "$version"
         else
-            echo "  [✓] $tool: installed (version check failed)"
+            log_check_pass "$tool" "installed (version check failed)"
         fi
     else
-        echo "  [✗] $tool: not installed"
+        log_check_fail "$tool"
     fi
 }
 
 human_size() {
     local bytes=$1
-    if command -v numfmt >/dev/null 2>&1; then
-        numfmt --to=iec-i --suffix=B "$bytes"
-    else
-        echo "${bytes} bytes"
-    fi
+    # Use decimal units (SI) to match macOS Finder and diskutil display
+    awk -v bytes="$bytes" 'BEGIN {
+        if (bytes >= 1000000000000) printf "%.1f TB", bytes/1000000000000
+        else if (bytes >= 1000000000) printf "%.1f GB", bytes/1000000000
+        else if (bytes >= 1000000) printf "%.1f MB", bytes/1000000
+        else if (bytes >= 1000) printf "%.1f KB", bytes/1000
+        else printf "%d bytes", bytes
+    }'
 }
 
 # ============================================================================
@@ -109,7 +112,26 @@ show_hardware_info() {
 
     # Disk Space
     echo "  Disk Usage:"
-    if command -v df >/dev/null 2>&1; then
+    if [[ "$OSTYPE" == "darwin"* ]]; then
+        # macOS with APFS - get container-level usage for accurate numbers
+        local container_info
+        container_info=$(diskutil apfs list 2>/dev/null | grep -A 5 "Container disk" | head -6)
+        if [[ -n "$container_info" ]]; then
+            local total_bytes used_bytes pct_used
+            total_bytes=$(echo "$container_info" | grep "Size (Capacity Ceiling)" | awk -F: '{print $2}' | awk '{print $1}')
+            used_bytes=$(echo "$container_info" | grep "Capacity In Use" | awk -F: '{print $2}' | awk '{print $1}')
+            pct_used=$(echo "$container_info" | grep "Capacity In Use" | grep -oE '[0-9.]+% used' | cut -d'%' -f1)
+
+            if [[ -n "$total_bytes" && -n "$used_bytes" && -n "$pct_used" ]]; then
+                echo "    Root (/): $(human_size "$used_bytes") used / $(human_size "$total_bytes") total (${pct_used}% full)"
+            else
+                # Fallback to df if parsing fails
+                df -h / | tail -n 1 | awk '{print "    Root (/): " $3 " used / " $2 " total (" $5 " full)"}'
+            fi
+        else
+            df -h / | tail -n 1 | awk '{print "    Root (/): " $3 " used / " $2 " total (" $5 " full)"}'
+        fi
+    elif command -v df >/dev/null 2>&1; then
         df -h / | tail -n 1 | awk '{print "    Root (/): " $3 " used / " $2 " total (" $5 " full)"}'
     fi
 
@@ -198,11 +220,11 @@ cmd_info() {
     version=$(get_version)
 
     echo
-    log_success "═══════════════════════════════════════════════════════════════"
-    log_success "   SYSTEM REPORT"
-    log_success "   Generated: $(date '+%Y-%m-%d %H:%M:%S')"
-    log_success "   ctdev version: ${version}"
-    log_success "═══════════════════════════════════════════════════════════════"
+    echo "═══════════════════════════════════════════════════════════════"
+    echo "   SYSTEM REPORT"
+    echo "   Generated: $(date '+%Y-%m-%d %H:%M:%S')"
+    echo "   ctdev version: ${version}"
+    echo "═══════════════════════════════════════════════════════════════"
     echo
 
     show_system_info
@@ -210,8 +232,8 @@ cmd_info() {
     show_installed_tools
     show_environment_details
 
-    log_success "═══════════════════════════════════════════════════════════════"
-    log_success "   Report complete!"
-    log_success "═══════════════════════════════════════════════════════════════"
+    echo "═══════════════════════════════════════════════════════════════"
+    echo "   Report complete!"
+    echo "═══════════════════════════════════════════════════════════════"
     echo
 }

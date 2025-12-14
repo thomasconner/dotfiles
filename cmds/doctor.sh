@@ -20,22 +20,22 @@ check_symlink() {
             expected_real=$(realpath "$expected_source" 2>/dev/null) || expected_real=""
 
             if [[ -n "$actual_real" && "$actual_real" == "$expected_real" ]]; then
-                log_success "$name: OK"
+                log_check_pass "$name" "OK"
                 return 0
             fi
         fi
 
         # Symlink exists but points to wrong location or broken
-        log_warning "$name: symlink points to wrong location"
+        log_check_fail "$name" "symlink points to wrong location"
         echo "      Expected: $expected_source"
         echo "      Actual: $(readlink "$target")"
         return 1
     elif [[ -f "$target" ]]; then
-        log_warning "$name: file exists but is not a symlink"
+        log_check_fail "$name" "file exists but is not a symlink"
         echo "      Fix: backup and re-run ctdev install"
         return 1
     else
-        log_info "$name: not configured"
+        log_check_fail "$name" "not configured"
         return 1
     fi
 }
@@ -45,10 +45,10 @@ check_command() {
     local cmd="$2"
 
     if command -v "$cmd" >/dev/null 2>&1; then
-        log_success "$name: installed"
+        log_check_pass "$name" "installed"
         return 0
     else
-        log_warning "$name: not installed"
+        log_check_fail "$name" "not installed"
         return 1
     fi
 }
@@ -58,10 +58,10 @@ check_directory() {
     local dir="$2"
 
     if [[ -d "$dir" ]]; then
-        log_success "$name: OK"
+        log_check_pass "$name" "OK"
         return 0
     else
-        log_warning "$name: directory missing"
+        log_check_fail "$name" "directory missing"
         echo "      Expected: $dir"
         return 1
     fi
@@ -100,14 +100,14 @@ check_git_health() {
     git_email=$(git config --global user.email 2>/dev/null || echo "")
 
     if [[ -n "$git_name" && -n "$git_email" ]]; then
-        log_success "user: $git_name <$git_email>"
+        log_check_pass "user" "$git_name <$git_email>"
     else
         if [[ -z "$git_name" ]]; then
-            log_warning "user.name: not configured"
+            log_check_fail "user.name" "not configured"
             ((issues++))
         fi
         if [[ -z "$git_email" ]]; then
-            log_warning "user.email: not configured"
+            log_check_fail "user.email" "not configured"
             ((issues++))
         fi
         log_info "Run: ctdev install git --name 'Your Name' --email 'your@email.com'"
@@ -128,9 +128,9 @@ check_node_health() {
     # Check global packages
     if command -v npm >/dev/null 2>&1; then
         if npm list -g @anthropic-ai/claude-code >/dev/null 2>&1; then
-            log_success "claude-code: installed"
+            log_check_pass "claude-code" "installed"
         else
-            log_info "claude-code: not installed (optional)"
+            log_check_fail "claude-code" "not installed (optional)"
         fi
     fi
 
@@ -144,11 +144,11 @@ check_ruby_health() {
 
     # Check if rbenv is installed, or if system Ruby is being used
     if [[ -d "$HOME/.rbenv" ]]; then
-        log_success "rbenv: OK"
+        log_check_pass "rbenv" "OK"
     elif command -v ruby >/dev/null 2>&1; then
-        log_info "rbenv: not installed (using system Ruby)"
+        log_check_fail "rbenv" "not installed (using system Ruby)"
     else
-        log_warning "rbenv: not installed"
+        log_check_fail "rbenv" "not installed"
         ((issues++))
     fi
 
@@ -158,9 +158,9 @@ check_ruby_health() {
     # Check gems
     if command -v gem >/dev/null 2>&1; then
         if gem list colorls | grep -q colorls; then
-            log_success "colorls: installed"
+            log_check_pass "colorls" "installed"
         else
-            log_info "colorls: not installed (optional)"
+            log_check_fail "colorls" "not installed (optional)"
         fi
     fi
 
@@ -193,7 +193,110 @@ check_shell_config_health() {
         check_symlink "exports.zsh" "$custom_dir/exports.zsh" "${DOTFILES_ROOT}/shell/exports.zsh" || ((issues++))
         check_symlink "path.zsh" "$custom_dir/path.zsh" "${DOTFILES_ROOT}/shell/path.zsh" || ((issues++))
     else
-        log_warning "Oh My Zsh custom directory not found"
+        log_check_fail "Oh My Zsh custom directory" "not found"
+        ((issues++))
+    fi
+
+    echo
+    return $issues
+}
+
+check_apps_health() {
+    log_step "Checking Applications"
+    local issues=0
+
+    # Check for commonly installed apps
+    if [[ "$(uname -s)" == "Darwin" ]]; then
+        # macOS - check Applications folder
+        if [[ -d "/Applications/Visual Studio Code.app" ]] || command -v code >/dev/null 2>&1; then
+            log_check_pass "VS Code" "installed"
+        else
+            log_check_fail "VS Code" "not installed (optional)"
+        fi
+
+        if [[ -d "/Applications/Google Chrome.app" ]]; then
+            log_check_pass "Chrome" "installed"
+        else
+            log_check_fail "Chrome" "not installed (optional)"
+        fi
+
+        if [[ -d "/Applications/Slack.app" ]]; then
+            log_check_pass "Slack" "installed"
+        else
+            log_check_fail "Slack" "not installed (optional)"
+        fi
+    else
+        # Linux - check commands
+        check_command "VS Code" "code" || true
+        check_command "Chrome" "google-chrome" || check_command "Chromium" "chromium-browser" || true
+    fi
+
+    echo
+    return $issues
+}
+
+check_fonts_health() {
+    log_step "Checking Fonts"
+    local issues=0
+
+    if [[ "$(uname -s)" == "Darwin" ]]; then
+        # macOS - check ~/Library/Fonts
+        if ls ~/Library/Fonts/*Nerd* >/dev/null 2>&1; then
+            local font_count
+            font_count=$(ls ~/Library/Fonts/*Nerd* 2>/dev/null | wc -l | tr -d ' ')
+            log_check_pass "Nerd Fonts" "${font_count} fonts installed"
+        else
+            log_check_fail "Nerd Fonts" "not installed"
+            ((issues++))
+        fi
+    else
+        # Linux - check ~/.local/share/fonts or /usr/share/fonts
+        if ls ~/.local/share/fonts/*Nerd* >/dev/null 2>&1; then
+            local font_count
+            font_count=$(ls ~/.local/share/fonts/*Nerd* 2>/dev/null | wc -l | tr -d ' ')
+            log_check_pass "Nerd Fonts" "${font_count} fonts installed"
+        elif ls /usr/share/fonts/*Nerd* >/dev/null 2>&1; then
+            local font_count
+            font_count=$(ls /usr/share/fonts/*Nerd* 2>/dev/null | wc -l | tr -d ' ')
+            log_check_pass "Nerd Fonts" "${font_count} fonts installed (system)"
+        else
+            log_check_fail "Nerd Fonts" "not installed"
+            ((issues++))
+        fi
+    fi
+
+    echo
+    return $issues
+}
+
+check_macos_health() {
+    # Only run on macOS
+    if [[ "$(uname -s)" != "Darwin" ]]; then
+        return 0
+    fi
+
+    log_step "Checking macOS Defaults"
+    local issues=0
+
+    # Check key defaults that indicate the component was installed
+    if [[ "$(defaults read com.apple.dock show-recents 2>/dev/null)" == "0" ]]; then
+        log_check_pass "Dock settings" "configured"
+    else
+        log_check_fail "Dock settings" "not configured"
+        ((issues++))
+    fi
+
+    if [[ "$(defaults read com.apple.finder ShowPathbar 2>/dev/null)" == "1" ]]; then
+        log_check_pass "Finder settings" "configured"
+    else
+        log_check_fail "Finder settings" "not configured"
+        ((issues++))
+    fi
+
+    if [[ "$(defaults read NSGlobalDomain NSAutomaticQuoteSubstitutionEnabled 2>/dev/null)" == "0" ]]; then
+        log_check_pass "Keyboard settings" "configured"
+    else
+        log_check_fail "Keyboard settings" "not configured"
         ((issues++))
     fi
 
@@ -217,7 +320,10 @@ cmd_doctor() {
     check_node_health || ((total_issues+=$?))
     check_ruby_health || ((total_issues+=$?))
     check_cli_health || ((total_issues+=$?))
+    check_apps_health || ((total_issues+=$?))
+    check_fonts_health || ((total_issues+=$?))
     check_shell_config_health || ((total_issues+=$?))
+    check_macos_health || ((total_issues+=$?))
 
     log_step "Summary"
 

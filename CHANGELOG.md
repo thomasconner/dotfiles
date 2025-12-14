@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file.
 
+## [5.1.2] - 2024-12-14
+
+### Added
+- `ctdev doctor` now checks apps, fonts, and macOS defaults components
+- `log_check_pass` and `log_check_fail` helpers in `lib/utils.sh` for consistent status output
+
+### Changed
+- Unified logging across `ctdev info` and `ctdev doctor` using shared check helpers
+- Consistent colored checkmark output (green for pass, yellow for fail)
+
 ## [5.1.1] - 2024-12-14
 
 ### Changed

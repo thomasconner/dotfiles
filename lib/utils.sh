@@ -106,6 +106,38 @@ log_debug() {
   fi
 }
 
+# Log a passing check (green checkmark)
+# Usage: log_check_pass "tool_name" "details"
+log_check_pass() {
+  local name="$1"
+  local details="${2:-}"
+  if [[ "$USE_COLOR" == "true" ]]; then
+    if [[ -n "$details" ]]; then
+      echo -e "  ${GREEN}[✓]${NC} ${name}: ${details}"
+    else
+      echo -e "  ${GREEN}[✓]${NC} ${name}"
+    fi
+  else
+    if [[ -n "$details" ]]; then
+      echo "  [✓] ${name}: ${details}"
+    else
+      echo "  [✓] ${name}"
+    fi
+  fi
+}
+
+# Log a failing check (yellow X)
+# Usage: log_check_fail "tool_name" "details"
+log_check_fail() {
+  local name="$1"
+  local details="${2:-not installed}"
+  if [[ "$USE_COLOR" == "true" ]]; then
+    echo -e "  ${YELLOW}[✗]${NC} ${name}: ${details}"
+  else
+    echo "  [✗] ${name}: ${details}"
+  fi
+}
+
 ###############################################################################
 # Progress Indicators
 ###############################################################################
