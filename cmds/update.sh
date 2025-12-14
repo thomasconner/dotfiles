@@ -247,6 +247,16 @@ update_ruby() {
 update_cli() {
     log_step "Updating CLI Tools"
 
+    # Update GitHub CLI extensions (cross-platform)
+    if command -v gh >/dev/null 2>&1; then
+        log_info "Updating GitHub CLI extensions..."
+        if [[ "$DRY_RUN" == "true" ]]; then
+            log_debug "[DRY-RUN] Would run: gh extension upgrade --all"
+        else
+            gh extension upgrade --all 2>/dev/null || log_info "No gh extensions to update"
+        fi
+    fi
+
     # For macOS with Homebrew, CLI tools are updated via brew upgrade
     if [[ "$OS" == "macos" ]]; then
         log_info "CLI tools updated via Homebrew (see system packages update)"

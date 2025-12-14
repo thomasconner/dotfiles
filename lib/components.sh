@@ -14,12 +14,13 @@ declare -a COMPONENTS=(
     "cli:CLI tools (jq, gh, kubectl, btop, etc.):components/cli/install.sh"
     "fonts:Nerd Fonts for terminal:components/fonts/install.sh"
     "git:Git configuration and aliases:components/git/install.sh"
+    "macos:macOS system defaults (Dock, Finder, keyboard):components/macos/install.sh"
     "node:Node.js via nodenv:components/node/install.sh"
     "ruby:Ruby via rbenv:components/ruby/install.sh"
     "zsh:Zsh, Oh My Zsh, Pure prompt, plugins:components/zsh/install.sh"
 )
 
-# Default installation order
+# Default installation order (macos excluded - run explicitly with: ctdev install macos)
 DEFAULT_INSTALL_ORDER="apps cli fonts git node ruby zsh"
 
 # List all available components
@@ -97,6 +98,11 @@ is_component_installed() {
         git)
             # Check if git config is symlinked
             [[ -L ~/.gitconfig ]] && [[ -f ~/.gitconfig ]]
+            ;;
+        macos)
+            # Check if key macOS defaults are set (Dock show-recents as indicator)
+            [[ "$(uname -s)" == "Darwin" ]] && \
+                [[ "$(defaults read com.apple.dock show-recents 2>/dev/null)" == "0" ]]
             ;;
         node)
             # Check if nodenv is installed
