@@ -31,7 +31,7 @@ cmd_install() {
     fi
 
     if [[ "$DRY_RUN" == "true" ]]; then
-        log_info "[DRY-RUN] Would install: ${components[*]}"
+        log_warning "DRY-RUN MODE: No changes will be made"
     fi
 
     local failed=()
@@ -49,17 +49,13 @@ cmd_install() {
 
         log_step "Installing $component"
 
-        if [[ "$DRY_RUN" == "true" ]]; then
-            log_info "[DRY-RUN] Would run: $script"
+        # Run the install script, passing through environment (including DRY_RUN)
+        # Scripts handle their own dry-run logic
+        if bash "$script"; then
             succeeded+=("$component")
         else
-            # Run the install script, passing through environment
-            if bash "$script"; then
-                succeeded+=("$component")
-            else
-                log_error "Failed to install $component"
-                failed+=("$component")
-            fi
+            log_error "Failed to install $component"
+            failed+=("$component")
         fi
 
         echo ""

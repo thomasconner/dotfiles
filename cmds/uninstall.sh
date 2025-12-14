@@ -158,6 +158,17 @@ uninstall_macos() {
         return
     fi
 
+    if [[ "${DRY_RUN:-false}" == "true" ]]; then
+        log_info "[DRY-RUN] Would reset Dock settings to Apple defaults"
+        log_info "[DRY-RUN] Would reset Finder settings to Apple defaults"
+        log_info "[DRY-RUN] Would reset Keyboard settings to Apple defaults"
+        log_info "[DRY-RUN] Would reset Dialog settings to Apple defaults"
+        log_info "[DRY-RUN] Would reset Security settings to Apple defaults"
+        log_info "[DRY-RUN] Would restart Dock and Finder"
+        log_success "macOS defaults would be reset"
+        return
+    fi
+
     log_info "Resetting Dock settings..."
     defaults delete com.apple.dock autohide-delay 2>/dev/null || true
     defaults delete com.apple.dock autohide-time-modifier 2>/dev/null || true

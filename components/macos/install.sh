@@ -12,6 +12,17 @@ fi
 
 log_step "Configuring macOS System Defaults"
 
+if [[ "${DRY_RUN:-false}" == "true" ]]; then
+    log_info "[DRY-RUN] Would configure Dock settings (auto-hide, animations, recent apps)"
+    log_info "[DRY-RUN] Would configure Finder settings (extensions, path bar, status bar)"
+    log_info "[DRY-RUN] Would configure Keyboard settings (disable smart quotes/dashes)"
+    log_info "[DRY-RUN] Would configure Dialog settings (expand save/print dialogs)"
+    log_info "[DRY-RUN] Would configure Security settings (require password after sleep)"
+    log_info "[DRY-RUN] Would restart Dock and Finder"
+    log_success "macOS defaults would be configured"
+    exit 0
+fi
+
 # ============================================================================
 # Dock Settings
 # ============================================================================
