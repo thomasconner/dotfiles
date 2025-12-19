@@ -13,7 +13,7 @@ OS=$(detect_os)
 
 # Check if Logi Options+ is already installed
 if [[ "$OS" == "macos" ]]; then
-  if [[ -d "/Applications/Logi Options+.app" ]]; then
+  if [[ -d "/Applications/logioptionsplus.app" ]]; then
     log_info "Logi Options+ is already installed"
     exit 0
   fi

@@ -7,24 +7,50 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 DOTFILES_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
 source "$DOTFILES_ROOT/lib/utils.sh"
 
-log_info "Installing TradingView"
-
 OS=$(detect_os)
 
-# Check if TradingView is already installed
+# Download URLs
+MACOS_DMG_URL="https://tvd-packages.tradingview.com/stable/latest/darwin/TradingView.dmg"
+LINUX_DEB_URL="https://tvd-packages.tradingview.com/stable/latest/linux/TradingView.deb"
+
 if [[ "$OS" == "macos" ]]; then
+  # Check if already installed
   if [[ -d "/Applications/TradingView.app" ]]; then
-    log_info "TradingView is already installed"
+    log_info "TradingView already installed"
     exit 0
   fi
+
+  log_step "Downloading TradingView for macOS..."
+  TEMP_DMG=$(mktemp /tmp/TradingView.XXXXXX.dmg)
+  run_cmd curl -fSL -o "$TEMP_DMG" "$MACOS_DMG_URL"
+
+  log_step "Mounting and installing TradingView..."
+  MOUNT_POINT=$(hdiutil attach "$TEMP_DMG" -nobrowse | grep "/Volumes" | sed 's/.*\/Volumes/\/Volumes/')
+  run_cmd cp -R "$MOUNT_POINT/TradingView.app" /Applications/
+  hdiutil detach "$MOUNT_POINT" >/dev/null 2>&1 || true
+  rm -f "$TEMP_DMG"
+
+  log_success "TradingView installed"
+
+elif [[ "$OS" == "ubuntu" || "$OS" == "debian" ]]; then
+  # Check if already installed
+  if command -v tradingview >/dev/null 2>&1 || dpkg -l tradingview &>/dev/null; then
+    log_info "TradingView already installed"
+    exit 0
+  fi
+
+  log_step "Downloading TradingView for Linux..."
+  TEMP_DEB=$(mktemp /tmp/TradingView.XXXXXX.deb)
+  run_cmd curl -fSL -o "$TEMP_DEB" "$LINUX_DEB_URL"
+
+  log_step "Installing TradingView..."
+  run_cmd maybe_sudo dpkg -i "$TEMP_DEB" || run_cmd maybe_sudo apt-get install -f -y
+  rm -f "$TEMP_DEB"
+
+  log_success "TradingView installed"
+
 else
-  # Linux: TradingView desktop app is macOS/Windows only
-  log_warning "TradingView desktop app is only available for macOS and Windows"
-  log_info "For Linux, use TradingView via web at https://www.tradingview.com"
+  log_warning "TradingView desktop app installation not supported on $OS"
+  log_info "For other platforms, download from https://www.tradingview.com/desktop/"
   exit 0
 fi
-
-log_info "TradingView is not installed. Installing..."
-
-install_brew_cask tradingview
-log_success "TradingView installed successfully"
