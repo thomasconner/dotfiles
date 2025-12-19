@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file.
 
+## [5.1.3] - 2024-12-19
+
+### Fixed
+- Logi Options+ app detection path (bundle name is `logioptionsplus.app`)
+- TradingView installer now downloads directly from official URLs instead of using Homebrew cask
+
+### Changed
+- TradingView installer supports macOS (DMG) and Debian/Ubuntu (deb) with proper installation flows
+
 ## [5.1.2] - 2024-12-14
 
 ### Added
