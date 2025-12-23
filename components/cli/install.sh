@@ -20,5 +20,6 @@ log_step "Installing CLI tools"
 "$SCRIPT_DIR/terraform.sh"
 "$SCRIPT_DIR/btop.sh"
 "$SCRIPT_DIR/docker.sh"
+"$SCRIPT_DIR/tmux/install.sh"
 
 log_success "CLI tools installation complete"

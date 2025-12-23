@@ -9,11 +9,9 @@ source "$DOTFILES_ROOT/lib/utils.sh"
 
 log_step "Installing applications"
 
-"$SCRIPT_DIR/tmux/install.sh"
 "$SCRIPT_DIR/chrome.sh"
 "$SCRIPT_DIR/slack.sh"
 "$SCRIPT_DIR/vscode.sh"
-"$SCRIPT_DIR/cursor.sh"
 "$SCRIPT_DIR/claude.sh"
 "$SCRIPT_DIR/1password.sh"
 "$SCRIPT_DIR/logi-options.sh"

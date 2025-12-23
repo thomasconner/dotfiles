@@ -35,8 +35,7 @@ Usage: ctdev [OPTIONS] COMMAND [ARGS]
 Commands:
     install [component...]    Install components (all if none specified)
     update [component...]     Update components (all if none specified)
-    info                      Show system information
-    doctor                    Diagnose installation health
+    info                      Show system info and check installation health
     list                      List available components
     uninstall <component...>  Remove specific components
     setup                     Make ctdev available globally
@@ -51,7 +50,7 @@ Examples:
     ctdev install              Install all components
     ctdev install zsh git      Install specific components
     ctdev update --dry-run     Preview updates
-    ctdev doctor               Check installation health
+    ctdev info                 Show system info and health checks
     ctdev setup                Add ctdev to your PATH
 
 For help on a specific command:
@@ -127,33 +126,16 @@ EOF
 # Show help for info command
 show_info_help() {
     cat << 'EOF'
-ctdev info - Show system information
+ctdev info - Show system information and check installation health
 
 Usage: ctdev info [OPTIONS]
 
 Displays detailed information about your system including:
 - OS and hardware information
-- Installed tools and their versions
 - Environment configuration
-
-Options:
-    -h, --help       Show this help message
-    -v, --verbose    Enable verbose output
-EOF
-}
-
-# Show help for doctor command
-show_doctor_help() {
-    cat << 'EOF'
-ctdev doctor - Diagnose installation health
-
-Usage: ctdev doctor [OPTIONS]
-
-Checks your installation for common issues:
-- Verifies symlinks are correct
-- Checks tool versions
-- Reports missing dependencies
-- Suggests fixes for issues found
+- Installation health checks for all components
+- Symlink verification
+- Missing dependencies
 
 Options:
     -h, --help       Show this help message
@@ -280,7 +262,7 @@ EOF
 # Validate that a command exists
 require_command() {
     local cmd="$1"
-    local valid_commands="install update info doctor list uninstall setup"
+    local valid_commands="install update info list uninstall setup"
 
     if [[ -z "$cmd" ]]; then
         return 1

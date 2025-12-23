@@ -23,5 +23,3 @@ if tmux ls >/dev/null 2>&1; then
   tmux source-file "${HOME}/.tmux.conf"
   log_info "Reloaded tmux config for running server"
 fi
-
-log_success "tmux installation complete"

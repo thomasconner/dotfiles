@@ -72,7 +72,6 @@ if [[ "$SHOW_HELP" == "true" ]]; then
         install)   show_install_help ;;
         update)    show_update_help ;;
         info)      show_info_help ;;
-        doctor)    show_doctor_help ;;
         list)      show_list_help ;;
         uninstall) show_uninstall_help ;;
         setup)     show_setup_help ;;
