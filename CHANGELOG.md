@@ -2,6 +2,11 @@
 
 All notable changes to this project will be documented in this file.
 
+## [5.3.2] - 2025-12-23
+
+### Fixed
+- git-spice installer now correctly detects git-spice vs Ghostscript (both use `gs` command)
+
 ## [5.3.1] - 2025-12-23
 
 ### Added
