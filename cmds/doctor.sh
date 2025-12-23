@@ -178,6 +178,10 @@ check_cli_health() {
     check_command "doctl" "doctl" || ((issues++))
     check_command "helm" "helm" || ((issues++))
     check_command "btop" "btop" || ((issues++))
+    check_command "age" "age" || ((issues++))
+    check_command "sops" "sops" || ((issues++))
+    check_command "terraform" "terraform" || ((issues++))
+    check_command "docker" "docker" || ((issues++))
 
     echo
     return $issues
@@ -214,6 +218,12 @@ check_apps_health() {
             log_check_fail "VS Code" "not installed (optional)"
         fi
 
+        if [[ -d "/Applications/Cursor.app" ]] || command -v cursor >/dev/null 2>&1; then
+            log_check_pass "Cursor" "installed"
+        else
+            log_check_fail "Cursor" "not installed (optional)"
+        fi
+
         if [[ -d "/Applications/Google Chrome.app" ]]; then
             log_check_pass "Chrome" "installed"
         else
@@ -225,10 +235,98 @@ check_apps_health() {
         else
             log_check_fail "Slack" "not installed (optional)"
         fi
+
+        if [[ -d "/Applications/Claude.app" ]]; then
+            log_check_pass "Claude" "installed"
+        else
+            log_check_fail "Claude" "not installed (optional)"
+        fi
+
+        if [[ -d "/Applications/1Password.app" ]]; then
+            log_check_pass "1Password" "installed"
+        else
+            log_check_fail "1Password" "not installed (optional)"
+        fi
+
+        if [[ -d "/Applications/DBeaver.app" ]]; then
+            log_check_pass "DBeaver" "installed"
+        else
+            log_check_fail "DBeaver" "not installed (optional)"
+        fi
+
+        if [[ -d "/Applications/TradingView.app" ]]; then
+            log_check_pass "TradingView" "installed"
+        else
+            log_check_fail "TradingView" "not installed (optional)"
+        fi
+
+        if [[ -d "/Applications/Linear.app" ]]; then
+            log_check_pass "Linear" "installed"
+        else
+            log_check_fail "Linear" "not installed (optional)"
+        fi
+
+        if [[ -d "/Applications/CleanMyMac.app" ]] || [[ -d "/Applications/CleanMyMac_5.app" ]]; then
+            log_check_pass "CleanMyMac" "installed"
+        else
+            log_check_fail "CleanMyMac" "not installed (optional)"
+        fi
+
+        if [[ -d "/Applications/logioptionsplus.app" ]]; then
+            log_check_pass "Logi Options+" "installed"
+        else
+            log_check_fail "Logi Options+" "not installed (optional)"
+        fi
     else
-        # Linux - check commands
-        check_command "VS Code" "code" || true
-        check_command "Chrome" "google-chrome" || check_command "Chromium" "chromium-browser" || true
+        # Linux - check commands and common paths
+        if command -v code >/dev/null 2>&1; then
+            log_check_pass "VS Code" "installed"
+        else
+            log_check_fail "VS Code" "not installed (optional)"
+        fi
+
+        if command -v cursor >/dev/null 2>&1 || [[ -f "$HOME/Applications/cursor/cursor.AppImage" ]]; then
+            log_check_pass "Cursor" "installed"
+        else
+            log_check_fail "Cursor" "not installed (optional)"
+        fi
+
+        if command -v google-chrome >/dev/null 2>&1 || command -v chromium-browser >/dev/null 2>&1; then
+            log_check_pass "Chrome/Chromium" "installed"
+        else
+            log_check_fail "Chrome/Chromium" "not installed (optional)"
+        fi
+
+        if command -v slack >/dev/null 2>&1 || flatpak list 2>/dev/null | grep -q Slack; then
+            log_check_pass "Slack" "installed"
+        else
+            log_check_fail "Slack" "not installed (optional)"
+        fi
+
+        if command -v 1password >/dev/null 2>&1; then
+            log_check_pass "1Password" "installed"
+        else
+            log_check_fail "1Password" "not installed (optional)"
+        fi
+
+        if command -v dbeaver >/dev/null 2>&1 || command -v dbeaver-ce >/dev/null 2>&1; then
+            log_check_pass "DBeaver" "installed"
+        else
+            log_check_fail "DBeaver" "not installed (optional)"
+        fi
+
+        if command -v tradingview >/dev/null 2>&1 || dpkg -l tradingview &>/dev/null; then
+            log_check_pass "TradingView" "installed"
+        else
+            log_check_fail "TradingView" "not installed (optional)"
+        fi
+    fi
+
+    # tmux (cross-platform)
+    if command -v tmux >/dev/null 2>&1; then
+        log_check_pass "tmux" "installed"
+    else
+        log_check_fail "tmux" "not installed (optional)"
     fi
 
     echo

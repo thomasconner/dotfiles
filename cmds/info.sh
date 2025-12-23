@@ -171,6 +171,14 @@ show_installed_tools() {
     check_tool "doctl" "version"
     check_tool "helm" "version --short"
     check_tool "docker" "--version"
+    check_tool "age" "--version"
+    check_tool "sops" "--version"
+    check_tool "terraform" "--version"
+
+    echo
+    echo "Editors:"
+    check_tool "code" "--version"
+    check_tool "cursor" "--version"
 
     echo
 }
