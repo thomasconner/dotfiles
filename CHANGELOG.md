@@ -2,7 +2,16 @@
 
 All notable changes to this project will be documented in this file.
 
-## [5.1.3] - 2024-12-19
+## [5.2.0] - 2025-12-23
+
+### Added
+- Cursor AI editor installation for macOS (Homebrew) and Linux (AppImage)
+- Comprehensive app checks in `ctdev doctor` for all installed apps (Cursor, Claude, 1Password, DBeaver, TradingView, Linear, CleanMyMac, Logi Options+, tmux)
+- CLI tool checks for age, sops, terraform, docker in `ctdev doctor`
+- Editor version display (code, cursor) in `ctdev info`
+- CLI tool version display for age, sops, terraform in `ctdev info`
+
+## [5.1.3] - 2025-12-19
 
 ### Fixed
 - Logi Options+ app detection path (bundle name is `logioptionsplus.app`)
@@ -11,7 +20,7 @@ All notable changes to this project will be documented in this file.
 ### Changed
 - TradingView installer supports macOS (DMG) and Debian/Ubuntu (deb) with proper installation flows
 
-## [5.1.2] - 2024-12-14
+## [5.1.2] - 2025-12-14
 
 ### Added
 - `ctdev doctor` now checks apps, fonts, and macOS defaults components
@@ -21,7 +30,7 @@ All notable changes to this project will be documented in this file.
 - Unified logging across `ctdev info` and `ctdev doctor` using shared check helpers
 - Consistent colored checkmark output (green for pass, yellow for fail)
 
-## [5.1.1] - 2024-12-14
+## [5.1.1] - 2025-12-14
 
 ### Changed
 - `ctdev update` now checks if components are installed before updating
@@ -31,18 +40,18 @@ All notable changes to this project will be documented in this file.
 ### Fixed
 - Variable scope bug in `lib/components.sh` that caused incorrect component names in output
 
-## [5.1.0] - 2024-12-14
+## [5.1.0] - 2025-12-14
 
 ### Added
 - New `macos` component for configuring macOS system defaults (Dock, Finder, keyboard, dialogs, security)
 - GitHub CLI extensions update in `ctdev update cli`
 
-## [5.0.6] - 2024-12-12
+## [5.0.6] - 2025-12-12
 
 ### Added
 - `devcontainer.sh` for VS Code dotfiles integration (supports `dotfiles.installCommand` setting)
 
-## [5.0.5] - 2024-12-11
+## [5.0.5] - 2025-12-11
 
 ### Fixed
 - Nerd Fonts installation on macOS with Bash 3.2 (replaced `${VAR,,}` with `tr` for lowercase conversion)
@@ -51,22 +60,22 @@ All notable changes to this project will be documented in this file.
 ### Added
 - Terminal configuration instructions printed after fonts installation (iTerm2, Terminal.app, VS Code)
 
-## [5.0.4] - 2024-12-11
+## [5.0.4] - 2025-12-11
 
 ### Added
 - Auto-update check: ctdev now checks if the repo is behind origin before running any command and prompts to pull the latest changes
 
-## [5.0.3] - 2024-12-10
+## [5.0.3] - 2025-12-10
 
 ### Added
 - DBeaver Community Edition installer with macOS (Homebrew), Debian/Ubuntu (apt), Fedora (dnf), and Arch (pacman) support
 
-## [5.0.2] - 2024-12-10
+## [5.0.2] - 2025-12-10
 
 ### Fixed
 - Fonts installation failing with SIGPIPE (exit 141) due to find | head pipeline
 
-## [5.0.1] - 2024-12-10
+## [5.0.1] - 2025-12-10
 
 ### Fixed
 - gh.sh and terraform.sh no longer require lsb_release
@@ -77,7 +86,7 @@ All notable changes to this project will be documented in this file.
 - GitHub Actions workflow updated for ctdev CLI
 - Removed ShellCheck (false positives on zsh config files)
 
-## [5.0.0] - 2024-12-10
+## [5.0.0] - 2025-12-10
 
 ### Added
 - `ctdev` unified CLI with subcommands (install, update, doctor, list, info, uninstall, setup)
@@ -104,7 +113,7 @@ All notable changes to this project will be documented in this file.
 - Old directory structure (apps/, cli/, fonts/, git/, node/, ruby/, zsh/ at root)
 - scripts/utils.sh (moved to lib/utils.sh)
 
-## [4.0.0] - 2024-12-10
+## [4.0.0] - 2025-12-10
 
 ### Added
 - Initial ctdev CLI structure

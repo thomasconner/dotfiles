@@ -35,7 +35,7 @@ ctdev setup                     # Symlink ctdev to ~/.local/bin
 | `cli` | CLI tools (jq, gh, kubectl, helm, terraform, btop, docker, etc.) |
 | `node` | Node.js via nodenv |
 | `ruby` | Ruby via rbenv |
-| `apps` | Desktop apps (Chrome, VSCode, Slack, 1Password, etc.) |
+| `apps` | Desktop apps (Chrome, VSCode, Cursor, Slack, 1Password, etc.) |
 | `fonts` | Nerd Fonts (FiraCode, JetBrainsMono, Hack, Ubuntu) - configure your terminal to use a Nerd Font for icons |
 | `macos` | macOS system defaults (Dock, Finder, keyboard) - run explicitly with `ctdev install macos` |
 
