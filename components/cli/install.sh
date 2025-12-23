@@ -21,5 +21,6 @@ log_step "Installing CLI tools"
 "$SCRIPT_DIR/btop.sh"
 "$SCRIPT_DIR/docker.sh"
 "$SCRIPT_DIR/tmux/install.sh"
+"$SCRIPT_DIR/git-spice.sh"
 
 log_success "CLI tools installation complete"

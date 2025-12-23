@@ -336,6 +336,7 @@ check_cli_health() {
     check_command "terraform" "terraform" || ((issues++))
     check_command "docker" "docker" || ((issues++))
     check_command "tmux" "tmux" || ((issues++))
+    check_command "git-spice" "gs" || ((issues++))
 
     echo
     return $issues
