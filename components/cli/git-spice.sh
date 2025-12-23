@@ -12,7 +12,8 @@ log_info "Installing git-spice (stacked branches for Git)"
 OS=$(detect_os)
 ARCH=$(detect_arch)
 
-if command -v gs >/dev/null 2>&1; then
+# Check if git-spice is installed (not Ghostscript which also uses 'gs')
+if command -v gs >/dev/null 2>&1 && gs --version 2>&1 | grep -q "git-spice"; then
   log_info "git-spice is already installed: $(gs --version 2>&1 | head -n1)"
   exit 0
 fi
