@@ -15,9 +15,8 @@ git clone https://github.com/thomasconner/dotfiles.git ~/dotfiles
 ```bash
 ctdev install [component...]    # Install components (all if none specified)
 ctdev update [component...]     # Update components
-ctdev doctor                    # Check installation health
+ctdev info                      # Show system info and check installation health
 ctdev list                      # List available components
-ctdev info                      # Show system information
 ctdev uninstall <component...>  # Remove components
 ctdev setup                     # Symlink ctdev to ~/.local/bin
 ```
@@ -35,7 +34,7 @@ ctdev setup                     # Symlink ctdev to ~/.local/bin
 | `cli` | CLI tools (jq, gh, kubectl, helm, terraform, btop, docker, etc.) |
 | `node` | Node.js via nodenv |
 | `ruby` | Ruby via rbenv |
-| `apps` | Desktop apps (Chrome, VSCode, Cursor, Slack, 1Password, etc.) |
+| `apps` | Desktop apps (Chrome, VSCode, Slack, 1Password, etc.) |
 | `fonts` | Nerd Fonts (FiraCode, JetBrainsMono, Hack, Ubuntu) - configure your terminal to use a Nerd Font for icons |
 | `macos` | macOS system defaults (Dock, Finder, keyboard) - run explicitly with `ctdev install macos` |
 
@@ -45,7 +44,7 @@ ctdev setup                     # Symlink ctdev to ~/.local/bin
 ctdev install zsh git      # Shell and git config only
 ctdev install cli          # CLI tools only
 ctdev install --dry-run    # Preview changes
-ctdev doctor               # Check installation health
+ctdev info                 # Check system info and installation health
 ```
 
 ## Git Configuration

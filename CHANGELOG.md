@@ -2,6 +2,19 @@
 
 All notable changes to this project will be documented in this file.
 
+## [5.3.0] - 2025-12-23
+
+### Changed
+- Merged `ctdev doctor` into `ctdev info` - single command now shows system info and health checks
+- Moved tmux from `apps` to `cli` component (where it belongs as a CLI tool)
+
+### Removed
+- `ctdev doctor` command (functionality merged into `ctdev info`)
+- Cursor AI editor app (removed from apps component)
+
+### Fixed
+- tmux no longer shows redundant "installation complete" message when already installed
+
 ## [5.2.0] - 2025-12-23
 
 ### Added
