@@ -31,7 +31,7 @@ ctdev setup                     # Symlink ctdev to ~/.local/bin
 |-----------|-------------|
 | `zsh` | Zsh, Oh My Zsh, Pure prompt, plugins |
 | `git` | Git configuration and global gitignore |
-| `cli` | CLI tools (jq, gh, kubectl, helm, terraform, btop, docker, etc.) |
+| `cli` | CLI tools (jq, gh, kubectl, helm, terraform, btop, docker, git-spice, etc.) |
 | `node` | Node.js via nodenv |
 | `ruby` | Ruby via rbenv |
 | `apps` | Desktop apps (Chrome, VSCode, Slack, 1Password, etc.) |

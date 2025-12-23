@@ -2,6 +2,11 @@
 
 All notable changes to this project will be documented in this file.
 
+## [5.3.1] - 2025-12-23
+
+### Added
+- git-spice CLI tool for stacked branches workflow (macOS via Homebrew, Linux via GitHub releases)
+
 ## [5.3.0] - 2025-12-23
 
 ### Changed

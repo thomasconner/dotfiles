@@ -27,7 +27,7 @@ ctdev setup                     # Symlink ctdev to ~/.local/bin
 | Component | Description |
 |-----------|-------------|
 | apps | Desktop applications (Chrome, VSCode, Slack, etc.) |
-| cli | CLI tools (jq, gh, kubectl, btop, etc.) |
+| cli | CLI tools (jq, gh, kubectl, btop, git-spice, etc.) |
 | fonts | Nerd Fonts |
 | git | Git configuration |
 | node | Node.js via nodenv |
