@@ -13,15 +13,14 @@ git clone https://github.com/thomasconner/dotfiles.git ~/dotfiles
 ## ctdev CLI
 
 ```bash
-ctdev install [component...]    # Install components (all if none specified)
-ctdev update [component...]     # Update components
+ctdev install [component...]    # Install/update components (all if none specified)
 ctdev info                      # Show system info and check installation health
 ctdev list                      # List available components
 ctdev uninstall <component...>  # Remove components
 ctdev setup                     # Symlink ctdev to ~/.local/bin
 ```
 
-**Flags:** `--help`, `--dry-run`, `--verbose`, `--version`
+**Flags:** `--help`, `--dry-run`, `--verbose`, `--version`, `--skip-system`
 
 **Auto-update:** When running any command, ctdev checks for updates and prompts to pull the latest changes before proceeding.
 

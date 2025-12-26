@@ -23,6 +23,31 @@ jobs:
           done
           bash -n ./ctdev || exit 1
 
+  shellcheck:
+    name: ShellCheck Lint
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install ShellCheck
+        run: sudo apt-get update && sudo apt-get install -y shellcheck
+
+      - name: Run ShellCheck on lib/
+        run: shellcheck lib/*.sh
+
+      - name: Run ShellCheck on cmds/
+        run: shellcheck cmds/*.sh
+
+      - name: Run ShellCheck on ctdev
+        run: shellcheck ./ctdev
+
+      - name: Run ShellCheck on component installers
+        run: |
+          shellcheck components/*/install.sh
+          shellcheck components/cli/*.sh
+
   test-cli:
     name: Test ctdev CLI
     runs-on: ubuntu-latest
@@ -40,14 +65,14 @@ jobs:
       - name: Test list command
         run: ./ctdev list
 
-      - name: Test doctor command
-        run: ./ctdev doctor
-
       - name: Test info command
         run: ./ctdev info
 
       - name: Test dry-run install
         run: ./ctdev --dry-run install
+
+      - name: Test dry-run install with --skip-system
+        run: ./ctdev --dry-run install --skip-system
 
   test-ubuntu:
     name: Test on Ubuntu ${{ matrix.ubuntu-version }}
@@ -101,8 +126,8 @@ jobs:
           command -v jq || exit 1
           command -v gh || exit 1
 
-      - name: Run doctor
-        run: ./ctdev doctor
+      - name: Run info check
+        run: ./ctdev info
 
   test-macos:
     name: Test on macOS
@@ -116,7 +141,6 @@ jobs:
         run: |
           ./ctdev --version
           ./ctdev list
-          ./ctdev doctor
           ./ctdev info
 
       - name: Test dry-run install

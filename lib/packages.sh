@@ -84,7 +84,7 @@ ensure_brew_installed() {
   log_info "Homebrew is not installed. Installing..."
 
   if [[ "${DRY_RUN:-false}" == "true" ]]; then
-    log_info "[DRY RUN] Would install Homebrew"
+    log_info "[DRY-RUN] Would install Homebrew"
     return 0
   fi
 
@@ -116,7 +116,7 @@ ensure_xcode_cli_installed() {
   log_info "Xcode Command Line Tools are not installed. Installing..."
 
   if [[ "${DRY_RUN:-false}" == "true" ]]; then
-    log_info "[DRY RUN] Would install Xcode Command Line Tools"
+    log_info "[DRY-RUN] Would install Xcode Command Line Tools"
     return 0
   fi
 
@@ -147,7 +147,7 @@ install_brew_cask() {
   ensure_brew_installed
 
   if [[ "${DRY_RUN:-false}" == "true" ]]; then
-    log_info "[DRY RUN] Would install cask: $cask"
+    log_info "[DRY-RUN] Would install cask: $cask"
     return 0
   fi
 

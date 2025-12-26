@@ -43,7 +43,7 @@ get_version() {
 # Run a command, respecting DRY_RUN flag
 run_cmd() {
     if [[ "${DRY_RUN:-false}" == "true" ]]; then
-        log_debug "[DRY-RUN] Would run: $*"
+        log_info "[DRY-RUN] Would run: $*"
         return 0
     else
         "$@"
@@ -64,7 +64,7 @@ create_install_marker() {
   local marker_file="${CTDEV_MARKER_DIR}/${component}.installed"
 
   if [[ "${DRY_RUN:-false}" == "true" ]]; then
-    log_debug "[DRY-RUN] Would create marker: $marker_file"
+    log_info "[DRY-RUN] Would create marker: $marker_file"
     return 0
   fi
 
@@ -89,7 +89,7 @@ remove_install_marker() {
   local marker_file="${CTDEV_MARKER_DIR}/${component}.installed"
 
   if [[ "${DRY_RUN:-false}" == "true" ]]; then
-    log_debug "[DRY-RUN] Would remove marker: $marker_file"
+    log_info "[DRY-RUN] Would remove marker: $marker_file"
     return 0
   fi
 
@@ -181,7 +181,7 @@ safe_symlink() {
 
   # Create symlink
   if [[ "${DRY_RUN:-false}" == "true" ]]; then
-    log_info "[DRY RUN] Would create symlink: $dest -> $src"
+    log_info "[DRY-RUN] Would create symlink: $dest -> $src"
   else
     ln -sf "$src" "$dest"
     log_debug "Created symlink: $dest -> $src"

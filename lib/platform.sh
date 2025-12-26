@@ -125,7 +125,7 @@ install_package() {
   log_debug "Installing $package on $os using $pm"
 
   if [[ "${DRY_RUN:-false}" == "true" ]]; then
-    log_info "[DRY RUN] Would install package: $package"
+    log_info "[DRY-RUN] Would install package: $package"
     return 0
   fi
 

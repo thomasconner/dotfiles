@@ -270,8 +270,8 @@ brew update && brew upgrade
 # Ubuntu/Debian:
 sudo apt update && sudo apt upgrade
 
-# Or use ctdev update:
-ctdev update cli
+# Or use ctdev install to update:
+ctdev install cli
 ```
 
 ## Dry Run and Debugging
@@ -295,10 +295,10 @@ ctdev --verbose install cli
 
 ### Checking system health
 
-Run the doctor command to diagnose issues.
+Run the info command to diagnose issues.
 
 ```bash
-ctdev doctor
+ctdev info
 ```
 
 ## Getting Help
@@ -306,9 +306,8 @@ ctdev doctor
 If you're still having issues:
 
 1. Check the [README](README.md) for setup instructions
-2. Run `ctdev doctor` to diagnose common problems
+2. Run `ctdev info` to diagnose common problems
 3. Open an issue with:
    - Output of `ctdev info`
-   - Output of `ctdev doctor`
    - The command that failed and its output
    - Your OS version and architecture

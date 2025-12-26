@@ -70,7 +70,6 @@ fi
 if [[ "$SHOW_HELP" == "true" ]]; then
     case "$COMMAND" in
         install)   show_install_help ;;
-        update)    show_update_help ;;
         info)      show_info_help ;;
         list)      show_list_help ;;
         uninstall) show_uninstall_help ;;

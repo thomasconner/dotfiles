@@ -33,8 +33,7 @@ ctdev - Conner Technology Dev CLI
 Usage: ctdev [OPTIONS] COMMAND [ARGS]
 
 Commands:
-    install [component...]    Install components (all if none specified)
-    update [component...]     Update components (all if none specified)
+    install [component...]    Install/update components (all if none specified)
     info                      Show system info and check installation health
     list                      List available components
     uninstall <component...>  Remove specific components
@@ -47,9 +46,9 @@ Options:
     --version        Show version information
 
 Examples:
-    ctdev install              Install all components
+    ctdev install              Install/update all components
     ctdev install zsh git      Install specific components
-    ctdev update --dry-run     Preview updates
+    ctdev install --dry-run    Preview changes
     ctdev info                 Show system info and health checks
     ctdev setup                Add ctdev to your PATH
 
@@ -61,11 +60,14 @@ EOF
 # Show help for install command
 show_install_help() {
     cat << 'EOF'
-ctdev install - Install dotfiles components
+ctdev install - Install and update dotfiles components
 
 Usage: ctdev install [OPTIONS] [COMPONENT...]
 
-If no components are specified, all components will be installed.
+If no components are specified, all components will be installed/updated.
+- Components not installed will be installed
+- Components already installed will be updated
+- System packages (apt/brew/etc.) are updated first by default
 Note: 'macos' is not included by default - run it explicitly.
 
 Components:
@@ -82,46 +84,13 @@ Options:
     -h, --help       Show this help message
     -v, --verbose    Enable verbose output
     -n, --dry-run    Preview changes without applying
-
-Examples:
-    ctdev install              Install everything (except macos)
-    ctdev install zsh          Minimal setup (shell/prompt only)
-    ctdev install zsh git cli  Install specific components
-    ctdev install macos        Configure macOS system defaults
-    ctdev install --dry-run    Preview what would be installed
-EOF
-}
-
-# Show help for update command
-show_update_help() {
-    cat << 'EOF'
-ctdev update - Update dotfiles components
-
-Usage: ctdev update [OPTIONS] [COMPONENT...]
-
-If no components are specified, all installed components will be updated.
-System packages (brew/apt/etc.) are updated first by default.
-
-Updatable Components:
-    cli        GitHub CLI extensions
-    node       nodenv, node-build, npm global packages
-    ruby       rbenv, ruby-build, gems
-    zsh        Oh My Zsh, plugins, Pure prompt
-
-Other components (apps, fonts, git, macos) are managed by system
-packages or are one-time setup - no separate update needed.
-
-Options:
-    -h, --help       Show this help message
-    -v, --verbose    Enable verbose output
-    -n, --dry-run    Preview changes without applying
     --skip-system    Skip system package updates (apt/brew/etc.)
 
 Examples:
-    ctdev update              Update system packages and all components
-    ctdev update zsh node     Update specific components
-    ctdev update --skip-system Update only dotfiles components
-    ctdev update --dry-run    Preview what would be updated
+    ctdev install              Install/update everything (except macos)
+    ctdev install zsh          Install or update zsh
+    ctdev install --skip-system Install without system package updates
+    ctdev install --dry-run    Preview what would be installed/updated
 EOF
 }
 
@@ -264,7 +233,7 @@ EOF
 # Validate that a command exists
 require_command() {
     local cmd="$1"
-    local valid_commands="install update info list uninstall setup"
+    local valid_commands="install info list uninstall setup"
 
     if [[ -z "$cmd" ]]; then
         return 1
