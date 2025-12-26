@@ -21,6 +21,8 @@ declare -a COMPONENTS=(
 )
 
 # Default installation order (macos excluded - run explicitly with: ctdev install macos)
+# Used by cmds/install.sh
+# shellcheck disable=SC2034
 DEFAULT_INSTALL_ORDER="apps cli fonts git node ruby zsh"
 
 # List all available components

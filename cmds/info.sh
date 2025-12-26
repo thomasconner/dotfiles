@@ -13,6 +13,7 @@ check_tool() {
     if command -v "$tool" >/dev/null 2>&1; then
         local version
         set +e
+        # shellcheck disable=SC2086
         version=$($tool $version_flag 2>&1 | head -n 1)
         local exit_code=$?
         set -e
@@ -109,6 +110,7 @@ show_system_info() {
     if [[ -f /etc/os-release ]]; then
         # shellcheck source=/dev/null
         source /etc/os-release
+        # shellcheck disable=SC2153
         echo "  OS: $NAME $VERSION"
     elif [[ "$OSTYPE" == "darwin"* ]]; then
         echo "  OS: macOS $(sw_vers -productVersion)"
@@ -472,10 +474,11 @@ check_fonts_health() {
     log_step "Fonts"
     local issues=0
 
+    # shellcheck disable=SC2012
     if [[ "$(uname -s)" == "Darwin" ]]; then
         if ls ~/Library/Fonts/*Nerd* >/dev/null 2>&1; then
             local font_count
-            font_count=$(ls ~/Library/Fonts/*Nerd* 2>/dev/null | wc -l | tr -d ' ')
+            font_count=$(find ~/Library/Fonts -name '*Nerd*' 2>/dev/null | wc -l | tr -d ' ')
             log_check_pass "Nerd Fonts" "${font_count} fonts installed"
         else
             log_check_fail "Nerd Fonts" "not installed"
@@ -484,11 +487,11 @@ check_fonts_health() {
     else
         if ls ~/.local/share/fonts/*Nerd* >/dev/null 2>&1; then
             local font_count
-            font_count=$(ls ~/.local/share/fonts/*Nerd* 2>/dev/null | wc -l | tr -d ' ')
+            font_count=$(find ~/.local/share/fonts -name '*Nerd*' 2>/dev/null | wc -l | tr -d ' ')
             log_check_pass "Nerd Fonts" "${font_count} fonts installed"
         elif ls /usr/share/fonts/*Nerd* >/dev/null 2>&1; then
             local font_count
-            font_count=$(ls /usr/share/fonts/*Nerd* 2>/dev/null | wc -l | tr -d ' ')
+            font_count=$(find /usr/share/fonts -name '*Nerd*' 2>/dev/null | wc -l | tr -d ' ')
             log_check_pass "Nerd Fonts" "${font_count} fonts installed (system)"
         else
             log_check_fail "Nerd Fonts" "not installed"

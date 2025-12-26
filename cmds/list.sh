@@ -22,9 +22,9 @@ cmd_list() {
     log_step "Available Components"
     echo
 
-    local name desc script status
+    local name desc _script status
     for component in "${COMPONENTS[@]}"; do
-        IFS=':' read -r name desc script <<< "$component"
+        IFS=':' read -r name desc _script <<< "$component"
 
         if is_component_installed "$name"; then
             status="installed"

@@ -35,15 +35,21 @@ else
     *) GS_ARCH="$ARCH" ;;
   esac
 
-  LATEST_VERSION=$(curl -s https://api.github.com/repos/abhinav/git-spice/releases/latest | grep '"tag_name"' | sed -E 's/.*"v([^"]+)".*/\1/')
+  LATEST_VERSION=$(github_latest_version "abhinav/git-spice") || exit 1
   log_info "Installing git-spice ${LATEST_VERSION}..."
 
   TEMP_DIR=$(mktemp -d)
   register_cleanup_trap "$TEMP_DIR"
   cd "$TEMP_DIR"
 
-  curl -fsSL "https://github.com/abhinav/git-spice/releases/download/v${LATEST_VERSION}/git-spice.Linux-${GS_ARCH}.tar.gz" -o git-spice.tar.gz
-  tar -xzf git-spice.tar.gz
+  ARCHIVE_NAME="git-spice.Linux-${GS_ARCH}.tar.gz"
+  curl -fsSL "https://github.com/abhinav/git-spice/releases/download/v${LATEST_VERSION}/${ARCHIVE_NAME}" -o "$ARCHIVE_NAME"
+  curl -fsSL "https://github.com/abhinav/git-spice/releases/download/v${LATEST_VERSION}/checksums.txt" -o checksums.txt
+
+  log_info "Verifying checksum..."
+  verify_checksum_from_file "$ARCHIVE_NAME" checksums.txt || exit 1
+
+  tar -xzf "$ARCHIVE_NAME"
   maybe_sudo install -o root -g root -m 0755 gs /usr/local/bin/gs
 
   log_success "git-spice installed: $(gs --version 2>&1 | head -n1)"

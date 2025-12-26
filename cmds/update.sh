@@ -135,7 +135,7 @@ update_zsh() {
         if [[ "$DRY_RUN" == "true" ]]; then
             log_debug "[DRY-RUN] Would update Oh My Zsh"
         else
-            git -C "$HOME/.oh-my-zsh" pull --ff-only origin master || log_warning "Could not update Oh My Zsh"
+            git_pull_default_branch "$HOME/.oh-my-zsh" "Oh My Zsh"
         fi
     fi
 
@@ -154,11 +154,7 @@ update_zsh() {
             if [[ "$DRY_RUN" == "true" ]]; then
                 log_debug "[DRY-RUN] Would update: $plugin_dir"
             else
-                # Try master first, then main
-                if ! git -C "$plugin_dir" pull --ff-only origin master 2>/dev/null; then
-                    git -C "$plugin_dir" pull --ff-only origin main 2>/dev/null || \
-                    log_warning "Could not update $plugin_name"
-                fi
+                git_pull_default_branch "$plugin_dir" "$plugin_name"
             fi
         fi
     done
@@ -169,8 +165,7 @@ update_zsh() {
         if [[ "$DRY_RUN" == "true" ]]; then
             log_debug "[DRY-RUN] Would update Pure prompt"
         else
-            git -C "$HOME/.zsh/pure" pull --ff-only origin main || \
-            log_warning "Could not update Pure prompt"
+            git_pull_default_branch "$HOME/.zsh/pure" "Pure prompt"
         fi
     fi
 
@@ -184,12 +179,10 @@ update_node() {
         if [[ "$DRY_RUN" == "true" ]]; then
             log_debug "[DRY-RUN] Would update nodenv and node-build"
         else
-            git -C "$HOME/.nodenv" pull --ff-only origin master || \
-            log_warning "Could not update nodenv"
+            git_pull_default_branch "$HOME/.nodenv" "nodenv"
 
             if [[ -d "$HOME/.nodenv/plugins/node-build/.git" ]]; then
-                git -C "$HOME/.nodenv/plugins/node-build" pull --ff-only origin master || \
-                log_warning "Could not update node-build"
+                git_pull_default_branch "$HOME/.nodenv/plugins/node-build" "node-build"
             fi
         fi
     elif command -v nodenv >/dev/null 2>&1; then
@@ -216,12 +209,10 @@ update_ruby() {
         if [[ "$DRY_RUN" == "true" ]]; then
             log_debug "[DRY-RUN] Would update rbenv and ruby-build"
         else
-            git -C "$HOME/.rbenv" pull --ff-only origin master || \
-            log_warning "Could not update rbenv"
+            git_pull_default_branch "$HOME/.rbenv" "rbenv"
 
             if [[ -d "$HOME/.rbenv/plugins/ruby-build/.git" ]]; then
-                git -C "$HOME/.rbenv/plugins/ruby-build" pull --ff-only origin master || \
-                log_warning "Could not update ruby-build"
+                git_pull_default_branch "$HOME/.rbenv/plugins/ruby-build" "ruby-build"
             fi
         fi
     elif command -v rbenv >/dev/null 2>&1; then
@@ -289,11 +280,15 @@ run_component_update() {
 
 cmd_update() {
     local components=()
+    local skip_system=false
 
     # Parse arguments, filtering out flags
     for arg in "$@"; do
         case "$arg" in
             -h|--help|-v|--verbose|-n|--dry-run)
+                ;;
+            --skip-system)
+                skip_system=true
                 ;;
             *)
                 components+=("$arg")
@@ -309,13 +304,18 @@ cmd_update() {
     log_info "Package manager: $PKG_MGR"
     echo
 
-    # Always run system updates first
-    update_system_packages
-    echo
-    update_macos_software
-    echo
-    update_firmware
-    echo
+    # Run system updates unless skipped
+    if [[ "$skip_system" == "true" ]]; then
+        log_info "Skipping system package updates (--skip-system)"
+        echo
+    else
+        update_system_packages
+        echo
+        update_macos_software
+        echo
+        update_firmware
+        echo
+    fi
 
     # Determine which components to update
     if [[ ${#components[@]} -eq 0 ]]; then

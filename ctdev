@@ -104,25 +104,32 @@ check_for_updates() {
 
     if [[ "$local_ref" != "$remote_ref" ]]; then
         local behind
-        behind=$(git -C "$DOTFILES_ROOT" rev-list --count HEAD..@{upstream} 2>/dev/null) || return
+        behind=$(git -C "$DOTFILES_ROOT" rev-list --count 'HEAD..@{upstream}' 2>/dev/null) || return
 
         if [[ "$behind" -gt 0 ]]; then
             log_warning "ctdev is $behind commit(s) behind origin"
-            printf "Would you like to pull the latest changes before proceeding? [y/N] "
-            read -r answer
-            if [[ "$answer" =~ ^[Yy]$ ]]; then
-                log_info "Pulling latest changes..."
-                if git -C "$DOTFILES_ROOT" pull --ff-only; then
-                    log_success "ctdev updated"
-                    echo
+
+            # Only prompt if we're in an interactive terminal
+            if [[ -t 0 ]]; then
+                printf "Would you like to pull the latest changes before proceeding? [y/N] "
+                # Use timeout to prevent hanging in automated environments
+                if read -r -t 30 answer && [[ "$answer" =~ ^[Yy]$ ]]; then
+                    log_info "Pulling latest changes..."
+                    if git -C "$DOTFILES_ROOT" pull --ff-only; then
+                        log_success "ctdev updated"
+                        echo
+                    else
+                        log_error "Failed to pull (you may have local changes)"
+                        log_info "Continuing with current version..."
+                        echo
+                    fi
                 else
-                    log_error "Failed to pull (you may have local changes)"
                     log_info "Continuing with current version..."
                     echo
                 fi
             else
-                log_info "Continuing with current version..."
-                echo
+                # Non-interactive: just warn and continue
+                log_info "Run 'git -C $DOTFILES_ROOT pull' to update"
             fi
         fi
     fi
@@ -144,5 +151,6 @@ if [[ ! -f "$CMD_SCRIPT" ]]; then
 fi
 
 # Source and run the command
+# shellcheck source=/dev/null
 source "$CMD_SCRIPT"
 "cmd_${COMMAND}" "$@"

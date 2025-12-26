@@ -100,7 +100,7 @@ ctdev update - Update dotfiles components
 Usage: ctdev update [OPTIONS] [COMPONENT...]
 
 If no components are specified, all installed components will be updated.
-System packages (brew/apt/etc.) are always updated first.
+System packages (brew/apt/etc.) are updated first by default.
 
 Updatable Components:
     cli        GitHub CLI extensions
@@ -115,11 +115,13 @@ Options:
     -h, --help       Show this help message
     -v, --verbose    Enable verbose output
     -n, --dry-run    Preview changes without applying
+    --skip-system    Skip system package updates (apt/brew/etc.)
 
 Examples:
-    ctdev update           Update system packages and all components
-    ctdev update zsh node  Update specific components
-    ctdev update --dry-run Preview what would be updated
+    ctdev update              Update system packages and all components
+    ctdev update zsh node     Update specific components
+    ctdev update --skip-system Update only dotfiles components
+    ctdev update --dry-run    Preview what would be updated
 EOF
 }
 

@@ -27,15 +27,21 @@ else
   # Linux: Install from GitHub release
   ensure_curl_installed
 
-  LATEST_VERSION=$(curl -s https://api.github.com/repos/helm/helm/releases/latest | grep '"tag_name"' | sed -E 's/.*"v([^"]+)".*/\1/')
+  LATEST_VERSION=$(github_latest_version "helm/helm") || exit 1
   log_info "Installing helm ${LATEST_VERSION}..."
 
   TEMP_DIR=$(mktemp -d)
   register_cleanup_trap "$TEMP_DIR"
   cd "$TEMP_DIR"
 
-  curl -fsSL "https://get.helm.sh/helm-v${LATEST_VERSION}-linux-${ARCH}.tar.gz" -o helm.tar.gz
-  tar -xzf helm.tar.gz
+  ARCHIVE_NAME="helm-v${LATEST_VERSION}-linux-${ARCH}.tar.gz"
+  curl -fsSL "https://get.helm.sh/${ARCHIVE_NAME}" -o "$ARCHIVE_NAME"
+  curl -fsSL "https://get.helm.sh/${ARCHIVE_NAME}.sha256sum" -o "${ARCHIVE_NAME}.sha256sum"
+
+  log_info "Verifying checksum..."
+  verify_checksum_from_file "$ARCHIVE_NAME" "${ARCHIVE_NAME}.sha256sum" || exit 1
+
+  tar -xzf "$ARCHIVE_NAME"
   maybe_sudo install -o root -g root -m 0755 "linux-${ARCH}/helm" /usr/local/bin/helm
 
   log_success "helm installed: $(helm version --short 2>/dev/null | head -n1)"

@@ -52,23 +52,57 @@ ensure_git_installed
 safe_symlink "$SCRIPT_DIR/.gitconfig" "${HOME}/.gitconfig"
 safe_symlink "$SCRIPT_DIR/.gitignore" "${HOME}/.gitignore"
 
+# Validate email format (basic check)
+validate_email() {
+  local email="$1"
+  if [[ "$email" =~ ^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$ ]]; then
+    return 0
+  fi
+  return 1
+}
+
+# Validate name (non-empty, reasonable characters)
+validate_name() {
+  local name="$1"
+  if [[ -z "$name" ]]; then
+    return 1
+  fi
+  # Allow letters, numbers, spaces, hyphens, apostrophes, periods
+  if [[ "$name" =~ ^[A-Za-z0-9\ \'\.\-]+$ ]]; then
+    return 0
+  fi
+  return 1
+}
+
 # Handle .gitconfig.local (user-specific settings)
 configure_git_user() {
   local name="$1"
   local email="$2"
   local config_file="${HOME}/.gitconfig.local"
 
+  # Validate inputs
+  if [[ -z "$name" ]]; then
+    log_error "Git user name cannot be empty"
+    return 1
+  fi
+
+  if [[ -z "$email" ]]; then
+    log_error "Git user email cannot be empty"
+    return 1
+  fi
+
+  if ! validate_email "$email"; then
+    log_warning "Email format may be invalid: $email"
+  fi
+
   if [[ "${DRY_RUN:-false}" == "true" ]]; then
     log_info "[DRY-RUN] Would configure git user: $name <$email>"
     return 0
   fi
 
-  # Create or update .gitconfig.local
-  cat > "$config_file" << EOF
-[user]
-    name = $name
-    email = $email
-EOF
+  # Use git config directly (safer than heredoc with user input)
+  git config --file "$config_file" user.name "$name"
+  git config --file "$config_file" user.email "$email"
 
   log_success "Git user configured: $name <$email>"
 }

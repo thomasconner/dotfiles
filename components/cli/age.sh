@@ -27,14 +27,21 @@ else
   # Linux: Install from GitHub release
   ensure_curl_installed
 
-  LATEST_VERSION=$(curl -s https://api.github.com/repos/FiloSottile/age/releases/latest | grep '"tag_name"' | sed -E 's/.*"v([^"]+)".*/\1/')
+  LATEST_VERSION=$(github_latest_version "FiloSottile/age") || exit 1
   log_info "Installing age ${LATEST_VERSION}..."
 
   TEMP_DIR=$(mktemp -d)
   register_cleanup_trap "$TEMP_DIR"
   cd "$TEMP_DIR"
 
-  curl -sL "https://github.com/FiloSottile/age/releases/download/v${LATEST_VERSION}/age-v${LATEST_VERSION}-linux-${ARCH}.tar.gz" | tar -xz
+  ARCHIVE_NAME="age-v${LATEST_VERSION}-linux-${ARCH}.tar.gz"
+  curl -fsSL "https://github.com/FiloSottile/age/releases/download/v${LATEST_VERSION}/${ARCHIVE_NAME}" -o "$ARCHIVE_NAME"
+
+  # age doesn't provide checksums in releases, but binaries are signed
+  # For now we verify via HTTPS from official source
+  log_info "Downloaded from official source (HTTPS verified)"
+
+  tar -xzf "$ARCHIVE_NAME"
   maybe_sudo install -o root -g root -m 0755 age/age /usr/local/bin/age
   maybe_sudo install -o root -g root -m 0755 age/age-keygen /usr/local/bin/age-keygen
 

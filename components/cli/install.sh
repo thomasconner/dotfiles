@@ -10,6 +10,7 @@ source "$DOTFILES_ROOT/lib/utils.sh"
 log_step "Installing CLI tools"
 
 # Install each CLI tool via its own script
+"$SCRIPT_DIR/shellcheck.sh"
 "$SCRIPT_DIR/jq.sh"
 "$SCRIPT_DIR/gh.sh"
 "$SCRIPT_DIR/kubectl.sh"

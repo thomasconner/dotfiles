@@ -11,7 +11,6 @@ log_info "Installing kubectl"
 
 OS=$(detect_os)
 ARCH=$(detect_arch)
-PM=$(get_package_manager)
 
 if command -v kubectl >/dev/null 2>&1; then
   log_info "kubectl is already installed: $(kubectl version --client 2>/dev/null | head -n1)"

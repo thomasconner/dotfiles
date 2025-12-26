@@ -33,9 +33,11 @@ cmd_setup() {
         log_warning "$target_dir is not in your PATH"
         echo ""
         log_info "Add to your shell config (~/.zshrc or ~/.bashrc):"
+        # shellcheck disable=SC2016
         echo '  export PATH="$HOME/.local/bin:$PATH"'
         echo ""
         log_info "Then restart your shell or run:"
+        # shellcheck disable=SC2016
         echo '  export PATH="$HOME/.local/bin:$PATH"'
         echo ""
         log_info "Note: 'ctdev install zsh' configures this automatically"

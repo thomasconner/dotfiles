@@ -27,14 +27,21 @@ else
   # Linux: Install from GitHub release
   ensure_curl_installed
 
-  LATEST_VERSION=$(curl -s https://api.github.com/repos/digitalocean/doctl/releases/latest | grep '"tag_name"' | sed -E 's/.*"v([^"]+)".*/\1/')
+  LATEST_VERSION=$(github_latest_version "digitalocean/doctl") || exit 1
   log_info "Installing doctl ${LATEST_VERSION}..."
 
   TEMP_DIR=$(mktemp -d)
   register_cleanup_trap "$TEMP_DIR"
   cd "$TEMP_DIR"
 
-  curl -sL "https://github.com/digitalocean/doctl/releases/download/v${LATEST_VERSION}/doctl-${LATEST_VERSION}-linux-${ARCH}.tar.gz" | tar -xz
+  ARCHIVE_NAME="doctl-${LATEST_VERSION}-linux-${ARCH}.tar.gz"
+  curl -fsSL "https://github.com/digitalocean/doctl/releases/download/v${LATEST_VERSION}/${ARCHIVE_NAME}" -o "$ARCHIVE_NAME"
+  curl -fsSL "https://github.com/digitalocean/doctl/releases/download/v${LATEST_VERSION}/checksums.txt" -o checksums.txt
+
+  log_info "Verifying checksum..."
+  verify_checksum_from_file "$ARCHIVE_NAME" checksums.txt || exit 1
+
+  tar -xzf "$ARCHIVE_NAME"
   maybe_sudo install -o root -g root -m 0755 doctl /usr/local/bin/doctl
 
   log_success "doctl installed: $(doctl version | head -n1)"
