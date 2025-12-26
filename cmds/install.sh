@@ -53,6 +53,8 @@ cmd_install() {
         # Scripts handle their own dry-run logic
         if bash "$script"; then
             succeeded+=("$component")
+            # Create installation marker for tracking
+            create_install_marker "$component"
         else
             log_error "Failed to install $component"
             failed+=("$component")

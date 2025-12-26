@@ -51,6 +51,66 @@ run_cmd() {
 }
 
 ###############################################################################
+# Installation Marker Functions
+###############################################################################
+
+# Directory for installation markers
+CTDEV_MARKER_DIR="${HOME}/.config/ctdev"
+
+# Create an installation marker for a component
+# Usage: create_install_marker "component_name"
+create_install_marker() {
+  local component="$1"
+  local marker_file="${CTDEV_MARKER_DIR}/${component}.installed"
+
+  if [[ "${DRY_RUN:-false}" == "true" ]]; then
+    log_debug "[DRY-RUN] Would create marker: $marker_file"
+    return 0
+  fi
+
+  mkdir -p "$CTDEV_MARKER_DIR"
+  date -Iseconds > "$marker_file"
+  log_debug "Created installation marker for $component"
+}
+
+# Check if an installation marker exists for a component
+# Usage: has_install_marker "component_name"
+# Returns: 0 if marker exists, 1 if not
+has_install_marker() {
+  local component="$1"
+  local marker_file="${CTDEV_MARKER_DIR}/${component}.installed"
+  [[ -f "$marker_file" ]]
+}
+
+# Remove an installation marker for a component
+# Usage: remove_install_marker "component_name"
+remove_install_marker() {
+  local component="$1"
+  local marker_file="${CTDEV_MARKER_DIR}/${component}.installed"
+
+  if [[ "${DRY_RUN:-false}" == "true" ]]; then
+    log_debug "[DRY-RUN] Would remove marker: $marker_file"
+    return 0
+  fi
+
+  if [[ -f "$marker_file" ]]; then
+    rm -f "$marker_file"
+    log_debug "Removed installation marker for $component"
+  fi
+}
+
+# Get the installation date from a marker
+# Usage: get_install_date "component_name"
+get_install_date() {
+  local component="$1"
+  local marker_file="${CTDEV_MARKER_DIR}/${component}.installed"
+
+  if [[ -f "$marker_file" ]]; then
+    cat "$marker_file"
+  fi
+}
+
+###############################################################################
 # Cleanup and Trap Functions
 ###############################################################################
 

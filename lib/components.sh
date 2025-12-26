@@ -76,10 +76,17 @@ is_valid_component() {
 }
 
 # Check if a component is installed
+# First checks for installation marker, then falls back to heuristics
 # Returns 0 if installed, 1 if not
 is_component_installed() {
     local component="$1"
 
+    # First check for installation marker (most reliable)
+    if has_install_marker "$component"; then
+        return 0
+    fi
+
+    # Fallback to heuristic checks (for backwards compatibility)
     case "$component" in
         apps)
             # Check if any app is installed (VSCode as indicator)
@@ -99,7 +106,7 @@ is_component_installed() {
             ;;
         git)
             # Check if git config is symlinked
-            [[ -L ~/.gitconfig ]] && [[ -f ~/.gitconfig ]]
+            [[ -L ~/.gitconfig ]] && [[ -e ~/.gitconfig ]]
             ;;
         macos)
             # Check if key macOS defaults are set (Dock show-recents as indicator)

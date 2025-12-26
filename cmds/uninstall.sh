@@ -262,6 +262,8 @@ cmd_uninstall() {
                 log_warning "No uninstall function for: $component"
                 ;;
         esac
+        # Remove installation marker
+        remove_install_marker "$component"
         echo
     done
 
