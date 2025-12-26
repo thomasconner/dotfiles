@@ -2,6 +2,34 @@
 
 All notable changes to this project will be documented in this file.
 
+## [5.4.0] - 2025-12-26
+
+### Added
+- Installation marker files (`~/.config/ctdev/<component>.installed`) for reliable component detection
+- TROUBLESHOOTING.md documentation for common issues and solutions
+- Enhanced hardware info in `ctdev info`:
+  - GPU details via nvidia-smi (model, memory, power, temperature, driver, CUDA version)
+  - All mounted disks with usage statistics
+  - Network interfaces with IP, MAC address, and state
+- Checksum verification for CLI tool downloads (git-spice, doctl, helm, sops)
+- Input validation for git user configuration
+- ShellCheck static analysis tool to CLI component
+
+### Changed
+- Refactored `lib/utils.sh` into modular files:
+  - `lib/logging.sh` - Color configuration and log functions
+  - `lib/platform.sh` - OS/architecture detection, package management
+  - `lib/packages.sh` - Dependency management helpers
+  - `lib/github.sh` - GitHub API, checksums, git repository functions
+- Memory display now uses binary units (GB = 1024³) for accurate reporting
+- Hardware info sections now use consistent indented formatting
+
+### Fixed
+- Memory calculation now correctly shows binary units (was showing ~64.8 GB for 64 GB RAM)
+- Added 30-second timeout on interactive prompts (prevents CI/CD hangs)
+- Non-interactive environments skip update prompts gracefully
+- All scripts now pass ShellCheck static analysis
+
 ## [5.3.2] - 2025-12-23
 
 ### Fixed
