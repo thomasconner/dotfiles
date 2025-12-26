@@ -88,50 +88,56 @@ if ! require_command "$COMMAND"; then
 fi
 
 # Check if dotfiles repo has updates available
+# This function is wrapped to ensure it never causes script failure
 check_for_updates() {
-    if [[ ! -d "$DOTFILES_ROOT/.git" ]]; then
-        return
-    fi
+    # Run update check in a subshell to prevent any git errors from propagating
+    (
+        set +e  # Disable errexit within this subshell
 
-    # Fetch latest without changing anything
-    git -C "$DOTFILES_ROOT" fetch --quiet 2>/dev/null || return
+        if [[ ! -d "$DOTFILES_ROOT/.git" ]]; then
+            exit 0
+        fi
 
-    # Check if we're behind origin
-    local local_ref remote_ref
-    local_ref=$(git -C "$DOTFILES_ROOT" rev-parse HEAD 2>/dev/null) || return
-    remote_ref=$(git -C "$DOTFILES_ROOT" rev-parse '@{upstream}' 2>/dev/null) || return
+        # Fetch latest without changing anything
+        git -C "$DOTFILES_ROOT" fetch --quiet 2>/dev/null || exit 0
 
-    if [[ "$local_ref" != "$remote_ref" ]]; then
-        local behind
-        behind=$(git -C "$DOTFILES_ROOT" rev-list --count 'HEAD..@{upstream}' 2>/dev/null) || return
+        # Check if we're behind origin (may fail if no upstream configured)
+        local local_ref remote_ref
+        local_ref=$(git -C "$DOTFILES_ROOT" rev-parse HEAD 2>/dev/null) || exit 0
+        remote_ref=$(git -C "$DOTFILES_ROOT" rev-parse '@{upstream}' 2>/dev/null) || exit 0
 
-        if [[ "$behind" -gt 0 ]]; then
-            log_warning "ctdev is $behind commit(s) behind origin"
+        if [[ "$local_ref" != "$remote_ref" ]]; then
+            local behind
+            behind=$(git -C "$DOTFILES_ROOT" rev-list --count 'HEAD..@{upstream}' 2>/dev/null) || exit 0
 
-            # Only prompt if we're in an interactive terminal
-            if [[ -t 0 ]]; then
-                printf "Would you like to pull the latest changes before proceeding? [y/N] "
-                # Use timeout to prevent hanging in automated environments
-                if read -r -t 30 answer && [[ "$answer" =~ ^[Yy]$ ]]; then
-                    log_info "Pulling latest changes..."
-                    if git -C "$DOTFILES_ROOT" pull --ff-only; then
-                        log_success "ctdev updated"
-                        echo
+            if [[ "$behind" -gt 0 ]]; then
+                log_warning "ctdev is $behind commit(s) behind origin"
+
+                # Only prompt if we're in an interactive terminal
+                if [[ -t 0 ]]; then
+                    printf "Would you like to pull the latest changes before proceeding? [y/N] "
+                    # Use timeout to prevent hanging in automated environments
+                    if read -r -t 30 answer && [[ "$answer" =~ ^[Yy]$ ]]; then
+                        log_info "Pulling latest changes..."
+                        if git -C "$DOTFILES_ROOT" pull --ff-only; then
+                            log_success "ctdev updated"
+                            echo
+                        else
+                            log_error "Failed to pull (you may have local changes)"
+                            log_info "Continuing with current version..."
+                            echo
+                        fi
                     else
-                        log_error "Failed to pull (you may have local changes)"
                         log_info "Continuing with current version..."
                         echo
                     fi
                 else
-                    log_info "Continuing with current version..."
-                    echo
+                    # Non-interactive: just warn and continue
+                    log_info "Run 'git -C $DOTFILES_ROOT pull' to update"
                 fi
-            else
-                # Non-interactive: just warn and continue
-                log_info "Run 'git -C $DOTFILES_ROOT pull' to update"
             fi
         fi
-    fi
+    ) || true  # Ensure the subshell failure never propagates
 }
 
 check_for_updates
