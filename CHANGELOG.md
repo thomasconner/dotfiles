@@ -2,6 +2,23 @@
 
 All notable changes to this project will be documented in this file.
 
+## [5.5.0] - 2025-12-26
+
+### Changed
+- Merged `ctdev update` into `ctdev install` - single command now handles both installation and updates
+- Components not installed will be installed; components already installed will be updated
+- System package updates (apt/brew/dnf/pacman) run by default with `--skip-system` flag to skip
+- All dry-run messages now visible without `--verbose` flag (use `log_info` instead of `log_debug`)
+- Standardized `[DRY-RUN]` prefix (with hyphen) across all scripts
+
+### Added
+- `--skip-system` flag for `ctdev install` to skip system package updates
+- ShellCheck linting job in GitHub Actions workflow
+
+### Removed
+- `ctdev update` command (functionality merged into `ctdev install`)
+- `cmds/update.sh` file
+
 ## [5.4.0] - 2025-12-26
 
 ### Added
