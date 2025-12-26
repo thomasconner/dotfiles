@@ -177,9 +177,15 @@ show_hardware_info() {
     # GPU
     echo "  GPU:"
     if [[ "$OSTYPE" == "darwin"* ]]; then
-        system_profiler SPDisplaysDataType 2>/dev/null | grep -E "Chipset Model:|VRAM|Metal" | while read -r line; do
-            echo "    ${line}"
-        done
+        local gpu_info
+        gpu_info=$(system_profiler SPDisplaysDataType 2>/dev/null | grep -E "Chipset Model:|VRAM|Metal" || true)
+        if [[ -n "$gpu_info" ]]; then
+            echo "$gpu_info" | while read -r line; do
+                echo "    ${line}"
+            done
+        else
+            echo "    No GPU information available"
+        fi
     elif command -v nvidia-smi >/dev/null 2>&1; then
         # NVIDIA GPU with detailed info
         # Get CUDA version from nvidia-smi header
