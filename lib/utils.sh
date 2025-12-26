@@ -153,8 +153,12 @@ backup_file() {
   if [ -f "$file" ] && [ ! -L "$file" ]; then
     local backup
     backup="${file}.backup-$(date +%Y%m%d-%H%M%S)"
-    cp "$file" "$backup"
-    log_info "Backed up $file to $backup"
+    if [[ "${DRY_RUN:-false}" == "true" ]]; then
+      log_info "[DRY-RUN] Would backup $file to $backup"
+    else
+      cp "$file" "$backup"
+      log_info "Backed up $file to $backup"
+    fi
     return 0
   fi
 

@@ -9,6 +9,19 @@ source "$DOTFILES_ROOT/lib/utils.sh"
 
 log_step "Installing zsh"
 
+# Check for dry-run mode
+if [[ "${DRY_RUN:-false}" == "true" ]]; then
+    log_info "[DRY-RUN] Would install/configure:"
+    log_info "  - zsh shell"
+    log_info "  - Oh My Zsh framework"
+    log_info "  - Pure prompt theme"
+    log_info "  - zsh-autosuggestions plugin"
+    log_info "  - zsh-completions plugin"
+    log_info "  - Shell config symlinks (aliases, exports, path)"
+    log_success "Zsh dry-run complete"
+    exit 0
+fi
+
 OS=$(detect_os)
 
 # Install zsh if not already installed

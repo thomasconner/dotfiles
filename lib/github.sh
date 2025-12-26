@@ -155,13 +155,17 @@ ensure_git_repo() {
   if [ -d "$target_dir" ]; then
     if [ -d "$target_dir/.git" ]; then
       printf "%s is already installed, updating\n" "$repo_name"
-      git -C "$target_dir" pull --ff-only
+      run_cmd git -C "$target_dir" pull --ff-only
     else
       echo "Directory $target_dir exists but is not a git repository"
       return 1
     fi
   else
     printf "Cloning %s to %s\n" "$repo_name" "$target_dir"
-    git clone "$repo_url" "$target_dir"
+    if [[ "${DRY_RUN:-false}" == "true" ]]; then
+      log_info "[DRY-RUN] Would clone $repo_url to $target_dir"
+    else
+      git clone "$repo_url" "$target_dir"
+    fi
   fi
 }

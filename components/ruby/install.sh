@@ -9,6 +9,17 @@ source "$DOTFILES_ROOT/lib/utils.sh"
 
 log_step "Installing Ruby"
 
+# Check for dry-run mode
+if [[ "${DRY_RUN:-false}" == "true" ]]; then
+    log_info "[DRY-RUN] Would install/configure:"
+    log_info "  - rbenv version manager"
+    log_info "  - ruby-build plugin"
+    log_info "  - Ruby 3.4.1"
+    log_info "  - Ruby gems: colorls"
+    log_success "Ruby dry-run complete"
+    exit 0
+fi
+
 OS=$(detect_os)
 PM=$(get_package_manager)
 RUBY_VERSION=3.4.1
