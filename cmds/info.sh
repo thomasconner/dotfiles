@@ -30,11 +30,12 @@ check_tool() {
 
 human_size() {
     local bytes=$1
+    # Use binary units (1024) since RAM is measured in GiB, not decimal GB
     awk -v bytes="$bytes" 'BEGIN {
-        if (bytes >= 1000000000000) printf "%.1f TB", bytes/1000000000000
-        else if (bytes >= 1000000000) printf "%.1f GB", bytes/1000000000
-        else if (bytes >= 1000000) printf "%.1f MB", bytes/1000000
-        else if (bytes >= 1000) printf "%.1f KB", bytes/1000
+        if (bytes >= 1099511627776) printf "%.1f TB", bytes/1099511627776
+        else if (bytes >= 1073741824) printf "%.1f GB", bytes/1073741824
+        else if (bytes >= 1048576) printf "%.1f MB", bytes/1048576
+        else if (bytes >= 1024) printf "%.1f KB", bytes/1024
         else printf "%d bytes", bytes
     }'
 }
@@ -158,13 +159,15 @@ show_hardware_info() {
         mem_available=$(grep "^MemAvailable:" /proc/meminfo | awk '{print $2}')
         mem_used=$((mem_total - mem_available))
 
-        echo "  Memory Total: $(human_size $((mem_total * 1024)))"
+        echo "  Memory Total: $(human_size $((mem_total * 1024))) (available to OS)"
         echo "  Memory Used: $(human_size $((mem_used * 1024)))"
         echo "  Memory Available: $(human_size $((mem_available * 1024)))"
+        echo "  Note: Physical RAM may be higher; some is reserved by firmware/BIOS/GPU"
     elif [[ "$OSTYPE" == "darwin"* ]]; then
         local mem_total
         mem_total=$(sysctl -n hw.memsize)
-        echo "  Memory Total: $(human_size "$mem_total")"
+        echo "  Memory Total: $(human_size "$mem_total") (available to OS)"
+        echo "  Note: Physical RAM may be higher; some is reserved by firmware"
     fi
 
     echo "  Disk Usage:"
