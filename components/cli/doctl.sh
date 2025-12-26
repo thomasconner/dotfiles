@@ -35,8 +35,9 @@ else
   cd "$TEMP_DIR"
 
   ARCHIVE_NAME="doctl-${LATEST_VERSION}-linux-${ARCH}.tar.gz"
+  CHECKSUMS_NAME="doctl-${LATEST_VERSION}-checksums.sha256"
   curl -fsSL "https://github.com/digitalocean/doctl/releases/download/v${LATEST_VERSION}/${ARCHIVE_NAME}" -o "$ARCHIVE_NAME"
-  curl -fsSL "https://github.com/digitalocean/doctl/releases/download/v${LATEST_VERSION}/checksums.txt" -o checksums.txt
+  curl -fsSL "https://github.com/digitalocean/doctl/releases/download/v${LATEST_VERSION}/${CHECKSUMS_NAME}" -o checksums.txt
 
   log_info "Verifying checksum..."
   verify_checksum_from_file "$ARCHIVE_NAME" checksums.txt || exit 1
