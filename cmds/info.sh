@@ -141,55 +141,182 @@ show_system_info() {
 show_hardware_info() {
     log_step "Hardware Information"
 
+    # CPU
+    echo "  CPU:"
     if [[ -f /proc/cpuinfo ]]; then
         local cpu_model
         cpu_model=$(grep -m 1 "model name" /proc/cpuinfo | cut -d':' -f2 | xargs)
         local cpu_cores
         cpu_cores=$(grep -c "^processor" /proc/cpuinfo)
-        echo "  CPU: ${cpu_model}"
-        echo "  CPU Cores: ${cpu_cores}"
+        echo "    Model: ${cpu_model}"
+        echo "    Cores: ${cpu_cores}"
     elif [[ "$OSTYPE" == "darwin"* ]]; then
-        echo "  CPU: $(sysctl -n machdep.cpu.brand_string)"
-        echo "  CPU Cores: $(sysctl -n hw.ncpu)"
+        echo "    Model: $(sysctl -n machdep.cpu.brand_string)"
+        echo "    Cores: $(sysctl -n hw.ncpu)"
     fi
 
+    # Memory
+    echo "  Memory:"
     if [[ -f /proc/meminfo ]]; then
         local mem_total mem_available mem_used
         mem_total=$(grep "^MemTotal:" /proc/meminfo | awk '{print $2}')
         mem_available=$(grep "^MemAvailable:" /proc/meminfo | awk '{print $2}')
         mem_used=$((mem_total - mem_available))
 
-        echo "  Memory Total: $(human_size $((mem_total * 1024))) (available to OS)"
-        echo "  Memory Used: $(human_size $((mem_used * 1024)))"
-        echo "  Memory Available: $(human_size $((mem_available * 1024)))"
-        echo "  Note: Physical RAM may be higher; some is reserved by firmware/BIOS/GPU"
+        echo "    Total: $(human_size $((mem_total * 1024))) (available to OS)"
+        echo "    Used: $(human_size $((mem_used * 1024)))"
+        echo "    Available: $(human_size $((mem_available * 1024)))"
+        echo "    Note: Physical RAM may be higher; some is reserved by firmware/BIOS/GPU"
     elif [[ "$OSTYPE" == "darwin"* ]]; then
         local mem_total
         mem_total=$(sysctl -n hw.memsize)
-        echo "  Memory Total: $(human_size "$mem_total") (available to OS)"
-        echo "  Note: Physical RAM may be higher; some is reserved by firmware"
+        echo "    Total: $(human_size "$mem_total") (available to OS)"
+        echo "    Note: Physical RAM may be higher; some is reserved by firmware"
     fi
 
-    echo "  Disk Usage:"
+    # GPU
+    echo "  GPU:"
     if [[ "$OSTYPE" == "darwin"* ]]; then
-        local container_info
-        container_info=$(diskutil apfs list 2>/dev/null | grep -A 5 "Container disk" | head -6)
-        if [[ -n "$container_info" ]]; then
-            local total_bytes used_bytes pct_used
-            total_bytes=$(echo "$container_info" | grep "Size (Capacity Ceiling)" | awk -F: '{print $2}' | awk '{print $1}')
-            used_bytes=$(echo "$container_info" | grep "Capacity In Use" | awk -F: '{print $2}' | awk '{print $1}')
-            pct_used=$(echo "$container_info" | grep "Capacity In Use" | grep -oE '[0-9.]+% used' | cut -d'%' -f1)
+        system_profiler SPDisplaysDataType 2>/dev/null | grep -E "Chipset Model:|VRAM|Metal" | while read -r line; do
+            echo "    ${line}"
+        done
+    elif command -v nvidia-smi >/dev/null 2>&1; then
+        # NVIDIA GPU with detailed info
+        # Get CUDA version from nvidia-smi header
+        local cuda_version
+        cuda_version=$(nvidia-smi 2>/dev/null | grep "CUDA Version" | grep -oE "CUDA Version: [0-9.]+" | cut -d' ' -f3)
 
-            if [[ -n "$total_bytes" && -n "$used_bytes" && -n "$pct_used" ]]; then
-                echo "    Root (/): $(human_size "$used_bytes") used / $(human_size "$total_bytes") total (${pct_used}% full)"
-            else
-                df -h / | tail -n 1 | awk '{print "    Root (/): " $3 " used / " $2 " total (" $5 " full)"}'
+        local gpu_count=0
+        nvidia-smi --query-gpu=name,memory.used,memory.total,power.draw,power.limit,temperature.gpu,driver_version --format=csv,noheader,nounits 2>/dev/null | while IFS=',' read -r name mem_used mem_total power_draw power_cap temp driver; do
+            gpu_count=$((gpu_count + 1))
+            # Trim whitespace
+            name=$(echo "$name" | xargs)
+            mem_used=$(echo "$mem_used" | xargs)
+            mem_total=$(echo "$mem_total" | xargs)
+            power_draw=$(echo "$power_draw" | xargs)
+            power_cap=$(echo "$power_cap" | xargs)
+            temp=$(echo "$temp" | xargs)
+            driver=$(echo "$driver" | xargs)
+
+            # Convert MiB to GB (divide by 1024)
+            local mem_used_gb mem_total_gb
+            mem_used_gb=$(awk "BEGIN {printf \"%.1f\", $mem_used / 1024}")
+            mem_total_gb=$(awk "BEGIN {printf \"%.1f\", $mem_total / 1024}")
+
+            echo "    NVIDIA GPU ${gpu_count}:"
+            echo "      Model: ${name}"
+            echo "      Memory: ${mem_used_gb} GB used / ${mem_total_gb} GB total"
+            echo "      Power: ${power_draw}W / ${power_cap}W"
+            echo "      Temperature: ${temp}C"
+            if [[ $gpu_count -eq 1 ]]; then
+                echo "      Driver: ${driver}"
+                [[ -n "$cuda_version" ]] && echo "      CUDA: ${cuda_version}"
             fi
-        else
-            df -h / | tail -n 1 | awk '{print "    Root (/): " $3 " used / " $2 " total (" $5 " full)"}'
+        done
+
+        # Also show any other GPUs (AMD/Intel) via lspci
+        if command -v lspci >/dev/null 2>&1; then
+            lspci 2>/dev/null | grep -iE "vga|3d|display" | grep -vi nvidia | while read -r line; do
+                local gpu_name
+                gpu_name="${line#*: }"
+                echo "    Other: ${gpu_name}"
+            done
         fi
-    elif command -v df >/dev/null 2>&1; then
-        df -h / | tail -n 1 | awk '{print "    Root (/): " $3 " used / " $2 " total (" $5 " full)"}'
+    elif command -v lspci >/dev/null 2>&1; then
+        # Fallback to lspci for basic GPU info
+        lspci 2>/dev/null | grep -iE "vga|3d|display" | while read -r line; do
+            local gpu_name
+            gpu_name="${line#*: }"
+            echo "    ${gpu_name}"
+        done
+    elif [[ -d /sys/class/drm ]]; then
+        # Fallback: check DRM subsystem
+        for card in /sys/class/drm/card[0-9]*; do
+            if [[ -f "$card/device/vendor" ]]; then
+                echo "    GPU detected (use lspci for details)"
+                break
+            fi
+        done
+    else
+        echo "    No GPU detected or lspci not available"
+    fi
+
+    # Disks
+    echo "  Disks:"
+    if [[ "$OSTYPE" == "darwin"* ]]; then
+        # macOS: use df for all mounted volumes, filter out system/temp
+        df -h 2>/dev/null | grep -E "^/dev/" | while read -r line; do
+            local mount_point used total pct avail
+            mount_point=$(echo "$line" | awk '{print $9}')
+            used=$(echo "$line" | awk '{print $3}')
+            total=$(echo "$line" | awk '{print $2}')
+            avail=$(echo "$line" | awk '{print $4}')
+            pct=$(echo "$line" | awk '{print $5}')
+            echo "    ${mount_point}:"
+            echo "      Total: ${total}"
+            echo "      Used: ${used} (${pct})"
+            echo "      Available: ${avail}"
+        done
+    else
+        # Linux: show real disks, filter out snap/loop/tmpfs
+        df -h 2>/dev/null | grep -E "^/dev/" | grep -vE "/loop|/snap" | while read -r line; do
+            local mount_point used total pct avail filesystem
+            filesystem=$(echo "$line" | awk '{print $1}')
+            used=$(echo "$line" | awk '{print $3}')
+            total=$(echo "$line" | awk '{print $2}')
+            avail=$(echo "$line" | awk '{print $4}')
+            pct=$(echo "$line" | awk '{print $5}')
+            mount_point=$(echo "$line" | awk '{print $6}')
+            echo "    ${mount_point}: [${filesystem}]"
+            echo "      Total: ${total}"
+            echo "      Used: ${used} (${pct})"
+            echo "      Available: ${avail}"
+        done
+    fi
+
+    # Network Interfaces
+    echo "  Network:"
+    if [[ "$OSTYPE" == "darwin"* ]]; then
+        # macOS: get active interfaces with details
+        local current_iface=""
+        ifconfig 2>/dev/null | while read -r line; do
+            if [[ "$line" =~ ^[a-z] ]]; then
+                current_iface=$(echo "$line" | awk '{print $1}' | tr -d ':')
+            elif [[ "$line" =~ inet\  ]] && [[ ! "$line" =~ 127\.0\.0\.1 ]]; then
+                local ipaddr
+                ipaddr=$(echo "$line" | awk '{print $2}')
+                echo "    ${current_iface}:"
+                echo "      IP: ${ipaddr}"
+            fi
+        done
+    elif command -v ip >/dev/null 2>&1; then
+        # Linux: use ip command for detailed info
+        # Get list of interfaces (excluding loopback)
+        local ifaces
+        ifaces=$(ip -o link show 2>/dev/null | awk -F': ' '{print $2}' | awk '{print $1}' | grep -v "^lo$" || true)
+
+        for iface in $ifaces; do
+            local state mac ipaddr
+            state=$(ip -o link show "$iface" 2>/dev/null | grep -oE "state [A-Z]+" | awk '{print $2}' || true)
+            mac=$(ip -o link show "$iface" 2>/dev/null | grep -oE "link/ether [0-9a-f:]+" | awk '{print $2}' || true)
+            ipaddr=$(ip -4 addr show "$iface" 2>/dev/null | grep -oE "inet [0-9.]+" | head -1 | awk '{print $2}' || true)
+
+            # Only show interfaces with IP or that are UP
+            if [[ -n "$ipaddr" ]] || [[ "$state" == "UP" ]]; then
+                echo "    ${iface}:"
+                [[ -n "$ipaddr" ]] && echo "      IP: ${ipaddr}"
+                [[ -n "$mac" ]] && echo "      MAC: ${mac}"
+                [[ -n "$state" ]] && echo "      State: ${state}"
+            fi
+        done
+    elif command -v ifconfig >/dev/null 2>&1; then
+        # Fallback to ifconfig
+        ifconfig 2>/dev/null | grep -E "^[a-z]|inet " | awk '
+            /^[a-z]/ { iface=$1; gsub(/:$/, "", iface) }
+            /inet / && !/127.0.0.1/ { print "    " iface ": " $2 }
+        '
+    else
+        echo "    No network info available"
     fi
 
     echo
