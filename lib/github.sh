@@ -118,10 +118,16 @@ git_pull_default_branch() {
     return 1
   fi
 
+  # In devcontainers, disable URL rewrites to avoid SSH issues
+  local git_cmd="git"
+  if is_devcontainer; then
+    git_cmd="git -c url.https://github.com/.insteadOf=git@github.com: -c url.https://github.com/.insteadOf=ssh://git@github.com/"
+  fi
+
   # Try common default branches in order of popularity
   for branch in main master; do
-    if git -C "$repo_dir" show-ref --verify --quiet "refs/remotes/origin/$branch" 2>/dev/null; then
-      if git -C "$repo_dir" pull --ff-only origin "$branch" 2>/dev/null; then
+    if $git_cmd -C "$repo_dir" show-ref --verify --quiet "refs/remotes/origin/$branch" 2>/dev/null; then
+      if $git_cmd -C "$repo_dir" pull --ff-only origin "$branch" 2>/dev/null; then
         log_debug "Updated $repo_name from origin/$branch"
         return 0
       fi
@@ -129,7 +135,7 @@ git_pull_default_branch() {
   done
 
   # Fallback: try pulling without specifying a branch
-  if git -C "$repo_dir" pull --ff-only 2>/dev/null; then
+  if $git_cmd -C "$repo_dir" pull --ff-only 2>/dev/null; then
     log_debug "Updated $repo_name"
     return 0
   fi
@@ -165,7 +171,14 @@ ensure_git_repo() {
     if [[ "${DRY_RUN:-false}" == "true" ]]; then
       log_info "[DRY-RUN] Would clone $repo_url to $target_dir"
     else
-      git clone "$repo_url" "$target_dir"
+      # In devcontainers, disable URL rewrites to avoid SSH issues with public repos
+      if is_devcontainer; then
+        git -c url."https://github.com/".insteadOf="git@github.com:" \
+            -c url."https://github.com/".insteadOf="ssh://git@github.com/" \
+            clone "$repo_url" "$target_dir"
+      else
+        git clone "$repo_url" "$target_dir"
+      fi
     fi
   fi
 }

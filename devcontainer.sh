@@ -1,6 +1,8 @@
 #!/usr/bin/env bash
 set -euo pipefail
 cd "$(dirname "$0")"
-# Skip system package updates - devcontainers manage packages via Dockerfile
-# and typically have "no new privileges" flag that blocks sudo
-exec ./ctdev install --skip-system zsh
+
+# Run zsh install script directly - bypasses "already installed" detection
+# since devcontainer base images often have partial zsh setups (Oh My Zsh
+# pre-installed but missing Pure prompt, plugins, and our config)
+exec bash components/zsh/install.sh
