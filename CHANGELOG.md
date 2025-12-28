@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [5.5.4] - 2025-12-28
+
+### Fixed
+- `ctdev info` now filters all `/boot*` mounts on Linux (was only filtering `/boot/efi`)
+- Simplified disk mount labels (changed "Root (/)" to just "/")
+
 ## [5.5.3] - 2025-12-27
 
 ### Fixed
