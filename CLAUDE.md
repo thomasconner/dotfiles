@@ -4,7 +4,7 @@ Instructions for Claude Code when working with this repository.
 
 ## Overview
 
-Modular dotfiles repository (v5.0.0) with unified `ctdev` CLI. Cross-platform support for macOS, Ubuntu, Debian, Fedora, and Arch.
+Modular dotfiles repository with unified `ctdev` CLI. Cross-platform support for macOS, Ubuntu, Debian, Fedora, and Arch.
 
 ## ctdev CLI
 
@@ -38,7 +38,11 @@ ctdev setup                     # Symlink ctdev to ~/.local/bin
 dotfiles/
 ├── ctdev                 # CLI entry point (resolves symlinks)
 ├── lib/
-│   ├── utils.sh         # Shared utilities (logging, platform detection)
+│   ├── utils.sh         # Main entry point, sources all lib modules
+│   ├── logging.sh       # Color config and log_* functions
+│   ├── platform.sh      # OS/arch detection, package management
+│   ├── packages.sh      # Dependency management helpers
+│   ├── github.sh        # GitHub API, checksums, git repo functions
 │   ├── cli.sh           # CLI parsing and help text
 │   └── components.sh    # Component registry
 ├── cmds/

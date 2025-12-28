@@ -173,6 +173,7 @@ ensure_git_repo() {
     else
       # In devcontainers, disable URL rewrites to avoid SSH issues with public repos
       if is_devcontainer; then
+        # shellcheck disable=SC2140  # Git config syntax requires this quoting
         git -c url."https://github.com/".insteadOf="git@github.com:" \
             -c url."https://github.com/".insteadOf="ssh://git@github.com/" \
             clone "$repo_url" "$target_dir"
