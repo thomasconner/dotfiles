@@ -140,3 +140,8 @@ zstyle ':completion:*' cache-path "${XDG_CACHE_HOME:-$HOME/.cache}/zsh"
 if [ -z "$SSH_AUTH_SOCK" ]; then
     eval "$(ssh-agent -s)" > /dev/null
 fi
+
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ Secrets ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+# Load secrets from ~/.secrets (not tracked in git)
+[[ -f ~/.secrets ]] && source ~/.secrets
