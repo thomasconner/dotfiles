@@ -305,12 +305,12 @@ show_hardware_info() {
                 /dev/loop*) continue ;;
             esac
             case "$mount_point" in
-                /snap/*|/boot/efi|/run/*|/dev/*|/var/lib/docker/*) continue ;;
+                /snap/*|/boot*|/run/*|/dev/*|/var/lib/docker/*) continue ;;
             esac
 
             # Label root filesystem nicely
             if [[ "$mount_point" == "/" ]]; then
-                echo "    Root (/):"
+                echo "    /:"
             else
                 echo "    ${mount_point}:"
             fi
