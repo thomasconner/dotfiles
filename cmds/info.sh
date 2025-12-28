@@ -163,15 +163,27 @@ show_hardware_info() {
         mem_available=$(grep "^MemAvailable:" /proc/meminfo | awk '{print $2}')
         mem_used=$((mem_total - mem_available))
 
-        echo "    Total: $(human_size $((mem_total * 1024))) (available to OS)"
+        echo "    Total: $(human_size $((mem_total * 1024)))"
         echo "    Used: $(human_size $((mem_used * 1024)))"
         echo "    Available: $(human_size $((mem_available * 1024)))"
-        echo "    Note: Physical RAM may be higher; some is reserved by firmware/BIOS/GPU"
     elif [[ "$OSTYPE" == "darwin"* ]]; then
-        local mem_total
+        local mem_total page_size pages_free pages_active pages_inactive pages_wired
         mem_total=$(sysctl -n hw.memsize)
-        echo "    Total: $(human_size "$mem_total") (available to OS)"
-        echo "    Note: Physical RAM may be higher; some is reserved by firmware"
+        page_size=$(sysctl -n hw.pagesize)
+
+        # Parse vm_stat output
+        pages_free=$(vm_stat | awk '/Pages free/ {gsub(/\./,"",$3); print $3}')
+        pages_active=$(vm_stat | awk '/Pages active/ {gsub(/\./,"",$3); print $3}')
+        pages_inactive=$(vm_stat | awk '/Pages inactive/ {gsub(/\./,"",$3); print $3}')
+        pages_wired=$(vm_stat | awk '/Pages wired/ {gsub(/\./,"",$4); print $4}')
+
+        local mem_used mem_available
+        mem_used=$(( (pages_active + pages_wired) * page_size ))
+        mem_available=$(( (pages_free + pages_inactive) * page_size ))
+
+        echo "    Total: $(human_size "$mem_total")"
+        echo "    Used: $(human_size "$mem_used")"
+        echo "    Available: $(human_size "$mem_available")"
     fi
 
     # GPU
@@ -250,7 +262,8 @@ show_hardware_info() {
     # Disks
     echo "  Disks:"
     if [[ "$OSTYPE" == "darwin"* ]]; then
-        # macOS: use df for all mounted volumes, filter out system/temp
+        # macOS: show only main disk and real external volumes
+        # Filter out system volumes, simulator volumes, and disk images
         df -h 2>/dev/null | grep -E "^/dev/" | while read -r line; do
             local mount_point used total pct avail
             mount_point=$(echo "$line" | awk '{print $9}')
@@ -258,14 +271,27 @@ show_hardware_info() {
             total=$(echo "$line" | awk '{print $2}')
             avail=$(echo "$line" | awk '{print $4}')
             pct=$(echo "$line" | awk '{print $5}')
-            echo "    ${mount_point}:"
+
+            # Skip system volumes and temporary mounts
+            case "$mount_point" in
+                /System/Volumes/*|/Library/Developer/*|/private/var/*)
+                    continue
+                    ;;
+            esac
+
+            # For root, show as "Macintosh HD" style
+            if [[ "$mount_point" == "/" ]]; then
+                echo "    Macintosh HD (/):"
+            else
+                echo "    ${mount_point}:"
+            fi
             echo "      Total: ${total}"
             echo "      Used: ${used} (${pct})"
             echo "      Available: ${avail}"
         done
     else
-        # Linux: show real disks, filter out snap/loop/tmpfs
-        df -h 2>/dev/null | grep -E "^/dev/" | grep -vE "/loop|/snap" | while read -r line; do
+        # Linux: show real disks, filter out virtual/system mounts
+        df -h 2>/dev/null | grep -E "^/dev/" | while read -r line; do
             local mount_point used total pct avail filesystem
             filesystem=$(echo "$line" | awk '{print $1}')
             used=$(echo "$line" | awk '{print $3}')
@@ -273,7 +299,22 @@ show_hardware_info() {
             avail=$(echo "$line" | awk '{print $4}')
             pct=$(echo "$line" | awk '{print $5}')
             mount_point=$(echo "$line" | awk '{print $6}')
-            echo "    ${mount_point}: [${filesystem}]"
+
+            # Skip loop devices, snap mounts, and system partitions
+            case "$filesystem" in
+                /dev/loop*) continue ;;
+            esac
+            case "$mount_point" in
+                /snap/*|/boot/efi|/run/*|/dev/*|/var/lib/docker/*) continue ;;
+            esac
+
+            # Label root filesystem nicely
+            if [[ "$mount_point" == "/" ]]; then
+                echo "    Root (/):"
+            else
+                echo "    ${mount_point}:"
+            fi
+            echo "      Device: ${filesystem}"
             echo "      Total: ${total}"
             echo "      Used: ${used} (${pct})"
             echo "      Available: ${avail}"
@@ -283,18 +324,26 @@ show_hardware_info() {
     # Network Interfaces
     echo "  Network:"
     if [[ "$OSTYPE" == "darwin"* ]]; then
-        # macOS: get active interfaces with details
-        local current_iface=""
-        ifconfig 2>/dev/null | while read -r line; do
-            if [[ "$line" =~ ^[a-z] ]]; then
-                current_iface=$(echo "$line" | awk '{print $1}' | tr -d ':')
-            elif [[ "$line" =~ inet\  ]] && [[ ! "$line" =~ 127\.0\.0\.1 ]]; then
-                local ipaddr
-                ipaddr=$(echo "$line" | awk '{print $2}')
-                echo "    ${current_iface}:"
-                echo "      IP: ${ipaddr}"
-            fi
-        done
+        # macOS: get active interfaces with IP addresses
+        # Use networksetup to get the primary interface info
+        local active_ifaces
+        active_ifaces=$(ifconfig 2>/dev/null | awk '
+            /^[a-z]/ { iface=$1; gsub(/:$/,"",iface) }
+            /inet / && !/127\.0\.0\.1/ { print iface, $2 }
+        ')
+
+        if [[ -n "$active_ifaces" ]]; then
+            echo "$active_ifaces" | while read -r iface ip; do
+                # Only show common interfaces (en0, en1, etc.)
+                case "$iface" in
+                    en[0-9]*|bridge[0-9]*|utun[0-9]*)
+                        echo "    ${iface}: ${ip}"
+                        ;;
+                esac
+            done
+        else
+            echo "    No active network interfaces"
+        fi
     elif command -v ip >/dev/null 2>&1; then
         # Linux: use ip command for detailed info
         # Get list of interfaces (excluding loopback)
