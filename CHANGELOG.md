@@ -2,6 +2,17 @@
 
 All notable changes to this project will be documented in this file.
 
+## [5.5.1] - 2025-12-27
+
+### Fixed
+- `ctdev info` now filters out system volumes on macOS (was showing 10+ unnecessary mounts)
+- `ctdev info` now filters out snap/loop/docker mounts on Linux
+- `ctdev info` now shows memory used/available on macOS (was only showing total)
+- `ctdev info` network section now correctly displays active interfaces on macOS
+
+### Added
+- `.zshrc` now sources `~/.secrets` for sensitive credentials (keeps secrets out of git)
+
 ## [5.5.0] - 2025-12-26
 
 ### Changed
