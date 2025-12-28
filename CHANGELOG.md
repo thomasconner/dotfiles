@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [5.5.3] - 2025-12-27
+
+### Fixed
+- `devcontainer.sh` now runs install script directly (bypasses partial install detection)
+- Git clone/pull in devcontainers now forces HTTPS to avoid SSH key issues with URL rewrites
+
 ## [5.5.2] - 2025-12-27
 
 ### Fixed
