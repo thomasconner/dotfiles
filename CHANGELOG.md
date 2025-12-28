@@ -2,6 +2,17 @@
 
 All notable changes to this project will be documented in this file.
 
+## [5.5.2] - 2025-12-27
+
+### Fixed
+- `devcontainer.sh` now skips system package updates that require sudo
+- `maybe_sudo` gracefully handles containers with "no new privileges" flag
+- zsh install skips `chsh` in devcontainers (shell managed by container)
+- Clear error message when zsh not installed in devcontainer
+
+### Added
+- `is_devcontainer()` helper detects VS Code devcontainers, Codespaces, and custom containers
+
 ## [5.5.1] - 2025-12-27
 
 ### Fixed
