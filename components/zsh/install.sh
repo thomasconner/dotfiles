@@ -31,6 +31,10 @@ if ! command -v zsh >/dev/null 2>&1; then
     log_info "Installing zsh via Homebrew..."
     ensure_brew_installed
     brew install zsh
+  elif is_devcontainer; then
+    log_error "zsh is not installed and cannot be installed in a container without sudo."
+    log_error "Add 'zsh' to your Dockerfile or devcontainer.json features."
+    exit 1
   else
     log_info "Installing zsh..."
     install_package zsh
@@ -41,8 +45,10 @@ fi
 
 # Set zsh as default shell if not already set
 if [ "$SHELL" != "$(which zsh)" ]; then
-  # Only try to change shell if not root and not in Docker/CI
-  if [ "$EUID" -ne 0 ] && [ -t 0 ]; then
+  # Skip in devcontainers (shell is managed by container), non-interactive, or root
+  if is_devcontainer; then
+    log_info "Skipping chsh in devcontainer (shell managed by container)"
+  elif [ "$EUID" -ne 0 ] && [ -t 0 ]; then
     log_info "Setting zsh as default shell..."
     # On macOS, zsh might not be in /etc/shells if installed via brew
     if [[ "$OS" == "macos" ]]; then

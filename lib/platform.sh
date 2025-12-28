@@ -104,10 +104,27 @@ get_package_manager() {
   esac
 }
 
+# Check if running in a dev container environment
+is_devcontainer() {
+  [[ "${REMOTE_CONTAINERS:-}" == "true" ]] || \
+  [[ "${CODESPACES:-}" == "true" ]] || \
+  [[ "${IN_DEV_CONTAINER:-}" == "true" ]]
+}
+
 # Helper to run command with sudo if not root
+# Detects containers where sudo doesn't work (e.g., devcontainers with "no new privileges")
 maybe_sudo() {
   if [ "$EUID" -eq 0 ]; then
     "$@"
+  elif is_devcontainer; then
+    # In devcontainers/Codespaces, sudo often fails due to security restrictions
+    # Try without sudo first (might work if user has permissions), otherwise warn
+    if "$@" 2>/dev/null; then
+      return 0
+    else
+      log_warning "Cannot run '$1' - sudo unavailable in container. You may need to install packages in your Dockerfile."
+      return 1
+    fi
   else
     sudo "$@"
   fi
