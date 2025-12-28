@@ -26,16 +26,16 @@ ctdev setup                     # Symlink ctdev to ~/.local/bin
 
 ## Components
 
-| Component | Description |
-|-----------|-------------|
-| `zsh` | Zsh, Oh My Zsh, Pure prompt, plugins |
-| `git` | Git configuration and global gitignore |
-| `cli` | CLI tools (jq, gh, kubectl, helm, terraform, btop, docker, git-spice, etc.) |
-| `node` | Node.js via nodenv |
-| `ruby` | Ruby via rbenv |
-| `apps` | Desktop apps (Chrome, VSCode, Slack, 1Password, etc.) |
-| `fonts` | Nerd Fonts (FiraCode, JetBrainsMono, Hack, Ubuntu) - configure your terminal to use a Nerd Font for icons |
-| `macos` | macOS system defaults (Dock, Finder, keyboard) - run explicitly with `ctdev install macos` |
+| Component | Description                                                                                               |
+| --------- | --------------------------------------------------------------------------------------------------------- |
+| `zsh`     | Zsh, Oh My Zsh, Pure prompt, plugins                                                                      |
+| `git`     | Git configuration and global gitignore                                                                    |
+| `cli`     | CLI tools (jq, gh, kubectl, helm, terraform, btop, docker, git-spice, etc.)                               |
+| `node`    | Node.js via nodenv                                                                                        |
+| `ruby`    | Ruby via rbenv                                                                                            |
+| `apps`    | Desktop apps (Chrome, VSCode, Slack, 1Password, etc.)                                                     |
+| `fonts`   | Nerd Fonts (FiraCode, JetBrainsMono, Hack, Ubuntu) - configure your terminal to use a Nerd Font for icons |
+| `macos`   | macOS system defaults (Dock, Finder, keyboard) - run explicitly with `ctdev install macos`                |
 
 ## Examples
 
@@ -56,7 +56,7 @@ ctdev install git                                              # Interactive pro
 
 ## DevContainers
 
-### VS Code Dotfiles Feature (Recommended)
+### VS Code Dotfiles Feature
 
 Add to your VS Code `settings.json`:
 
@@ -69,36 +69,6 @@ Add to your VS Code `settings.json`:
 ```
 
 This automatically installs zsh, Oh My Zsh, and Pure prompt in all your devcontainers.
-
-### Alternative: postCreateCommand
-
-Add to `.devcontainer/devcontainer.json`:
-
-```json
-{
-  "postCreateCommand": "git clone https://github.com/thomasconner/dotfiles ~/dotfiles && ~/dotfiles/ctdev install zsh"
-}
-```
-
-For additional tools:
-
-```json
-{
-  "postCreateCommand": "git clone https://github.com/thomasconner/dotfiles ~/dotfiles && ~/dotfiles/ctdev install zsh git cli"
-}
-```
-
-**Recommended components for DevContainers:**
-
-| Component | Use Case |
-|-----------|----------|
-| `zsh` | Shell, prompt, aliases (always recommended) |
-| `git` | Git config and global gitignore |
-| `cli` | CLI tools (gh, jq, etc.) |
-| `node` | Node.js development |
-| `ruby` | Ruby development |
-
-**Note:** `apps` and `fonts` are desktop-only and should be skipped in DevContainers.
 
 ## Platform Support
 

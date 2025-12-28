@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file.
 
+## [5.5.5] - 2025-12-28
+
+### Fixed
+- Silence ShellCheck SC2140 false positive for git URL rewrite syntax in `lib/github.sh`
+- Updated CLAUDE.md to reflect current `lib/` directory structure (7 modular files)
+- Removed hardcoded version from CLAUDE.md overview
+
+### Changed
+- Simplified README.md DevContainers section
+
 ## [5.5.4] - 2025-12-28
 
 ### Fixed
