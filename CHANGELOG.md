@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file.
 
+## [5.6.0] - 2026-01-03
+
+### Added
+- `ctdev update` command for updating system packages and installed components
+- Update detection in `ctdev install` - checks git repos for available updates
+- Interactive prompt when updates are available during install
+
+### Changed
+- `ctdev install` now only installs new components (no longer auto-updates)
+- When already-installed components have updates, user is prompted to update now or defer
+- `--skip-system` flag moved to `ctdev update` (deprecated in install)
+
 ## [5.5.5] - 2025-12-28
 
 ### Fixed
