@@ -9,16 +9,23 @@ Modular dotfiles repository with unified `ctdev` CLI. Cross-platform support for
 ## ctdev CLI
 
 ```bash
-ctdev install [component...]    # Install/update components (all if none specified)
+ctdev install [component...]    # Install components (all if none specified)
+ctdev update [component...]     # Update system and installed components
 ctdev info                      # Show system info and check installation health
 ctdev list                      # List available components
 ctdev uninstall <component...>  # Remove components
 ctdev setup                     # Symlink ctdev to ~/.local/bin
 ```
 
-**Flags:** `--help`, `--verbose`, `--dry-run`, `--version`, `--skip-system`
+**Flags:** `--help`, `--verbose`, `--dry-run`, `--version`
+
+**Update-specific flags:** `--skip-system` (skip system package updates)
 
 **Auto-update:** ctdev checks for repo updates before any command and prompts to pull if behind origin.
+
+**install vs update:**
+- `install` only installs new components; prompts if updates are available
+- `update` updates system packages and installed components
 
 ## Components
 
@@ -46,7 +53,8 @@ dotfiles/
 │   ├── cli.sh           # CLI parsing and help text
 │   └── components.sh    # Component registry
 ├── cmds/
-│   ├── install.sh       # Install/update command
+│   ├── install.sh       # Install command
+│   ├── update.sh        # Update command
 │   ├── list.sh          # List command
 │   ├── info.sh          # Info command
 │   ├── uninstall.sh     # Uninstall command
