@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [5.7.1] - 2026-01-12
+
+### Fixed
+- `ctdev gpu status` now correctly detects loaded NVIDIA driver (fixed SIGPIPE issue with pipefail)
+- `ctdev gpu status` now correctly detects enrolled MOK keys (fixed fingerprint matching)
+
 ## [5.7.0] - 2026-01-12
 
 ### Added
