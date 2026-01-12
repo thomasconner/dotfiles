@@ -186,78 +186,9 @@ show_hardware_info() {
         echo "    Available: $(human_size "$mem_available")"
     fi
 
-    # GPU
+    # GPU - use shared function from lib/gpu.sh
     echo "  GPU:"
-    if [[ "$OSTYPE" == "darwin"* ]]; then
-        local gpu_info
-        gpu_info=$(system_profiler SPDisplaysDataType 2>/dev/null | grep -E "Chipset Model:|VRAM|Metal" || true)
-        if [[ -n "$gpu_info" ]]; then
-            echo "$gpu_info" | while read -r line; do
-                echo "    ${line}"
-            done
-        else
-            echo "    No GPU information available"
-        fi
-    elif command -v nvidia-smi >/dev/null 2>&1; then
-        # NVIDIA GPU with detailed info
-        # Get CUDA version from nvidia-smi header
-        local cuda_version
-        cuda_version=$(nvidia-smi 2>/dev/null | grep "CUDA Version" | grep -oE "CUDA Version: [0-9.]+" | cut -d' ' -f3)
-
-        local gpu_count=0
-        nvidia-smi --query-gpu=name,memory.used,memory.total,power.draw,power.limit,temperature.gpu,driver_version --format=csv,noheader,nounits 2>/dev/null | while IFS=',' read -r name mem_used mem_total power_draw power_cap temp driver; do
-            gpu_count=$((gpu_count + 1))
-            # Trim whitespace
-            name=$(echo "$name" | xargs)
-            mem_used=$(echo "$mem_used" | xargs)
-            mem_total=$(echo "$mem_total" | xargs)
-            power_draw=$(echo "$power_draw" | xargs)
-            power_cap=$(echo "$power_cap" | xargs)
-            temp=$(echo "$temp" | xargs)
-            driver=$(echo "$driver" | xargs)
-
-            # Convert MiB to GB (divide by 1024)
-            local mem_used_gb mem_total_gb
-            mem_used_gb=$(awk "BEGIN {printf \"%.1f\", $mem_used / 1024}")
-            mem_total_gb=$(awk "BEGIN {printf \"%.1f\", $mem_total / 1024}")
-
-            echo "    NVIDIA GPU ${gpu_count}:"
-            echo "      Model: ${name}"
-            echo "      Memory: ${mem_used_gb} GB used / ${mem_total_gb} GB total"
-            echo "      Power: ${power_draw}W / ${power_cap}W"
-            echo "      Temperature: ${temp}C"
-            if [[ $gpu_count -eq 1 ]]; then
-                echo "      Driver: ${driver}"
-                [[ -n "$cuda_version" ]] && echo "      CUDA: ${cuda_version}"
-            fi
-        done
-
-        # Also show any other GPUs (AMD/Intel) via lspci
-        if command -v lspci >/dev/null 2>&1; then
-            lspci 2>/dev/null | grep -iE "vga|3d|display" | grep -vi nvidia | while read -r line; do
-                local gpu_name
-                gpu_name="${line#*: }"
-                echo "    Other: ${gpu_name}"
-            done
-        fi
-    elif command -v lspci >/dev/null 2>&1; then
-        # Fallback to lspci for basic GPU info
-        lspci 2>/dev/null | grep -iE "vga|3d|display" | while read -r line; do
-            local gpu_name
-            gpu_name="${line#*: }"
-            echo "    ${gpu_name}"
-        done
-    elif [[ -d /sys/class/drm ]]; then
-        # Fallback: check DRM subsystem
-        for card in /sys/class/drm/card[0-9]*; do
-            if [[ -f "$card/device/vendor" ]]; then
-                echo "    GPU detected (use lspci for details)"
-                break
-            fi
-        done
-    else
-        echo "    No GPU detected or lspci not available"
-    fi
+    show_gpu_hardware_info "    "
 
     # Disks
     echo "  Disks:"

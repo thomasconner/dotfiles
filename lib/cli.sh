@@ -39,6 +39,7 @@ Commands:
     list                      List available components
     uninstall <component...>  Remove specific components
     setup                     Make ctdev available globally
+    gpu <subcommand>          Manage GPU driver signing for Secure Boot
 
 Options:
     -h, --help       Show this help message
@@ -241,6 +242,36 @@ how to add it. Running 'ctdev install zsh' also configures PATH automatically.
 EOF
 }
 
+# Show help for gpu command
+show_gpu_help() {
+    cat << 'EOF'
+ctdev gpu - Manage GPU driver signing for Secure Boot
+
+Usage: ctdev gpu <subcommand> [OPTIONS]
+
+Subcommands:
+    status    Check secure boot and driver signing status
+    setup     Configure MOK signing for NVIDIA drivers
+    sign      Sign current NVIDIA kernel modules
+    info      Show GPU hardware information
+
+Options:
+    -h, --help       Show this help message
+    -v, --verbose    Enable verbose output
+    -n, --dry-run    Preview changes without applying
+    -f, --force      Force re-run setup even if already configured
+
+Examples:
+    ctdev gpu status           Check if driver signing is configured
+    ctdev gpu setup            Set up MOK signing (interactive)
+    ctdev gpu sign             Re-sign modules after kernel update
+    ctdev gpu info             Show GPU hardware details
+
+For Secure Boot systems, NVIDIA drivers must be signed with a Machine Owner
+Key (MOK) to load. This command helps configure automatic signing.
+EOF
+}
+
 # Show help for update command
 show_update_help() {
     cat << 'EOF'
@@ -276,7 +307,7 @@ EOF
 # Validate that a command exists
 require_command() {
     local cmd="$1"
-    local valid_commands="install info list uninstall setup update"
+    local valid_commands="install info list uninstall setup update gpu"
 
     if [[ -z "$cmd" ]]; then
         return 1

@@ -17,6 +17,7 @@ source "${_LIB_DIR}/logging.sh"
 source "${_LIB_DIR}/platform.sh"
 source "${_LIB_DIR}/packages.sh"
 source "${_LIB_DIR}/github.sh"
+source "${_LIB_DIR}/gpu.sh"
 
 ###############################################################################
 # Core Functions
