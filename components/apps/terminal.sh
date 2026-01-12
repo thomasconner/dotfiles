@@ -31,38 +31,19 @@ else
   fi
 
   if [[ "$PM" == "apt" ]]; then
-    # Ubuntu/Debian: Use community-maintained ghostty-ubuntu package
-    log_info "Installing Ghostty via ghostty-ubuntu repository..."
+    # Ubuntu/Debian: Use community-maintained ghostty-ubuntu installer
+    log_info "Installing Ghostty via ghostty-ubuntu installer..."
+    log_info "This uses the community package from github.com/mkasberg/ghostty-ubuntu"
 
-    # Add the ghostty PPA
-    if [[ ! -f /etc/apt/sources.list.d/ghostty.list ]]; then
-      # Determine Ubuntu codename (handle derivatives like Linux Mint)
-      if [[ -f /etc/upstream-release/lsb-release ]]; then
-        # Linux Mint and other Ubuntu derivatives
-        CODENAME=$(grep DISTRIB_CODENAME /etc/upstream-release/lsb-release | cut -d= -f2)
-      elif grep -q UBUNTU_CODENAME /etc/os-release 2>/dev/null; then
-        CODENAME=$(grep UBUNTU_CODENAME /etc/os-release | cut -d= -f2)
-      else
-        CODENAME=$(lsb_release -cs 2>/dev/null || echo "noble")
-      fi
-      log_info "Using Ubuntu codename: $CODENAME"
+    # Use the official install script from ghostty-ubuntu
+    /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/mkasberg/ghostty-ubuntu/HEAD/install.sh)"
 
-      ensure_wget_installed
-      log_info "Adding Ghostty GPG key..."
-      maybe_sudo mkdir -p /etc/apt/keyrings
-      wget -qO- https://ppa.launchpadcontent.net/mkasberg/ghostty/ubuntu/dists/"${CODENAME}"/Release.gpg | \
-        maybe_sudo tee /etc/apt/keyrings/ghostty-archive-keyring.asc >/dev/null
-
-      log_info "Adding Ghostty apt repository..."
-      echo "deb [signed-by=/etc/apt/keyrings/ghostty-archive-keyring.asc] https://ppa.launchpadcontent.net/mkasberg/ghostty/ubuntu $CODENAME main" | \
-        maybe_sudo tee /etc/apt/sources.list.d/ghostty.list >/dev/null
-
-      log_info "Updating apt cache..."
-      maybe_sudo apt update
+    if command -v ghostty >/dev/null 2>&1; then
+      log_success "Ghostty installed successfully: $(ghostty --version)"
+    else
+      log_error "Ghostty installation failed"
+      exit 1
     fi
-
-    maybe_sudo apt install -y ghostty
-    log_success "Ghostty installed successfully: $(ghostty --version)"
 
   elif [[ "$PM" == "pacman" ]]; then
     # Arch Linux: Official package
