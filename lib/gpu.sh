@@ -38,7 +38,8 @@ is_secure_boot_enabled() {
 # Check if NVIDIA kernel module is loaded
 # Returns: 0 if loaded, 1 if not
 is_nvidia_loaded() {
-    lsmod | grep -q "^nvidia "
+    # Note: Using grep without -q to avoid SIGPIPE issues with pipefail
+    lsmod | grep "^nvidia " >/dev/null 2>&1
 }
 
 # Get NVIDIA driver version
@@ -103,8 +104,9 @@ mok_key_enrolled() {
         return 1
     fi
 
-    # Check if it's in the enrolled list
-    mokutil --list-enrolled 2>/dev/null | grep -qi "${our_fingerprint//:/}"
+    # Check if it's in the enrolled list (case-insensitive, keep colons for matching)
+    # Note: Using grep without -q to avoid SIGPIPE issues with pipefail
+    mokutil --list-enrolled 2>/dev/null | grep -i "$our_fingerprint" >/dev/null 2>&1
 }
 
 # Check if a kernel module is signed
