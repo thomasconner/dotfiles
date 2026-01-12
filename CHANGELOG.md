@@ -2,6 +2,22 @@
 
 All notable changes to this project will be documented in this file.
 
+## [5.7.0] - 2026-01-12
+
+### Added
+- Ghostty terminal emulator installer (cross-platform)
+- Ghostty configuration with `ctrl+c`/`ctrl+v` copy/paste keybindings
+- `--force` flag to bypass already-installed checks
+- Ghostty health check in `ctdev info`
+
+### Changed
+- Replaced iTerm2 with Ghostty as the default terminal app
+- Updated Nerd Fonts instructions for Ghostty configuration
+
+### Fixed
+- Use official ghostty-ubuntu install script for Ubuntu/Debian
+- Detect Ubuntu base codename for Linux Mint in Ghostty install
+
 ## [5.6.0] - 2026-01-03
 
 ### Added
