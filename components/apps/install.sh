@@ -22,6 +22,7 @@ if [[ "${DRY_RUN:-false}" == "true" ]]; then
     log_info "  - Linear"
     log_info "  - CleanMyMac"
     log_info "  - DBeaver"
+    log_info "  - Terminal (Ghostty/iTerm2)"
     log_success "Applications dry-run complete"
     exit 0
 fi
@@ -36,5 +37,6 @@ fi
 "$SCRIPT_DIR/linear.sh"
 "$SCRIPT_DIR/cleanmymac.sh"
 "$SCRIPT_DIR/dbeaver.sh"
+"$SCRIPT_DIR/terminal.sh"
 
 log_success "Applications installation complete"
