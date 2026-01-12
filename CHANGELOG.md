@@ -2,6 +2,11 @@
 
 All notable changes to this project will be documented in this file.
 
+## [5.8.0] - 2026-01-12
+
+### Added
+- One-liner install script: `curl -fsSL https://raw.githubusercontent.com/thomasconner/dotfiles/main/install.sh | bash`
+
 ## [5.7.1] - 2026-01-12
 
 ### Fixed
