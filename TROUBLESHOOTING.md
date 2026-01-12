@@ -89,7 +89,7 @@ System Integrity Protection or privacy settings may block changes.
 
 **Solution:**
 1. Open System Preferences > Security & Privacy > Privacy
-2. Grant Terminal/iTerm full disk access
+2. Grant Terminal/Ghostty full disk access
 3. Re-run: `ctdev install macos`
 
 ## Linux-Specific Issues

@@ -613,10 +613,10 @@ check_apps_health() {
             log_check_fail "Logi Options+" "not installed (optional)"
         fi
 
-        if [[ -d "/Applications/iTerm.app" ]]; then
-            log_check_pass "iTerm2" "installed"
+        if command -v ghostty >/dev/null 2>&1; then
+            log_check_pass "Ghostty" "installed"
         else
-            log_check_fail "iTerm2" "not installed (optional)"
+            log_check_fail "Ghostty" "not installed (optional)"
         fi
     else
         # Linux
