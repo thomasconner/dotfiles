@@ -4,6 +4,14 @@ Modular dotfiles for macOS and Linux. Managed via the `ctdev` CLI.
 
 ## Install
 
+**One-liner:**
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/thomasconner/dotfiles/main/install.sh | bash
+```
+
+**Or manually:**
+
 ```bash
 git clone https://github.com/thomasconner/dotfiles.git ~/dotfiles
 ~/dotfiles/ctdev setup
