@@ -79,7 +79,7 @@ cmd_install() {
     # Parse subcommand arguments, filtering out flags that were already processed
     for arg in "$@"; do
         case "$arg" in
-            -h|--help|-v|--verbose|-n|--dry-run)
+            -h|--help|-v|--verbose|-n|--dry-run|-f|--force)
                 # Already handled by main dispatcher
                 ;;
             --skip-system)
@@ -110,6 +110,10 @@ cmd_install() {
         log_warning "DRY-RUN MODE: No changes will be made"
     fi
 
+    if [[ "${FORCE:-false}" == "true" ]]; then
+        log_warning "FORCE MODE: Re-running install scripts for all specified components"
+    fi
+
     log_info "Detected OS: $OS"
     log_info "Package manager: $PKG_MGR"
     echo
@@ -129,7 +133,7 @@ cmd_install() {
             continue
         fi
 
-        if is_component_installed "$component"; then
+        if [[ "${FORCE:-false}" != "true" ]] && is_component_installed "$component"; then
             # Component already installed - check for updates
             log_step "Checking $component"
             log_info "$component is already installed"

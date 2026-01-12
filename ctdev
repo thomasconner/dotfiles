@@ -25,6 +25,7 @@ SHOW_HELP=false
 SHOW_VERSION=false
 VERBOSE=${VERBOSE:-false}
 DRY_RUN=${DRY_RUN:-false}
+FORCE=${FORCE:-false}
 
 # Parse global flags
 eval "$(parse_global_flags "$@")"

@@ -44,6 +44,7 @@ Options:
     -h, --help       Show this help message
     -v, --verbose    Enable verbose output
     -n, --dry-run    Preview changes without applying
+    -f, --force      Force re-run install scripts (bypass already-installed check)
     --version        Show version information
 
 Examples:
@@ -87,11 +88,13 @@ Options:
     -h, --help       Show this help message
     -v, --verbose    Enable verbose output
     -n, --dry-run    Preview changes without applying
+    -f, --force      Re-run install scripts even if already installed
 
 Examples:
     ctdev install              Install all components
     ctdev install zsh git      Install specific components
     ctdev install --dry-run    Preview what would be installed
+    ctdev install apps --force Re-run apps install (e.g., after adding new apps)
 
 To update installed components, use 'ctdev update'.
 EOF
@@ -182,6 +185,11 @@ parse_global_flags() {
                 echo "export DRY_RUN"
                 shift
                 ;;
+            -f|--force)
+                echo "FORCE=true"
+                echo "export FORCE"
+                shift
+                ;;
             --version)
                 echo "SHOW_VERSION=true"
                 shift
@@ -192,9 +200,9 @@ parse_global_flags() {
                 shift
                 ;;
             *)
-                # Not a flag - this and everything after is passed through
-                args+=("$@")
-                break
+                # Not a flag - pass it through and continue processing
+                args+=("$1")
+                shift
                 ;;
         esac
     done
