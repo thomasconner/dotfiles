@@ -1,9 +1,9 @@
 # Ghostty configuration
 # https://ghostty.org/docs/config
 
+# Window size (in cells/characters)
+window-width = 180
+window-height = 80
+
 # Close surface with ctrl+shift+w
 keybind = ctrl+shift+w=close_surface
-
-# Copy/paste with ctrl+c/ctrl+v (standard shortcuts)
-keybind = ctrl+c=copy_to_clipboard
-keybind = ctrl+v=paste_from_clipboard
