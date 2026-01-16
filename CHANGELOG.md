@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file.
 
+## [5.9.0] - 2026-01-16
+
+### Added
+- Linux Mint version upgrade detection in `ctdev update` (checks if mintupgrade is available)
+
+### Changed
+- Ghostty config: set default window size to 180x80, removed copy/paste keybinds (use defaults)
+
 ## [5.8.0] - 2026-01-12
 
 ### Added
