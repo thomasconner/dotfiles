@@ -97,34 +97,6 @@ update_macos_software() {
     log_success "macOS software update check complete"
 }
 
-update_linuxmint() {
-    if [[ "$OS" != "linuxmint" ]]; then
-        return
-    fi
-
-    log_step "Checking Linux Mint Version Upgrades"
-
-    # Get current version
-    local current_version
-    current_version=$(grep VERSION_ID /etc/os-release | cut -d'"' -f2)
-    log_info "Current Linux Mint version: $current_version"
-
-    if [[ "$DRY_RUN" == "true" ]]; then
-        log_info "[DRY-RUN] Would check for mintupgrade package availability"
-    else
-        # Linux Mint only publishes mintupgrade when an upgrade path exists
-        if apt-cache show mintupgrade >/dev/null 2>&1; then
-            log_warning "A new Linux Mint version may be available!"
-            log_info "To check and upgrade, run: sudo apt install mintupgrade && sudo mintupgrade"
-            log_info "Please backup your system before upgrading."
-        else
-            log_info "No Linux Mint version upgrade currently available"
-        fi
-    fi
-
-    log_success "Linux Mint version check complete"
-}
-
 update_firmware() {
     if [[ "$OS" == "macos" ]]; then
         return
@@ -362,8 +334,6 @@ cmd_update() {
         update_system_packages
         echo
         update_macos_software
-        echo
-        update_linuxmint
         echo
         update_firmware
         echo
