@@ -2,6 +2,11 @@
 
 All notable changes to this project will be documented in this file.
 
+## [5.9.1] - 2026-01-18
+
+### Removed
+- Linux Mint version upgrade detection from `ctdev update`
+
 ## [5.9.0] - 2026-01-16
 
 ### Added
