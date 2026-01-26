@@ -2,6 +2,11 @@
 
 All notable changes to this project will be documented in this file.
 
+## [5.10.1] - 2026-01-26
+
+### Fixed
+- PATH ordering: source path.zsh last so `~/.local/bin` takes precedence over nodenv/rbenv shims
+
 ## [5.10.0] - 2026-01-26
 
 ### Added
