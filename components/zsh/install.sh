@@ -84,7 +84,7 @@ log_success "Pure prompt installed at ${HOME}/.zsh/pure"
 
 safe_symlink "$DOTFILES_ROOT/shell/aliases.zsh" "${HOME}/.oh-my-zsh/custom/aliases.zsh"
 safe_symlink "$DOTFILES_ROOT/shell/exports.zsh" "${HOME}/.oh-my-zsh/custom/exports.zsh"
-safe_symlink "$DOTFILES_ROOT/shell/path.zsh" "${HOME}/.oh-my-zsh/custom/path.zsh"
+safe_symlink "$DOTFILES_ROOT/shell/path.zsh" "${HOME}/.zsh/path.zsh"
 
 # Copy exports.local.zsh if it doesn't exist (like .gitconfig.local)
 if [ ! -f "${HOME}/.oh-my-zsh/custom/exports.local.zsh" ]; then

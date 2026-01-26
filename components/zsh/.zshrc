@@ -145,3 +145,8 @@ fi
 
 # Load secrets from ~/.secrets (not tracked in git)
 [[ -f ~/.secrets ]] && source ~/.secrets
+
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ PATH ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+# Source path config last so user paths take precedence over shims
+[[ -f ~/.zsh/path.zsh ]] && source ~/.zsh/path.zsh
