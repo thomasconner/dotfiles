@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file.
 
+## [5.10.0] - 2026-01-26
+
+### Added
+- Claude Code CLI installation via native installer (`curl -fsSL https://claude.ai/install.sh | bash`)
+
+### Removed
+- Deprecated npm-based Claude Code installation from node component
+
 ## [5.9.1] - 2026-01-18
 
 ### Removed
