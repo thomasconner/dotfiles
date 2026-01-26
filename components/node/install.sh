@@ -15,14 +15,14 @@ if [[ "${DRY_RUN:-false}" == "true" ]]; then
     log_info "  - nodenv version manager"
     log_info "  - node-build plugin"
     log_info "  - Node.js 24.0.0"
-    log_info "  - Global npm packages: @anthropic-ai/claude-code, ngrok"
+    log_info "  - Global npm packages: ngrok"
     log_success "Node.js dry-run complete"
     exit 0
 fi
 
 OS=$(detect_os)
 NODE_VERSION=24.0.0
-NODE_PACKAGES=(@anthropic-ai/claude-code ngrok)
+NODE_PACKAGES=(ngrok)
 
 # Install nodenv if not present
 if ! command -v nodenv >/dev/null 2>&1; then

@@ -25,6 +25,7 @@ if [[ "${DRY_RUN:-false}" == "true" ]]; then
     log_info "  - docker"
     log_info "  - tmux"
     log_info "  - git-spice"
+    log_info "  - claude-code"
     log_success "CLI tools dry-run complete"
     exit 0
 fi
@@ -43,5 +44,6 @@ fi
 "$SCRIPT_DIR/docker.sh"
 "$SCRIPT_DIR/tmux/install.sh"
 "$SCRIPT_DIR/git-spice.sh"
+"$SCRIPT_DIR/claude-code.sh"
 
 log_success "CLI tools installation complete"
