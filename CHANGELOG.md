@@ -2,6 +2,17 @@
 
 All notable changes to this project will be documented in this file.
 
+## [5.11.1] - 2026-01-27
+
+### Fixed
+- `ctdev info` now checks `claude` CLI in CLI Tools section (moved from Node.js npm check)
+- `ctdev info` now checks `path.zsh` in correct location (`~/.zsh/` instead of `~/.oh-my-zsh/custom/`)
+- Added Claude component health check for config symlinks
+
+### Changed
+- Updated project CLAUDE.md with `claude` and `macos` components
+- Added Claude Code troubleshooting section to TROUBLESHOOTING.md
+
 ## [5.11.0] - 2026-01-27
 
 ### Added
