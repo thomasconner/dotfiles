@@ -64,18 +64,6 @@ setopt HIST_IGNORE_SPACE  # Don't save when prefixed with space
 setopt HIST_IGNORE_DUPS   # Don't save duplicate lines
 setopt SHARE_HISTORY      # Share history between sessions
 
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ NODENV ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-if [ -d "${HOME}/.nodenv" ]; then
-  eval "$(nodenv init -)"
-fi
-
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ RBENV ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-if [ -d "${HOME}/.rbenv" ]; then
-  eval "$(rbenv init - zsh)"
-fi
-
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ Completion ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 # Dedupe fpath entries
@@ -148,5 +136,5 @@ fi
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ PATH ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-# Source path config last so user paths take precedence over shims
+# All PATH setup consolidated in path.zsh (system, homebrew, nodenv, rbenv, user paths)
 [[ -f ~/.zsh/path.zsh ]] && source ~/.zsh/path.zsh
