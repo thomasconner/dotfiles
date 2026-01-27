@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [5.10.2] - 2026-01-27
+
+### Fixed
+- Consolidated all PATH setup in `path.zsh` to fix "nodenv: command not found" error
+- nodenv/rbenv bin directories are now added to PATH before running their init scripts
+
 ## [5.10.1] - 2026-01-26
 
 ### Fixed
