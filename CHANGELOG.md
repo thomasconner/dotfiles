@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [5.11.0] - 2026-01-27
+
+### Added
+- New `claude` component for syncing Claude Code configuration across machines
+- Symlinks `~/.claude/CLAUDE.md`, `settings.json`, and `settings.local.json` from dotfiles repo
+
 ## [5.10.2] - 2026-01-27
 
 ### Fixed
