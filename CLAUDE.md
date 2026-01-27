@@ -32,9 +32,11 @@ ctdev setup                     # Symlink ctdev to ~/.local/bin
 | Component | Description |
 |-----------|-------------|
 | apps | Desktop applications (Chrome, VSCode, Slack, etc.) |
+| claude | Claude Code configuration (CLAUDE.md, settings) |
 | cli | CLI tools (jq, gh, kubectl, btop, git-spice, etc.) |
 | fonts | Nerd Fonts |
 | git | Git configuration |
+| macos | macOS system defaults (Dock, Finder, keyboard) |
 | node | Node.js via nodenv |
 | ruby | Ruby via rbenv |
 | zsh | Zsh, Oh My Zsh, Pure prompt, plugins |
@@ -61,9 +63,11 @@ dotfiles/
 │   └── setup.sh         # Setup command
 ├── components/
 │   ├── apps/            # Desktop apps (individual .sh per app)
+│   ├── claude/          # Claude Code config
 │   ├── cli/             # CLI tools (individual .sh per tool)
 │   ├── fonts/           # Nerd Fonts
 │   ├── git/             # Git config
+│   ├── macos/           # macOS system defaults
 │   ├── node/            # Node.js
 │   ├── ruby/            # Ruby
 │   └── zsh/             # Zsh config

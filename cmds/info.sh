@@ -391,6 +391,18 @@ check_git_health() {
     return $issues
 }
 
+check_claude_health() {
+    log_step "Claude"
+    local issues=0
+
+    check_symlink "CLAUDE.md" "$HOME/.claude/CLAUDE.md" "${DOTFILES_ROOT}/components/claude/CLAUDE.md" || ((issues++))
+    check_symlink "settings.json" "$HOME/.claude/settings.json" "${DOTFILES_ROOT}/components/claude/settings.json" || ((issues++))
+    check_symlink "settings.local.json" "$HOME/.claude/settings.local.json" "${DOTFILES_ROOT}/components/claude/settings.local.json" || ((issues++))
+
+    echo
+    return $issues
+}
+
 check_node_health() {
     log_step "Node.js"
     local issues=0
@@ -398,14 +410,6 @@ check_node_health() {
     check_directory "nodenv" "$HOME/.nodenv" || ((issues++))
     check_command "node" "node" || ((issues++))
     check_command "npm" "npm" || ((issues++))
-
-    if command -v npm >/dev/null 2>&1; then
-        if npm list -g @anthropic-ai/claude-code >/dev/null 2>&1; then
-            log_check_pass "claude-code" "installed"
-        else
-            log_check_fail "claude-code" "not installed (optional)"
-        fi
-    fi
 
     echo
     return $issues
@@ -455,6 +459,7 @@ check_cli_health() {
     check_command "docker" "docker" || ((issues++))
     check_command "tmux" "tmux" || ((issues++))
     check_command "git-spice" "gs" || ((issues++))
+    check_command "claude" "claude" || ((issues++))
 
     echo
     return $issues
@@ -468,11 +473,13 @@ check_shell_config_health() {
     if [[ -d "$custom_dir" ]]; then
         check_symlink "aliases.zsh" "$custom_dir/aliases.zsh" "${DOTFILES_ROOT}/shell/aliases.zsh" || ((issues++))
         check_symlink "exports.zsh" "$custom_dir/exports.zsh" "${DOTFILES_ROOT}/shell/exports.zsh" || ((issues++))
-        check_symlink "path.zsh" "$custom_dir/path.zsh" "${DOTFILES_ROOT}/shell/path.zsh" || ((issues++))
     else
         log_check_fail "Oh My Zsh custom directory" "not found"
         ((issues++))
     fi
+
+    # path.zsh is in ~/.zsh/, not in oh-my-zsh custom
+    check_symlink "path.zsh" "$HOME/.zsh/path.zsh" "${DOTFILES_ROOT}/shell/path.zsh" || ((issues++))
 
     echo
     return $issues
@@ -694,6 +701,7 @@ cmd_info() {
 
     check_zsh_health || ((total_issues+=$?))
     check_git_health || ((total_issues+=$?))
+    check_claude_health || ((total_issues+=$?))
     check_node_health || ((total_issues+=$?))
     check_ruby_health || ((total_issues+=$?))
     check_cli_health || ((total_issues+=$?))

@@ -166,6 +166,35 @@ rm -rf ~/.oh-my-zsh/custom/plugins/zsh-completions
 ctdev install zsh
 ```
 
+## Claude Code Issues
+
+### Config files not symlinked
+
+Existing files may block symlink creation.
+
+**Solution:**
+```bash
+# Back up and remove existing files
+mv ~/.claude/CLAUDE.md ~/.claude/CLAUDE.md.bak
+mv ~/.claude/settings.json ~/.claude/settings.json.bak
+mv ~/.claude/settings.local.json ~/.claude/settings.local.json.bak
+
+# Reinstall claude component
+ctdev install claude
+```
+
+### Settings not applying in Claude Code
+
+Claude Code may cache settings on startup.
+
+**Solution:**
+```bash
+# Restart Claude Code to pick up changes
+# Or verify symlinks are correct:
+ls -la ~/.claude/CLAUDE.md
+ls -la ~/.claude/settings.json
+```
+
 ## Git Issues
 
 ### Git config not applied
