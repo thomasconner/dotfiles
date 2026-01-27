@@ -11,6 +11,7 @@ fi
 # Format: name:description:install_script
 declare -a COMPONENTS=(
     "apps:Desktop applications (Chrome, VSCode, Slack, etc.):components/apps/install.sh"
+    "claude:Claude Code configuration and settings:components/claude/install.sh"
     "cli:CLI tools (jq, gh, kubectl, btop, etc.):components/cli/install.sh"
     "fonts:Nerd Fonts for terminal:components/fonts/install.sh"
     "git:Git configuration and aliases:components/git/install.sh"
@@ -23,7 +24,7 @@ declare -a COMPONENTS=(
 # Default installation order (macos excluded - run explicitly with: ctdev install macos)
 # Used by cmds/install.sh
 # shellcheck disable=SC2034
-DEFAULT_INSTALL_ORDER="apps cli fonts git node ruby zsh"
+DEFAULT_INSTALL_ORDER="apps claude cli fonts git node ruby zsh"
 
 # List all available components
 list_components() {
@@ -91,6 +92,10 @@ is_component_installed() {
         apps)
             # Check if any app is installed (VSCode as indicator)
             command -v code >/dev/null 2>&1
+            ;;
+        claude)
+            # Check if Claude config is symlinked
+            [[ -L ~/.claude/CLAUDE.md ]] && [[ -e ~/.claude/CLAUDE.md ]]
             ;;
         cli)
             # Check for a few core CLI tools
