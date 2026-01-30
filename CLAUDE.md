@@ -13,11 +13,11 @@ ctdev install [component...]    # Install components (all if none specified)
 ctdev update [component...]     # Update system and installed components
 ctdev info                      # Show system info and check installation health
 ctdev list                      # List available components
-ctdev uninstall <component...>  # Remove components
+ctdev uninstall [component...]  # Remove components (all if none specified)
 ctdev setup                     # Symlink ctdev to ~/.local/bin
 ```
 
-**Flags:** `--help`, `--verbose`, `--dry-run`, `--version`
+**Flags:** `--help`, `--verbose`, `--dry-run`, `--force`, `--version`
 
 **Update-specific flags:** `--skip-system` (skip system package updates)
 
@@ -126,20 +126,79 @@ Create `components/cli/<tool>.sh`:
 ```bash
 #!/usr/bin/env bash
 set -euo pipefail
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-source "$SCRIPT_DIR/../../lib/utils.sh"
 
-if command -v <tool> >/dev/null 2>&1; then
-  log_info "<tool> already installed"
-  exit 0
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+DOTFILES_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
+source "$DOTFILES_ROOT/lib/utils.sh"
+
+log_info "Installing <tool>"
+
+# Early exit if already installed (unless FORCE)
+if [[ "${FORCE:-false}" != "true" ]]; then
+    if command -v <tool> >/dev/null 2>&1; then
+        log_info "<tool> is already installed: $(<tool> --version)"
+        exit 0
+    fi
+fi
+
+if [[ "${DRY_RUN:-false}" == "true" ]]; then
+    log_info "[DRY-RUN] Would install <tool>"
+    exit 0
 fi
 
 OS=$(detect_os)
 if [[ "$OS" == "macos" ]]; then
-  brew install <tool>
+    brew install <tool>
 else
-  install_package <tool>
+    install_package <tool>
 fi
+
+log_success "<tool> installed"
 ```
 
 Then add to `components/cli/install.sh`.
+
+## Standardized Script Patterns
+
+All component and CLI scripts follow these patterns:
+
+### FORCE Support
+
+Wrap "already installed" checks to allow forced reinstallation:
+```bash
+if [[ "${FORCE:-false}" != "true" ]]; then
+    if {already_installed_check}; then
+        log_info "{component} is already installed"
+        exit 0
+    fi
+fi
+```
+
+### DRY_RUN Support
+
+Use `run_cmd` for all state-changing operations, or check explicitly:
+```bash
+if [[ "${DRY_RUN:-false}" == "true" ]]; then
+    log_info "[DRY-RUN] Would do something"
+    exit 0
+fi
+```
+
+### Symlinks
+
+Always use `safe_symlink` helper (never raw `ln -sf`):
+```bash
+safe_symlink "$source" "$target"
+```
+
+### Standard Header
+
+All scripts should start with:
+```bash
+#!/usr/bin/env bash
+set -euo pipefail
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+DOTFILES_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
+source "$DOTFILES_ROOT/lib/utils.sh"
+```
