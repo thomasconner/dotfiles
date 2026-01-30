@@ -215,6 +215,30 @@ uninstall_macos() {
     log_info "Note: Some settings may require a logout/restart to take full effect"
 }
 
+uninstall_claude() {
+    log_step "Uninstalling Claude Code configuration"
+
+    local claude_dir="$HOME/.claude"
+
+    if [[ -L "$claude_dir/CLAUDE.md" ]]; then
+        log_info "Removing CLAUDE.md symlink..."
+        run_cmd rm -f "$claude_dir/CLAUDE.md"
+    fi
+
+    if [[ -L "$claude_dir/settings.json" ]]; then
+        log_info "Removing settings.json symlink..."
+        run_cmd rm -f "$claude_dir/settings.json"
+    fi
+
+    if [[ -L "$claude_dir/settings.local.json" ]]; then
+        log_info "Removing settings.local.json symlink..."
+        run_cmd rm -f "$claude_dir/settings.local.json"
+    fi
+
+    log_success "Claude Code configuration removed"
+    log_info "Note: ~/.claude directory preserved (used by Claude Code)"
+}
+
 # ============================================================================
 # Main command
 # ============================================================================
@@ -255,6 +279,7 @@ cmd_uninstall() {
             node)  uninstall_node ;;
             ruby)  uninstall_ruby ;;
             fonts) uninstall_fonts ;;
+            claude) uninstall_claude ;;
             cli)   uninstall_cli ;;
             apps)  uninstall_apps ;;
             macos) uninstall_macos ;;
