@@ -9,28 +9,8 @@ source "$DOTFILES_ROOT/lib/utils.sh"
 
 log_step "Installing CLI tools"
 
-# Check for dry-run mode
-if [[ "${DRY_RUN:-false}" == "true" ]]; then
-    log_info "[DRY-RUN] Would install the following CLI tools:"
-    log_info "  - shellcheck"
-    log_info "  - jq"
-    log_info "  - gh (GitHub CLI)"
-    log_info "  - kubectl"
-    log_info "  - doctl (DigitalOcean CLI)"
-    log_info "  - helm"
-    log_info "  - age"
-    log_info "  - sops"
-    log_info "  - terraform"
-    log_info "  - btop"
-    log_info "  - docker"
-    log_info "  - tmux"
-    log_info "  - git-spice"
-    log_info "  - claude-code"
-    log_success "CLI tools dry-run complete"
-    exit 0
-fi
-
 # Install each CLI tool via its own script
+# FORCE and DRY_RUN are passed through environment
 "$SCRIPT_DIR/shellcheck.sh"
 "$SCRIPT_DIR/jq.sh"
 "$SCRIPT_DIR/gh.sh"

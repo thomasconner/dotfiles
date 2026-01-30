@@ -12,9 +12,11 @@ log_info "Installing sops (secrets management)"
 OS=$(detect_os)
 ARCH=$(detect_arch)
 
-if command -v sops >/dev/null 2>&1; then
-  log_info "sops is already installed: $(sops --version 2>&1 | head -n1)"
-  exit 0
+if [[ "${FORCE:-false}" != "true" ]]; then
+    if command -v sops >/dev/null 2>&1; then
+        log_info "sops is already installed: $(sops --version 2>&1 | head -n1)"
+        exit 0
+    fi
 fi
 
 log_info "sops is not installed. Installing..."

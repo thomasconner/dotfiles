@@ -12,9 +12,11 @@ log_info "Installing GitHub CLI (gh)"
 OS=$(detect_os)
 PM=$(get_package_manager)
 
-if command -v gh >/dev/null 2>&1; then
-  log_info "gh is already installed: $(gh --version | head -n1)"
-  exit 0
+if [[ "${FORCE:-false}" != "true" ]]; then
+    if command -v gh >/dev/null 2>&1; then
+        log_info "gh is already installed: $(gh --version | head -n1)"
+        exit 0
+    fi
 fi
 
 log_info "gh is not installed. Installing..."

@@ -9,9 +9,11 @@ source "$DOTFILES_ROOT/lib/utils.sh"
 
 log_info "Installing Claude Code CLI"
 
-if command -v claude >/dev/null 2>&1; then
-  log_info "Claude Code is already installed: $(claude --version 2>/dev/null || echo 'unknown version')"
-  exit 0
+if [[ "${FORCE:-false}" != "true" ]]; then
+    if command -v claude >/dev/null 2>&1; then
+        log_info "Claude Code is already installed: $(claude --version 2>/dev/null || echo 'unknown version')"
+        exit 0
+    fi
 fi
 
 log_info "Claude Code is not installed. Installing via native installer..."

@@ -12,9 +12,11 @@ log_info "Installing btop (system monitor)"
 OS=$(detect_os)
 PM=$(get_package_manager)
 
-if command -v btop >/dev/null 2>&1; then
-  log_info "btop is already installed: $(btop --version 2>&1 | head -n1)"
-  exit 0
+if [[ "${FORCE:-false}" != "true" ]]; then
+    if command -v btop >/dev/null 2>&1; then
+        log_info "btop is already installed: $(btop --version 2>&1 | head -n1)"
+        exit 0
+    fi
 fi
 
 log_info "btop is not installed. Installing..."

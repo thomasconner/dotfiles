@@ -12,9 +12,11 @@ log_info "Installing Helm"
 OS=$(detect_os)
 ARCH=$(detect_arch)
 
-if command -v helm >/dev/null 2>&1; then
-  log_info "helm is already installed: $(helm version --short 2>/dev/null | head -n1)"
-  exit 0
+if [[ "${FORCE:-false}" != "true" ]]; then
+    if command -v helm >/dev/null 2>&1; then
+        log_info "helm is already installed: $(helm version --short 2>/dev/null | head -n1)"
+        exit 0
+    fi
 fi
 
 log_info "helm is not installed. Installing..."

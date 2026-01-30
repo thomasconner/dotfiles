@@ -13,9 +13,11 @@ OS=$(detect_os)
 ARCH=$(detect_arch)
 
 # Check if git-spice is installed (not Ghostscript which also uses 'gs')
-if command -v gs >/dev/null 2>&1 && gs --version 2>&1 | grep -q "git-spice"; then
-  log_info "git-spice is already installed: $(gs --version 2>&1 | head -n1)"
-  exit 0
+if [[ "${FORCE:-false}" != "true" ]]; then
+    if command -v gs >/dev/null 2>&1 && gs --version 2>&1 | grep -q "git-spice"; then
+        log_info "git-spice is already installed: $(gs --version 2>&1 | head -n1)"
+        exit 0
+    fi
 fi
 
 log_info "git-spice is not installed. Installing..."

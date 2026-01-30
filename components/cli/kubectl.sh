@@ -12,9 +12,11 @@ log_info "Installing kubectl"
 OS=$(detect_os)
 ARCH=$(detect_arch)
 
-if command -v kubectl >/dev/null 2>&1; then
-  log_info "kubectl is already installed: $(kubectl version --client 2>/dev/null | head -n1)"
-  exit 0
+if [[ "${FORCE:-false}" != "true" ]]; then
+    if command -v kubectl >/dev/null 2>&1; then
+        log_info "kubectl is already installed: $(kubectl version --client 2>/dev/null | head -n1)"
+        exit 0
+    fi
 fi
 
 log_info "kubectl is not installed. Installing..."

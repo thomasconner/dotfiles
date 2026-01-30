@@ -12,9 +12,11 @@ log_info "Installing Terraform"
 OS=$(detect_os)
 PM=$(get_package_manager)
 
-if command -v terraform >/dev/null 2>&1; then
-  log_info "terraform is already installed: $(terraform version | head -n1)"
-  exit 0
+if [[ "${FORCE:-false}" != "true" ]]; then
+    if command -v terraform >/dev/null 2>&1; then
+        log_info "terraform is already installed: $(terraform version | head -n1)"
+        exit 0
+    fi
 fi
 
 log_info "terraform is not installed. Installing..."

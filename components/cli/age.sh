@@ -12,9 +12,11 @@ log_info "Installing age (file encryption)"
 OS=$(detect_os)
 ARCH=$(detect_arch)
 
-if command -v age >/dev/null 2>&1; then
-  log_info "age is already installed: $(age --version 2>&1 | head -n1)"
-  exit 0
+if [[ "${FORCE:-false}" != "true" ]]; then
+    if command -v age >/dev/null 2>&1; then
+        log_info "age is already installed: $(age --version 2>&1 | head -n1)"
+        exit 0
+    fi
 fi
 
 log_info "age is not installed. Installing..."
