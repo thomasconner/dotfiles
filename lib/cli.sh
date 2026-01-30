@@ -139,12 +139,14 @@ show_uninstall_help() {
     cat << 'EOF'
 ctdev uninstall - Remove dotfiles components
 
-Usage: ctdev uninstall <COMPONENT...>
+Usage: ctdev uninstall [COMPONENT...]
 
-At least one component must be specified.
+If no components are specified, all installed components will be uninstalled
+(with confirmation prompt).
 
 Components:
     apps       Desktop applications
+    claude     Claude Code configuration
     cli        CLI tools
     fonts      Nerd Fonts
     git        Git configuration
@@ -159,8 +161,10 @@ Options:
     -n, --dry-run    Preview changes without applying
 
 Examples:
+    ctdev uninstall            Uninstall all components (with confirmation)
     ctdev uninstall ruby       Remove Ruby/rbenv
     ctdev uninstall apps fonts Remove multiple components
+    ctdev uninstall --dry-run  Preview what would be uninstalled
 EOF
 }
 
