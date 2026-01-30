@@ -25,11 +25,11 @@ ctdev install [component...]    # Install components (all if none specified)
 ctdev update [component...]     # Update system and installed components
 ctdev info                      # Show system info and check installation health
 ctdev list                      # List available components
-ctdev uninstall <component...>  # Remove components
+ctdev uninstall [component...]  # Remove components (all if none specified)
 ctdev setup                     # Symlink ctdev to ~/.local/bin
 ```
 
-**Flags:** `--help`, `--dry-run`, `--verbose`, `--version`
+**Flags:** `--help`, `--dry-run`, `--verbose`, `--force`, `--version`
 
 **Update flags:** `--skip-system` (skip system package updates)
 
@@ -52,10 +52,10 @@ ctdev setup                     # Symlink ctdev to ~/.local/bin
 ## Examples
 
 ```bash
-ctdev install zsh git      # Shell and git config only
-ctdev install cli          # CLI tools only
-ctdev install --dry-run    # Preview changes
-ctdev info                 # Check system info and installation health
+ctdev install zsh git       # Shell and git config only
+ctdev install --force cli   # Reinstall CLI tools
+ctdev uninstall             # Remove all components
+ctdev --dry-run install     # Preview changes
 ```
 
 ## Git Configuration
