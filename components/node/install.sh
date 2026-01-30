@@ -20,6 +20,14 @@ if [[ "${DRY_RUN:-false}" == "true" ]]; then
     exit 0
 fi
 
+# Early exit if already installed (unless FORCE)
+if [[ "${FORCE:-false}" != "true" ]]; then
+    if command -v nodenv >/dev/null 2>&1 && [[ -d "$HOME/.nodenv" ]]; then
+        log_info "Node.js is already installed"
+        exit 0
+    fi
+fi
+
 OS=$(detect_os)
 NODE_VERSION=24.0.0
 NODE_PACKAGES=(ngrok)

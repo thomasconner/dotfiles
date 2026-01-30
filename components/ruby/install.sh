@@ -20,6 +20,14 @@ if [[ "${DRY_RUN:-false}" == "true" ]]; then
     exit 0
 fi
 
+# Early exit if already installed (unless FORCE)
+if [[ "${FORCE:-false}" != "true" ]]; then
+    if command -v rbenv >/dev/null 2>&1 && [[ -d "$HOME/.rbenv" ]]; then
+        log_info "Ruby is already installed"
+        exit 0
+    fi
+fi
+
 OS=$(detect_os)
 PM=$(get_package_manager)
 RUBY_VERSION=3.4.1

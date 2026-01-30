@@ -21,6 +21,21 @@ if [[ "${DRY_RUN:-false}" == "true" ]]; then
     exit 0
 fi
 
+# Early exit if already installed (unless FORCE)
+if [[ "${FORCE:-false}" != "true" ]]; then
+    if [[ "$(uname -s)" == "Darwin" ]]; then
+        if ls ~/Library/Fonts/*Nerd* >/dev/null 2>&1; then
+            log_info "Fonts are already installed"
+            exit 0
+        fi
+    else
+        if ls ~/.local/share/fonts/*Nerd* >/dev/null 2>&1; then
+            log_info "Fonts are already installed"
+            exit 0
+        fi
+    fi
+fi
+
 "$SCRIPT_DIR/nerd_fonts.sh"
 
 log_success "Fonts installation complete"

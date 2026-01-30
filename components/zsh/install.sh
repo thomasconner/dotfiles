@@ -22,6 +22,14 @@ if [[ "${DRY_RUN:-false}" == "true" ]]; then
     exit 0
 fi
 
+# Early exit if already installed (unless FORCE)
+if [[ "${FORCE:-false}" != "true" ]]; then
+    if [[ -d "$HOME/.oh-my-zsh" ]]; then
+        log_info "zsh is already installed"
+        exit 0
+    fi
+fi
+
 OS=$(detect_os)
 
 # Install zsh if not already installed
@@ -77,8 +85,8 @@ ensure_git_repo "https://github.com/sindresorhus/pure.git" "${HOME}/.zsh/pure"
 # Create symlinks that promptinit expects
 # Pure needs prompt_pure_setup and async in fpath
 mkdir -p "${HOME}/.zsh/functions"
-ln -sf "${HOME}/.zsh/pure/pure.zsh" "${HOME}/.zsh/functions/prompt_pure_setup"
-ln -sf "${HOME}/.zsh/pure/async.zsh" "${HOME}/.zsh/functions/async"
+safe_symlink "${HOME}/.zsh/pure/pure.zsh" "${HOME}/.zsh/functions/prompt_pure_setup"
+safe_symlink "${HOME}/.zsh/pure/async.zsh" "${HOME}/.zsh/functions/async"
 
 log_success "Pure prompt installed at ${HOME}/.zsh/pure"
 

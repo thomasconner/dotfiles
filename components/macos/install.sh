@@ -23,6 +23,14 @@ if [[ "${DRY_RUN:-false}" == "true" ]]; then
     exit 0
 fi
 
+# Early exit if already installed (unless FORCE)
+if [[ "${FORCE:-false}" != "true" ]]; then
+    if [[ "$(defaults read com.apple.dock show-recents 2>/dev/null)" == "0" ]]; then
+        log_info "macOS defaults are already configured"
+        exit 0
+    fi
+fi
+
 # ============================================================================
 # Dock Settings
 # ============================================================================
