@@ -2,6 +2,22 @@
 
 All notable changes to this project will be documented in this file.
 
+## [6.0.0] - 2026-01-30
+
+### Added
+- `ctdev uninstall` with no args uninstalls all installed components (with confirmation)
+- `--force` flag for `ctdev install` to reinstall components even if already installed
+- Root `uninstall.sh` script for removing ctdev itself
+- `uninstall_claude` function for claude component
+- `list_installed_components` helper in lib/components.sh
+
+### Changed
+- All component install scripts now support FORCE environment variable
+- All CLI tool scripts now support FORCE environment variable
+- Simplified CLAUDE.md (205 → 89 lines)
+- Simplified TROUBLESHOOTING.md (343 → 83 lines)
+- Removed redundant comments across component scripts
+
 ## [5.11.1] - 2026-01-27
 
 ### Fixed
