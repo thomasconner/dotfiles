@@ -246,17 +246,44 @@ uninstall_claude() {
 cmd_uninstall() {
     local components=("$@")
 
-    # Require at least one component
+    # If no components specified, uninstall all (with confirmation)
     if [[ ${#components[@]} -eq 0 ]]; then
-        log_error "At least one component must be specified"
-        echo ""
-        echo "Usage: ctdev uninstall <component...>"
-        echo ""
-        echo "Available components:"
-        list_components | while read -r name; do
-            echo "  $name"
+        local installed=()
+        while IFS= read -r comp; do
+            installed+=("$comp")
+        done < <(list_installed_components)
+
+        if [[ ${#installed[@]} -eq 0 ]]; then
+            log_info "No components are currently installed"
+            return 0
+        fi
+
+        log_warning "This will uninstall all ${#installed[@]} components:"
+        for comp in "${installed[@]}"; do
+            echo "  - $comp"
         done
-        return 1
+        echo
+
+        if [[ -t 0 ]] && [[ "$DRY_RUN" != "true" ]]; then
+            printf "Are you sure? [y/N] "
+            if ! read -r -t 30 answer || [[ ! "$answer" =~ ^[Yy]$ ]]; then
+                log_info "Aborted"
+                return 0
+            fi
+        fi
+
+        # Uninstall in reverse order of DEFAULT_INSTALL_ORDER
+        local reverse_order
+        reverse_order=$(echo "$DEFAULT_INSTALL_ORDER" | tr ' ' '\n' | tac | tr '\n' ' ')
+        for comp in $reverse_order; do
+            if [[ " ${installed[*]} " == *" $comp "* ]]; then
+                components+=("$comp")
+            fi
+        done
+        # Add macos if installed (not in DEFAULT_INSTALL_ORDER)
+        if is_component_installed "macos"; then
+            components=("macos" "${components[@]}")
+        fi
     fi
 
     # Validate specified components
