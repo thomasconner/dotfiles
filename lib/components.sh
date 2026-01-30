@@ -171,3 +171,13 @@ validate_components() {
 
     return 0
 }
+
+# List all currently installed components
+list_installed_components() {
+    local name
+    for name in $(list_components); do
+        if is_component_installed "$name"; then
+            echo "$name"
+        fi
+    done
+}
