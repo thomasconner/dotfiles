@@ -2,6 +2,11 @@
 
 All notable changes to this project will be documented in this file.
 
+## [6.0.1] - 2026-01-31
+
+### Fixed
+- `devcontainer.sh` now sets `FORCE=true` to ensure full installation in containers with pre-installed zsh
+
 ## [6.0.0] - 2026-01-30
 
 ### Added
