@@ -39,7 +39,7 @@ Commands:
     upgrade [-y]              Upgrade installed components
     list                      List components with status
     info                      Show system information
-    macos [--reset]           Configure macOS defaults (macOS only)
+    configure <target>        Configure git or macos settings
     gpu <subcommand>          Manage GPU driver signing for Secure Boot
 
 Options:
@@ -55,7 +55,8 @@ Examples:
     ctdev update               Refresh package sources
     ctdev upgrade              Upgrade installed components
     ctdev upgrade -y           Upgrade without prompting
-    ctdev macos                Configure macOS settings
+    ctdev configure git        Configure git user
+    ctdev configure macos      Configure macOS settings
 
 For help on a specific command:
     ctdev COMMAND --help
@@ -223,6 +224,36 @@ Examples:
 EOF
 }
 
+# Show help for configure command
+show_configure_help() {
+    cat << 'EOF'
+ctdev configure - Configure components
+
+Usage: ctdev configure <TARGET> [OPTIONS]
+
+Targets:
+    git              Configure git user (name and email)
+    macos            Configure macOS system defaults
+
+Git Options:
+    --name NAME      Set git user.name
+    --email EMAIL    Set git user.email
+
+macOS Options:
+    --reset          Reset to macOS system defaults
+
+General Options:
+    -h, --help       Show this help message
+    -n, --dry-run    Preview changes without applying
+
+Examples:
+    ctdev configure git                       Interactive git configuration
+    ctdev configure git --name "Name" --email "email@example.com"
+    ctdev configure macos                     Apply macOS preferences
+    ctdev configure macos --reset             Reset to Apple defaults
+EOF
+}
+
 # Show help for gpu command
 show_gpu_help() {
     cat << 'EOF'
@@ -308,7 +339,7 @@ parse_global_flags() {
 # Validate that a command exists
 require_command() {
     local cmd="$1"
-    local valid_commands="install uninstall update upgrade list info macos gpu"
+    local valid_commands="install uninstall update upgrade list info configure macos gpu"
 
     if [[ -z "$cmd" ]]; then
         return 1

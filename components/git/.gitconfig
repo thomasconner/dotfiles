@@ -1,9 +1,5 @@
-[include]
-  path = ~/.gitconfig.local
 [alias]
   ignored = !git ls-files -v | grep "^[[:lower:]]"
-[core]
-  excludesfile = ~/.gitignore
 [color]
   ui = true
 [diff]
@@ -19,6 +15,3 @@
   ff = only
 [url "ssh://git@github.com/"]
 	insteadOf = https://github.com/
-[user]
-	email = thomas.conner@connertechnology.io
-	name = thomasconner

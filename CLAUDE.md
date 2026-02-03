@@ -11,7 +11,8 @@ ctdev update                    # Refresh package metadata (does not upgrade)
 ctdev upgrade [-y]              # Upgrade installed components
 ctdev list                      # List components with status
 ctdev info                      # Show system information
-ctdev macos [--reset]           # Configure macOS defaults (macOS only)
+ctdev configure git             # Configure git user
+ctdev configure macos           # Configure macOS defaults (macOS only)
 ```
 
 **Flags:** `--help`, `--verbose`, `--dry-run`, `--force`, `--version`
