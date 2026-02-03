@@ -12,6 +12,7 @@ fi
 declare -a COMPONENTS=(
     "1password:1Password password manager:components/1password/install.sh"
     "age:age file encryption tool:components/age/install.sh"
+    "bleachbit:System cleaner for Linux:components/bleachbit/install.sh"
     "btop:Resource monitor (htop alternative):components/btop/install.sh"
     "bun:JavaScript runtime and package manager:components/bun/install.sh"
     "chrome:Google Chrome browser:components/chrome/install.sh"
@@ -121,12 +122,11 @@ is_component_installed() {
                 command -v google-chrome >/dev/null 2>&1
             fi
             ;;
+        bleachbit)
+            command -v bleachbit >/dev/null 2>&1
+            ;;
         cleanmymac)
-            if [[ "$(uname -s)" == "Darwin" ]]; then
-                [[ -d "/Applications/CleanMyMac.app" ]] || [[ -d "/Applications/CleanMyMac X.app" ]]
-            else
-                command -v bleachbit >/dev/null 2>&1
-            fi
+            [[ -d "/Applications/CleanMyMac.app" ]] || [[ -d "/Applications/CleanMyMac X.app" ]]
             ;;
         claude-desktop)
             [[ -d "/Applications/Claude.app" ]]
