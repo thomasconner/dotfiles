@@ -2,6 +2,35 @@
 
 All notable changes to this project will be documented in this file.
 
+## [7.0.0] - 2026-02-02
+
+### Added
+- `ctdev configure` command for post-install configuration
+  - `ctdev configure git` - Configure git user name/email (global by default)
+  - `ctdev configure git --local` - Configure git per-repository
+  - `ctdev configure macos` - Apply macOS system defaults
+- `bleachbit` component for Linux system cleaning (counterpart to `cleanmymac` on macOS)
+- Hardware info section in `ctdev info`:
+  - CPU model with core/thread count
+  - Memory with snap-to-standard sizes (8/16/32/64/128 GB)
+  - GPU with VRAM via nvidia-smi
+  - Disk usage with GB/TB formatting and percentages
+- Source guards to prevent multiple sourcing of bash library files
+- Linux Mint support for TradingView installer
+
+### Changed
+- `ctdev list` now hides components not supported on current OS
+- `ctdev upgrade` output cleaned up to only show packages with actual updates
+- `ctdev upgrade` now shows version info: `package: 1.0.0 → 1.1.0`
+- Exit code 2 now indicates skipped/unsupported installs (0=success, 1=error, 2=skipped)
+- Consistent warning messages across all components for unsupported platforms
+- Simplified claude-code detection (just checks for `claude` command)
+
+### Removed
+- `ctdev macos` command (replaced by `ctdev configure macos`)
+- `.gitconfig.local.template` from git component (use `ctdev configure git --local` instead)
+- `.gitignore` symlink from git component
+
 ## [6.1.0] - 2026-02-02
 
 ### Added
