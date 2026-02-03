@@ -1,12 +1,9 @@
 #!/usr/bin/env bash
 
 # ctdev list - List available components with status
-
-# Colors
-GREEN='\033[0;32m'
-YELLOW='\033[0;33m'
+# Colors are defined in lib/logging.sh (GREEN, YELLOW, NC)
+# Define GREY here as it's not in logging.sh
 GREY='\033[0;90m'
-NC='\033[0m' # No Color
 
 cmd_list() {
     echo
