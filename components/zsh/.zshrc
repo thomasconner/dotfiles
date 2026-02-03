@@ -138,3 +138,10 @@ fi
 
 # All PATH setup consolidated in path.zsh (system, homebrew, nodenv, rbenv, user paths)
 [[ -f ~/.zsh/path.zsh ]] && source ~/.zsh/path.zsh
+
+# bun completions
+[ -s "/home/thomas/.bun/_bun" ] && source "/home/thomas/.bun/_bun"
+
+# bun
+export BUN_INSTALL="$HOME/.bun"
+export PATH="$BUN_INSTALL/bin:$PATH"

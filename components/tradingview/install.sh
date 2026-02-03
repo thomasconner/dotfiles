@@ -32,7 +32,7 @@ if [[ "$OS" == "macos" ]]; then
 
   log_success "TradingView installed"
 
-elif [[ "$OS" == "ubuntu" || "$OS" == "debian" ]]; then
+elif [[ "$OS" == "ubuntu" || "$OS" == "debian" || "$OS" == "linuxmint" ]]; then
   # Check if already installed
   if command -v tradingview >/dev/null 2>&1 || dpkg -l tradingview &>/dev/null; then
     log_info "TradingView already installed"
