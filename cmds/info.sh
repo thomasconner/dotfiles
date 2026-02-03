@@ -43,27 +43,23 @@ cmd_info() {
     log_step "Hardware"
     echo
 
-    # CPU
-    local cpu_info
+    # CPU with thread count
+    local cpu_info cpu_threads
     if [[ "$OSTYPE" == "darwin"* ]]; then
         cpu_info=$(sysctl -n machdep.cpu.brand_string 2>/dev/null || echo "unknown")
+        cpu_threads=$(sysctl -n hw.ncpu 2>/dev/null)
     elif [[ -f /proc/cpuinfo ]]; then
         cpu_info=$(grep -m1 "model name" /proc/cpuinfo | cut -d: -f2 | sed 's/^ //')
+        cpu_threads=$(grep -c "^processor" /proc/cpuinfo)
     else
         cpu_info="unknown"
+        cpu_threads=$(nproc 2>/dev/null)
     fi
-    echo "  CPU:             $cpu_info"
-
-    # CPU cores
-    local cpu_cores
-    if [[ "$OSTYPE" == "darwin"* ]]; then
-        cpu_cores=$(sysctl -n hw.ncpu 2>/dev/null || echo "unknown")
-    elif [[ -f /proc/cpuinfo ]]; then
-        cpu_cores=$(grep -c "^processor" /proc/cpuinfo)
+    if [[ -n "$cpu_threads" ]]; then
+        echo "  CPU:             $cpu_info ($cpu_threads threads)"
     else
-        cpu_cores=$(nproc 2>/dev/null || echo "unknown")
+        echo "  CPU:             $cpu_info"
     fi
-    echo "  CPU Cores:       $cpu_cores"
 
     # Memory (snap to nearest standard RAM size)
     local mem_display
