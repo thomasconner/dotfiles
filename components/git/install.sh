@@ -46,8 +46,8 @@ log_step "Installing git configuration"
 # Ensure git is installed
 ensure_git_installed
 
-# Symlink main git configuration file
-safe_symlink "$SCRIPT_DIR/.gitconfig" "${HOME}/.gitconfig"
+# Copy main git configuration file (not symlinked so user config changes stay local)
+run_cmd cp "$SCRIPT_DIR/.gitconfig" "${HOME}/.gitconfig"
 
 # Handle user configuration
 if [[ "$SKIP_USER_CONFIG" == "true" ]]; then

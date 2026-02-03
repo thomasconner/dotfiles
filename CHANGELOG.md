@@ -2,6 +2,11 @@
 
 All notable changes to this project will be documented in this file.
 
+## [7.0.1] - 2026-02-03
+
+### Fixed
+- Git component now copies `.gitconfig` instead of symlinking (prevents global config changes from modifying repo)
+
 ## [7.0.0] - 2026-02-02
 
 ### Added
