@@ -176,8 +176,7 @@ is_component_installed() {
             command -v bun >/dev/null 2>&1 || [[ -x "$HOME/.bun/bin/bun" ]]
             ;;
         claude-code)
-            (command -v claude >/dev/null 2>&1 || [[ -x "$HOME/.local/bin/claude" ]]) && \
-                [[ -L ~/.claude/CLAUDE.md ]] && [[ -e ~/.claude/CLAUDE.md ]]
+            command -v claude >/dev/null 2>&1 || [[ -x "$HOME/.local/bin/claude" ]]
             ;;
         docker)
             command -v docker >/dev/null 2>&1
