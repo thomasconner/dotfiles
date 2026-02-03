@@ -33,28 +33,29 @@ ctdev - Conner Technology Dev CLI
 Usage: ctdev [OPTIONS] COMMAND [ARGS]
 
 Commands:
-    install [component...]    Install components (all if none specified)
-    update [component...]     Update system and installed components
-    info                      Show system info and check installation health
-    list                      List available components
+    install <component...>    Install specific components
     uninstall <component...>  Remove specific components
-    setup                     Make ctdev available globally
+    update                    Refresh package metadata (does not upgrade)
+    upgrade [-y]              Upgrade installed components
+    list                      List components with status
+    info                      Show system information
+    macos [--reset]           Configure macOS defaults (macOS only)
     gpu <subcommand>          Manage GPU driver signing for Secure Boot
 
 Options:
     -h, --help       Show this help message
     -v, --verbose    Enable verbose output
     -n, --dry-run    Preview changes without applying
-    -f, --force      Force re-run install scripts (bypass already-installed check)
+    -f, --force      Force re-run install scripts
     --version        Show version information
 
 Examples:
-    ctdev install              Install all components
     ctdev install zsh git      Install specific components
-    ctdev update               Update system and installed components
-    ctdev update --skip-system Update components only
-    ctdev info                 Show system info and health checks
-    ctdev setup                Add ctdev to your PATH
+    ctdev list                 Show all components with status
+    ctdev update               Refresh package sources
+    ctdev upgrade              Upgrade installed components
+    ctdev upgrade -y           Upgrade without prompting
+    ctdev macos                Configure macOS settings
 
 For help on a specific command:
     ctdev COMMAND --help
@@ -64,26 +65,13 @@ EOF
 # Show help for install command
 show_install_help() {
     cat << 'EOF'
-ctdev install - Install dotfiles components
+ctdev install - Install specific components
 
-Usage: ctdev install [OPTIONS] [COMPONENT...]
+Usage: ctdev install <COMPONENT...>
 
-If no components are specified, all components will be installed.
-- Components not installed will be installed
-- Components already installed will be checked for updates
-- If updates are available, you will be prompted to update or defer
+Installs one or more components. At least one component must be specified.
 
-Note: 'macos' is not included by default - run it explicitly.
-
-Components:
-    apps       Desktop applications (Chrome, VSCode, Slack, etc.)
-    cli        CLI tools (jq, gh, kubectl, btop, etc.)
-    fonts      Nerd Fonts for terminal
-    git        Git configuration and aliases
-    macos      macOS system defaults (Dock, Finder, keyboard)
-    node       Node.js via nodenv
-    ruby       Ruby via rbenv
-    zsh        Zsh, Oh My Zsh, Pure prompt, plugins
+Use 'ctdev list' to see available components.
 
 Options:
     -h, --help       Show this help message
@@ -92,68 +80,24 @@ Options:
     -f, --force      Re-run install scripts even if already installed
 
 Examples:
-    ctdev install              Install all components
-    ctdev install zsh git      Install specific components
-    ctdev install --dry-run    Preview what would be installed
-    ctdev install apps --force Re-run apps install (e.g., after adding new apps)
+    ctdev install zsh          Install zsh configuration
+    ctdev install node ruby    Install multiple components
+    ctdev install --dry-run jq Preview installation
 
-To update installed components, use 'ctdev update'.
-EOF
-}
-
-# Show help for info command
-show_info_help() {
-    cat << 'EOF'
-ctdev info - Show system information and check installation health
-
-Usage: ctdev info [OPTIONS]
-
-Displays detailed information about your system including:
-- OS and hardware information
-- Environment configuration
-- Installation health checks for all components
-- Symlink verification
-- Missing dependencies
-
-Options:
-    -h, --help       Show this help message
-    -v, --verbose    Enable verbose output
-EOF
-}
-
-# Show help for list command
-show_list_help() {
-    cat << 'EOF'
-ctdev list - List available components
-
-Usage: ctdev list [OPTIONS]
-
-Options:
-    -h, --help       Show this help message
-    --installed      Show only installed components
+To upgrade installed components, use 'ctdev upgrade'.
 EOF
 }
 
 # Show help for uninstall command
 show_uninstall_help() {
     cat << 'EOF'
-ctdev uninstall - Remove dotfiles components
+ctdev uninstall - Remove specific components
 
-Usage: ctdev uninstall [COMPONENT...]
+Usage: ctdev uninstall <COMPONENT...>
 
-If no components are specified, all installed components will be uninstalled
-(with confirmation prompt).
+Removes one or more installed components. At least one component must be specified.
 
-Components:
-    apps       Desktop applications
-    claude     Claude Code configuration
-    cli        CLI tools
-    fonts      Nerd Fonts
-    git        Git configuration
-    macos      macOS system defaults (resets to Apple defaults)
-    node       Node.js (nodenv)
-    ruby       Ruby (rbenv)
-    zsh        Zsh configuration
+Use 'ctdev list' to see installed components.
 
 Options:
     -h, --help       Show this help message
@@ -161,10 +105,148 @@ Options:
     -n, --dry-run    Preview changes without applying
 
 Examples:
-    ctdev uninstall            Uninstall all components (with confirmation)
     ctdev uninstall ruby       Remove Ruby/rbenv
-    ctdev uninstall apps fonts Remove multiple components
-    ctdev uninstall --dry-run  Preview what would be uninstalled
+    ctdev uninstall node ruby  Remove multiple components
+    ctdev uninstall --dry-run jq Preview removal
+EOF
+}
+
+# Show help for update command
+show_update_help() {
+    cat << 'EOF'
+ctdev update - Refresh package metadata
+
+Usage: ctdev update [OPTIONS]
+
+Refreshes package sources without upgrading anything:
+- brew update (macOS)
+- apt update (Debian/Ubuntu)
+- git fetch for nodenv, rbenv, oh-my-zsh
+
+This is a fast operation that checks for available updates.
+
+Options:
+    -h, --help       Show this help message
+    -v, --verbose    Enable verbose output
+    -n, --dry-run    Preview changes without applying
+
+Examples:
+    ctdev update               Refresh all package sources
+
+To actually upgrade components, use 'ctdev upgrade'.
+EOF
+}
+
+# Show help for upgrade command
+show_upgrade_help() {
+    cat << 'EOF'
+ctdev upgrade - Upgrade installed components
+
+Usage: ctdev upgrade [OPTIONS] [COMPONENT...]
+
+Upgrades system packages and installed components to latest versions.
+If no components specified, upgrades all installed components.
+
+Options:
+    -h, --help       Show this help message
+    -y, --yes        Skip confirmation prompt
+    -v, --verbose    Enable verbose output
+    -n, --dry-run    Preview changes without applying
+
+Examples:
+    ctdev upgrade              Upgrade all (with confirmation)
+    ctdev upgrade -y           Upgrade all without prompting
+    ctdev upgrade node ruby    Upgrade specific components
+    ctdev upgrade --dry-run    Preview what would be upgraded
+EOF
+}
+
+# Show help for list command
+show_list_help() {
+    cat << 'EOF'
+ctdev list - List available components with status
+
+Usage: ctdev list [OPTIONS]
+
+Shows all components with their installation status:
+- Green: installed
+- Yellow: installed (update available)
+- Grey: not installed
+
+Options:
+    -h, --help       Show this help message
+EOF
+}
+
+# Show help for info command
+show_info_help() {
+    cat << 'EOF'
+ctdev info - Show system information
+
+Usage: ctdev info [OPTIONS]
+
+Displays system information:
+- OS and version
+- Architecture
+- Package manager
+- Shell
+- Dotfiles location
+
+Options:
+    -h, --help       Show this help message
+    -v, --verbose    Enable verbose output
+EOF
+}
+
+# Show help for macos command
+show_macos_help() {
+    cat << 'EOF'
+ctdev macos - Configure macOS system defaults
+
+Usage: ctdev macos [OPTIONS]
+
+Configures macOS system preferences:
+- Dock: hide recent apps, speed up animations
+- Finder: show extensions, path bar, status bar
+- Keyboard: disable smart quotes/dashes, fast key repeat
+- Security: require password immediately after sleep
+
+Options:
+    --reset          Reset to macOS system defaults
+    -h, --help       Show this help message
+    -n, --dry-run    Preview changes without applying
+
+Examples:
+    ctdev macos              Apply preferred settings
+    ctdev macos --reset      Reset to Apple defaults
+    ctdev macos --dry-run    Preview changes
+EOF
+}
+
+# Show help for gpu command
+show_gpu_help() {
+    cat << 'EOF'
+ctdev gpu - Manage GPU driver signing for Secure Boot
+
+Usage: ctdev gpu <subcommand> [OPTIONS]
+
+Subcommands:
+    status    Check secure boot and driver signing status
+    setup     Configure MOK signing for NVIDIA drivers
+    sign      Sign current NVIDIA kernel modules
+    info      Show GPU hardware information
+
+Options:
+    -h, --help       Show this help message
+    -v, --verbose    Enable verbose output
+    -n, --dry-run    Preview changes without applying
+    -f, --force      Force re-run setup even if already configured
+
+Examples:
+    ctdev gpu status           Check if driver signing is configured
+    ctdev gpu setup            Set up MOK signing (interactive)
+    ctdev gpu sign             Re-sign modules after kernel update
+    ctdev gpu info             Show GPU hardware details
 EOF
 }
 
@@ -223,95 +305,10 @@ parse_global_flags() {
     fi
 }
 
-# Show help for setup command
-show_setup_help() {
-    cat << 'EOF'
-ctdev setup - Make ctdev available globally
-
-Usage: ctdev setup [OPTIONS]
-
-Creates a symlink to ctdev in ~/.local/bin so you can run it from anywhere.
-No sudo required. Works on macOS and Linux.
-
-Options:
-    -h, --help       Show this help message
-    -n, --dry-run    Preview changes without applying
-
-Examples:
-    ctdev setup              Install ctdev globally
-    ctdev setup --dry-run    Preview installation
-
-Note: If ~/.local/bin is not in your PATH, the command will show you
-how to add it. Running 'ctdev install zsh' also configures PATH automatically.
-EOF
-}
-
-# Show help for gpu command
-show_gpu_help() {
-    cat << 'EOF'
-ctdev gpu - Manage GPU driver signing for Secure Boot
-
-Usage: ctdev gpu <subcommand> [OPTIONS]
-
-Subcommands:
-    status    Check secure boot and driver signing status
-    setup     Configure MOK signing for NVIDIA drivers
-    sign      Sign current NVIDIA kernel modules
-    info      Show GPU hardware information
-
-Options:
-    -h, --help       Show this help message
-    -v, --verbose    Enable verbose output
-    -n, --dry-run    Preview changes without applying
-    -f, --force      Force re-run setup even if already configured
-
-Examples:
-    ctdev gpu status           Check if driver signing is configured
-    ctdev gpu setup            Set up MOK signing (interactive)
-    ctdev gpu sign             Re-sign modules after kernel update
-    ctdev gpu info             Show GPU hardware details
-
-For Secure Boot systems, NVIDIA drivers must be signed with a Machine Owner
-Key (MOK) to load. This command helps configure automatic signing.
-EOF
-}
-
-# Show help for update command
-show_update_help() {
-    cat << 'EOF'
-ctdev update - Update system and installed components
-
-Usage: ctdev update [OPTIONS] [COMPONENT...]
-
-Updates system packages and installed components:
-- System packages are updated via apt/brew/dnf/pacman
-- Components with update support (zsh, node, ruby, cli) are updated
-- If no components specified, all installed components are updated
-
-Components with update support:
-    zsh        Oh My Zsh, plugins, Pure prompt
-    node       nodenv, node-build, global npm packages
-    ruby       rbenv, ruby-build, gems
-    cli        GitHub CLI extensions
-
-Options:
-    -h, --help       Show this help message
-    -v, --verbose    Enable verbose output
-    -n, --dry-run    Preview changes without applying
-    --skip-system    Skip system package updates (apt/brew/etc.)
-
-Examples:
-    ctdev update              Update everything
-    ctdev update zsh node     Update specific components only
-    ctdev update --skip-system Update components without system packages
-    ctdev update --dry-run    Preview what would be updated
-EOF
-}
-
 # Validate that a command exists
 require_command() {
     local cmd="$1"
-    local valid_commands="install info list uninstall setup update gpu"
+    local valid_commands="install uninstall update upgrade list info macos gpu"
 
     if [[ -z "$cmd" ]]; then
         return 1

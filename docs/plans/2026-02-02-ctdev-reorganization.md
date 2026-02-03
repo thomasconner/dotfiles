@@ -23,6 +23,8 @@ Reorganize ctdev to have apt-like semantics and a flat component structure.
 | `ctdev info` | System info only (OS, arch, package manager, shell). |
 | `ctdev macos [--reset] [--dry-run]` | Configure/reset macOS defaults. Standalone subcommand. |
 
+Note: `setup` command removed - use `./install.sh` at repo root instead.
+
 ## Components (32 total)
 
 Flat alphabetical list. Each component has install.sh and uninstall.sh.

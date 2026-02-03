@@ -71,11 +71,12 @@ fi
 if [[ "$SHOW_HELP" == "true" ]]; then
     case "$COMMAND" in
         install)   show_install_help ;;
-        update)    show_update_help ;;
-        info)      show_info_help ;;
-        list)      show_list_help ;;
         uninstall) show_uninstall_help ;;
-        setup)     show_setup_help ;;
+        update)    show_update_help ;;
+        upgrade)   show_upgrade_help ;;
+        list)      show_list_help ;;
+        info)      show_info_help ;;
+        macos)     show_macos_help ;;
         gpu)       show_gpu_help ;;
         *)         show_main_help ;;
     esac

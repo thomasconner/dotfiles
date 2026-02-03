@@ -66,12 +66,12 @@ safe_symlink "$HOME/.zsh/pure/async.zsh" "$HOME/.zsh/functions/async"
 
 log_success "Pure prompt installed"
 
-safe_symlink "$DOTFILES_ROOT/shell/aliases.zsh" "$HOME/.oh-my-zsh/custom/aliases.zsh"
-safe_symlink "$DOTFILES_ROOT/shell/exports.zsh" "$HOME/.oh-my-zsh/custom/exports.zsh"
-safe_symlink "$DOTFILES_ROOT/shell/path.zsh" "$HOME/.zsh/path.zsh"
+safe_symlink "$SCRIPT_DIR/aliases.zsh" "$HOME/.oh-my-zsh/custom/aliases.zsh"
+safe_symlink "$SCRIPT_DIR/exports.zsh" "$HOME/.oh-my-zsh/custom/exports.zsh"
+safe_symlink "$SCRIPT_DIR/path.zsh" "$HOME/.zsh/path.zsh"
 
 if [ ! -f "$HOME/.oh-my-zsh/custom/exports.local.zsh" ]; then
-    run_cmd cp "$DOTFILES_ROOT/shell/exports.local.zsh" "$HOME/.oh-my-zsh/custom/exports.local.zsh"
+    run_cmd cp "$SCRIPT_DIR/exports.local.zsh" "$HOME/.oh-my-zsh/custom/exports.local.zsh"
     log_info "Created exports.local.zsh - customize it!"
 fi
 

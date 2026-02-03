@@ -14,61 +14,49 @@ curl -fsSL https://raw.githubusercontent.com/thomasconner/dotfiles/main/install.
 
 ```bash
 git clone https://github.com/thomasconner/dotfiles.git ~/dotfiles
-~/dotfiles/ctdev setup
-~/dotfiles/ctdev install
+~/dotfiles/install.sh
 ```
 
 ## ctdev CLI
 
 ```bash
-ctdev install [component...]    # Install components (all if none specified)
-ctdev update [component...]     # Update system and installed components
-ctdev info                      # Show system info and check installation health
-ctdev list                      # List available components
-ctdev uninstall [component...]  # Remove components (all if none specified)
-ctdev setup                     # Symlink ctdev to ~/.local/bin
+ctdev install <component...>    # Install specific components
+ctdev uninstall <component...>  # Remove specific components
+ctdev update                    # Refresh package metadata
+ctdev upgrade [-y]              # Upgrade installed components
+ctdev list                      # List components with status
+ctdev info                      # Show system information
+ctdev macos [--reset]           # Configure macOS defaults
 ```
 
 **Flags:** `--help`, `--dry-run`, `--verbose`, `--force`, `--version`
 
-**Update flags:** `--skip-system` (skip system package updates)
-
-**Auto-update:** When running any command, ctdev checks for updates and prompts to pull the latest changes before proceeding.
-
 ## Components
 
-| Component | Description                                                                                               |
-| --------- | --------------------------------------------------------------------------------------------------------- |
-| `zsh`     | Zsh, Oh My Zsh, Pure prompt, plugins                                                                      |
-| `git`     | Git configuration and global gitignore                                                                    |
-| `cli`     | CLI tools (jq, gh, kubectl, helm, terraform, btop, docker, git-spice, bun, etc.)                               |
-| `claude`  | Claude Code configuration (CLAUDE.md, settings)                                                           |
-| `node`    | Node.js via nodenv                                                                                        |
-| `ruby`    | Ruby via rbenv                                                                                            |
-| `apps`    | Desktop apps (Chrome, VSCode, Slack, 1Password, etc.)                                                     |
-| `fonts`   | Nerd Fonts (FiraCode, JetBrainsMono, Hack, Ubuntu) - configure your terminal to use a Nerd Font for icons |
-| `macos`   | macOS system defaults (Dock, Finder, keyboard) - run explicitly with `ctdev install macos`                |
+31 components available. Run `ctdev list` to see all with status.
+
+**Desktop Applications:**
+1password, chrome, cleanmymac, claude-desktop, dbeaver, ghostty, linear, logi-options, slack, tradingview, vscode
+
+**CLI Tools:**
+age, btop, bun, claude-code, docker, doctl, gh, git-spice, helm, jq, kubectl, shellcheck, sops, terraform, tmux
+
+**Configuration & Languages:**
+fonts, git, node, ruby, zsh
 
 ## Examples
 
 ```bash
-ctdev install zsh git       # Shell and git config only
-ctdev install --force cli   # Reinstall CLI tools
-ctdev uninstall             # Remove all components
-ctdev --dry-run install     # Preview changes
-```
-
-## Git Configuration
-
-```bash
-ctdev install git                                              # Interactive prompts
-./components/git/install.sh --name "Name" --email "email"      # Non-interactive
-./components/git/install.sh --skip-user-config                 # Skip user config
+ctdev install zsh git       # Install shell and git config
+ctdev install node bun      # Install Node.js and Bun
+ctdev list                  # Show all components with status
+ctdev upgrade               # Upgrade all installed components
+ctdev upgrade -y            # Upgrade without prompting
+ctdev macos                 # Configure macOS defaults
+ctdev macos --reset         # Reset macOS defaults
 ```
 
 ## DevContainers
-
-### VS Code Dotfiles Feature
 
 Add to your VS Code `settings.json`:
 
@@ -80,7 +68,7 @@ Add to your VS Code `settings.json`:
 }
 ```
 
-This automatically installs zsh, Oh My Zsh, and Pure prompt in all your devcontainers.
+This automatically installs zsh, Oh My Zsh, and Pure prompt in devcontainers.
 
 ## Platform Support
 
@@ -96,16 +84,24 @@ dotfiles/
 ├── ctdev              # CLI entry point
 ├── lib/               # Shared utilities
 ├── cmds/              # CLI commands
-├── components/        # Installable components
-└── shell/             # Shell config files
+└── components/        # Installable components (one dir per component)
 ```
 
 ## Customization
 
-- `shell/aliases.zsh` - Command aliases
-- `shell/exports.zsh` - Environment variables
-- `shell/path.zsh` - PATH configuration
+- `components/zsh/aliases.zsh` - Command aliases
+- `components/zsh/exports.zsh` - Environment variables
+- `components/zsh/path.zsh` - PATH configuration
 - `~/.gitconfig.local` - Git user config (auto-generated)
+
+## Uninstall
+
+```bash
+~/dotfiles/uninstall.sh          # Remove ctdev CLI
+ctdev uninstall <component...>   # Remove specific components first
+```
+
+The uninstall script removes the ctdev symlink and config directory. The dotfiles repo remains at `~/dotfiles` - delete it manually if desired.
 
 ## License
 

@@ -6,6 +6,7 @@ set -euo pipefail
 
 DOTFILES_DIR="${DOTFILES_DIR:-$HOME/dotfiles}"
 REPO_URL="https://github.com/thomasconner/dotfiles.git"
+CTDEV_SYMLINK="$HOME/.local/bin/ctdev"
 
 # Colors
 RED='\033[0;31m'
@@ -45,20 +46,36 @@ else
     git clone "$REPO_URL" "$DOTFILES_DIR"
 fi
 
-# Run setup
-info "Running ctdev setup..."
-"$DOTFILES_DIR/ctdev" setup
+# Create ~/.local/bin if it doesn't exist
+if [[ ! -d "$HOME/.local/bin" ]]; then
+    info "Creating ~/.local/bin..."
+    mkdir -p "$HOME/.local/bin"
+fi
+
+# Create symlink to ctdev
+if [[ -L "$CTDEV_SYMLINK" ]]; then
+    info "Updating ctdev symlink..."
+    rm -f "$CTDEV_SYMLINK"
+fi
+
+ln -sf "$DOTFILES_DIR/ctdev" "$CTDEV_SYMLINK"
+success "ctdev symlinked to $CTDEV_SYMLINK"
+
+# Check if ~/.local/bin is in PATH
+if [[ ":$PATH:" != *":$HOME/.local/bin:"* ]]; then
+    warn "~/.local/bin is not in your PATH"
+    echo
+    echo "  Add this to your shell profile (~/.bashrc or ~/.zshrc):"
+    echo "    export PATH=\"\$HOME/.local/bin:\$PATH\""
+    echo
+fi
 
 success "ctdev is now installed!"
 echo
 echo "  Next steps:"
-echo "    1. Restart your terminal (or run: source ~/.zshrc)"
-echo "    2. Run: ctdev install"
-echo
-echo "  Or install specific components:"
-echo "    ctdev install zsh git    # Shell and git config"
-echo "    ctdev install cli        # CLI tools"
-echo "    ctdev list               # See all components"
+echo "    1. Restart your terminal (or add ~/.local/bin to PATH)"
+echo "    2. Run: ctdev install zsh git   # Install shell config"
+echo "    3. Run: ctdev list              # See all components"
 echo
 echo "  Run 'ctdev --help' for more options."
 echo

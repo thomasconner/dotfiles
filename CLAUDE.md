@@ -5,29 +5,29 @@ Instructions for Claude Code when working with this repository.
 ## ctdev CLI
 
 ```bash
-ctdev install [component...]    # Install components (all if none specified)
-ctdev update [component...]     # Update system and installed components
-ctdev uninstall [component...]  # Remove components (all if none specified)
-ctdev info                      # System info and health checks
-ctdev list                      # List available components
-ctdev setup                     # Symlink ctdev to ~/.local/bin
+ctdev install <component...>    # Install specific components
+ctdev uninstall <component...>  # Remove specific components
+ctdev update                    # Refresh package metadata (does not upgrade)
+ctdev upgrade [-y]              # Upgrade installed components
+ctdev list                      # List components with status
+ctdev info                      # Show system information
+ctdev macos [--reset]           # Configure macOS defaults (macOS only)
 ```
 
 **Flags:** `--help`, `--verbose`, `--dry-run`, `--force`, `--version`
 
 ## Components
 
-apps, claude, cli, fonts, git, macos, node, ruby, zsh
+31 flat components (run `ctdev list` to see all):
 
-macos is excluded from default install order - run explicitly.
+1password, age, btop, bun, chrome, cleanmymac, claude-code, claude-desktop, dbeaver, docker, doctl, fonts, gh, ghostty, git, git-spice, helm, jq, kubectl, linear, logi-options, node, ruby, shellcheck, slack, sops, terraform, tmux, tradingview, vscode, zsh
 
 ## Directory structure
 
 ```
 lib/           Shared utilities (logging, platform detection, packages)
 cmds/          CLI command implementations
-components/    Installable components (one dir per component)
-shell/         Shell config files (symlinked to ~/.oh-my-zsh/custom/)
+components/    Installable components (one dir per component with install.sh)
 ```
 
 ## Key utilities
@@ -45,33 +45,34 @@ shell/         Shell config files (symlinked to ~/.oh-my-zsh/custom/)
 - Use `run_cmd` to respect DRY_RUN
 - Symlink configs instead of copying
 
-## Adding CLI tools
+## Adding a new component
 
-Create `components/cli/<tool>.sh`:
+Create `components/<name>/install.sh`:
 
 ```bash
 #!/usr/bin/env bash
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-source "$SCRIPT_DIR/../../lib/utils.sh"
+DOTFILES_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
+source "$DOTFILES_ROOT/lib/utils.sh"
 
-log_info "Installing <tool>"
+log_info "Installing <name>"
 
-if [[ "${FORCE:-false}" != "true" ]] && command -v <tool> >/dev/null 2>&1; then
-    log_info "<tool> already installed"
+if [[ "${FORCE:-false}" != "true" ]] && command -v <name> >/dev/null 2>&1; then
+    log_info "<name> already installed"
     exit 0
 fi
 
 OS=$(detect_os)
 if [[ "$OS" == "macos" ]]; then
-    brew install <tool>
+    brew install <name>
 else
-    install_package <tool>
+    install_package <name>
 fi
 ```
 
-Then add to `components/cli/install.sh`.
+Then add to `lib/components.sh` COMPONENTS array.
 
 ## Git commits
 

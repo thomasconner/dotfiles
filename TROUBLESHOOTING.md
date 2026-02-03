@@ -3,7 +3,7 @@
 ## ctdev not found
 
 ```bash
-./ctdev setup
+./install.sh                    # Re-run install script
 export PATH="$HOME/.local/bin:$PATH"
 ```
 
@@ -13,18 +13,20 @@ ctdev uses `maybe_sudo` automatically. If you're in Docker without sudo, some in
 
 ## Component shows as not installed
 
-Since v5.4.0, ctdev uses markers in `~/.config/ctdev/`. If detection fails:
+ctdev uses markers in `~/.config/ctdev/`. If detection fails:
 
 ```bash
 ctdev install <component>  # Re-run to create marker
 ```
 
-## Uninstalling everything
+## Uninstalling
 
 ```bash
-ctdev uninstall          # Remove all components (prompts for confirmation)
-./uninstall.sh           # Remove ctdev itself
+ctdev uninstall <component...>   # Remove specific components
+~/dotfiles/uninstall.sh          # Remove ctdev itself
 ```
+
+The uninstall script will prompt to remove all components first, then removes the ctdev symlink and config directory.
 
 ## macOS
 
@@ -48,7 +50,7 @@ eval "$(/usr/local/bin/brew shellenv)"     # Intel
 
 **Oh My Zsh not loading:** Check `ls -la ~/.zshrc` - should be a symlink. Re-run `ctdev install zsh`.
 
-**Pure prompt missing:** Delete `~/.zsh/pure` and reinstall zsh component.
+**Pure prompt missing:** Delete `~/.zsh/pure` and reinstall: `ctdev install zsh --force`.
 
 ## Node/Ruby
 
@@ -73,9 +75,10 @@ sudo apt install build-essential libssl-dev libyaml-dev zlib1g-dev libffi-dev
 ## Debugging
 
 ```bash
-ctdev --dry-run install   # Preview without changes
-ctdev --verbose install   # More output
-ctdev info                # System diagnostics
+ctdev --dry-run install zsh   # Preview without changes
+ctdev --verbose install zsh   # More output
+ctdev info                    # System diagnostics
+ctdev list                    # Show component status
 ```
 
 ## Still stuck?
