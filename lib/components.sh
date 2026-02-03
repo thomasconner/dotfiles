@@ -288,3 +288,30 @@ list_installed_components() {
         fi
     done
 }
+
+# Check if a component is supported on the current OS
+# Returns 0 if supported, 1 if not
+is_component_supported() {
+    local component="$1"
+    local os
+    os=$(uname -s)
+
+    case "$component" in
+        # macOS only
+        cleanmymac|logi-options)
+            [[ "$os" == "Darwin" ]]
+            ;;
+        # Linux only
+        bleachbit)
+            [[ "$os" == "Linux" ]]
+            ;;
+        # macOS only (no Linux desktop app)
+        linear|claude-desktop)
+            [[ "$os" == "Darwin" ]]
+            ;;
+        # All other components are cross-platform
+        *)
+            return 0
+            ;;
+    esac
+}
