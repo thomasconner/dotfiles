@@ -15,9 +15,11 @@ declare -a COMPONENTS=(
     "bleachbit:System cleaner for Linux:components/bleachbit/install.sh"
     "btop:Resource monitor (htop alternative):components/btop/install.sh"
     "bun:JavaScript runtime and package manager:components/bun/install.sh"
+    "chatgpt:ChatGPT desktop application:components/chatgpt/install.sh"
     "chrome:Google Chrome browser:components/chrome/install.sh"
     "cleanmymac:CleanMyMac system cleaner:components/cleanmymac/install.sh"
     "claude-code:Claude Code CLI and configuration:components/claude-code/install.sh"
+    "codex:OpenAI Codex CLI:components/codex/install.sh"
     "claude-desktop:Claude desktop application:components/claude-desktop/install.sh"
     "dbeaver:DBeaver database tool:components/dbeaver/install.sh"
     "docker:Docker container runtime:components/docker/install.sh"
@@ -115,12 +117,18 @@ is_component_installed() {
                 command -v 1password >/dev/null 2>&1
             fi
             ;;
+        chatgpt)
+            [[ -d "/Applications/ChatGPT.app" ]]
+            ;;
         chrome)
             if [[ "$(uname -s)" == "Darwin" ]]; then
                 [[ -d "/Applications/Google Chrome.app" ]]
             else
                 command -v google-chrome >/dev/null 2>&1
             fi
+            ;;
+        codex)
+            command -v codex >/dev/null 2>&1 || [[ -x "$HOME/.nodenv/shims/codex" ]]
             ;;
         bleachbit)
             command -v bleachbit >/dev/null 2>&1
@@ -306,7 +314,7 @@ is_component_supported() {
             [[ "$os" == "Linux" ]]
             ;;
         # macOS only (no Linux desktop app)
-        linear|claude-desktop)
+        chatgpt|linear|claude-desktop)
             [[ "$os" == "Darwin" ]]
             ;;
         # All other components are cross-platform

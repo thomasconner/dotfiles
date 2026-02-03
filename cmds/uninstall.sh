@@ -20,6 +20,20 @@ uninstall_1password() {
     fi
 }
 
+uninstall_bleachbit() {
+    log_info "Uninstalling BleachBit..."
+    if [[ "$OS" == "linux" ]]; then
+        log_info "Remove bleachbit via your package manager"
+    fi
+}
+
+uninstall_chatgpt() {
+    log_info "Uninstalling ChatGPT..."
+    if [[ "$OS" == "macos" ]]; then
+        run_cmd brew uninstall --cask chatgpt || log_warning "Could not uninstall via brew"
+    fi
+}
+
 uninstall_chrome() {
     log_info "Uninstalling Chrome..."
     if [[ "$OS" == "macos" ]]; then
@@ -40,6 +54,17 @@ uninstall_claude_desktop() {
     log_info "Uninstalling Claude Desktop..."
     if [[ "$OS" == "macos" ]]; then
         run_cmd brew uninstall --cask claude || log_warning "Could not uninstall via brew"
+    fi
+}
+
+uninstall_codex() {
+    log_info "Uninstalling Codex CLI..."
+    if [[ "$OS" == "macos" ]]; then
+        run_cmd brew uninstall --cask codex || log_warning "Could not uninstall via brew"
+    else
+        if command -v npm >/dev/null 2>&1; then
+            run_cmd npm uninstall -g @openai/codex || true
+        fi
     fi
 }
 
@@ -314,12 +339,15 @@ run_uninstall() {
     case "$component" in
         1password)       uninstall_1password ;;
         age)             uninstall_age ;;
+        bleachbit)       uninstall_bleachbit ;;
         btop)            uninstall_btop ;;
         bun)             uninstall_bun ;;
+        chatgpt)         uninstall_chatgpt ;;
         chrome)          uninstall_chrome ;;
         cleanmymac)      uninstall_cleanmymac ;;
         claude-code)     uninstall_claude_code ;;
         claude-desktop)  uninstall_claude_desktop ;;
+        codex)           uninstall_codex ;;
         dbeaver)         uninstall_dbeaver ;;
         docker)          uninstall_docker ;;
         doctl)           uninstall_doctl ;;
