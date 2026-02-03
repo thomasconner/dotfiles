@@ -65,21 +65,34 @@ cmd_info() {
     fi
     echo "  CPU Cores:       $cpu_cores"
 
-    # Memory (round to nearest GB)
+    # Memory (snap to nearest standard RAM size)
     local mem_display
+    snap_to_standard_ram() {
+        local gb=$1
+        # Standard RAM sizes
+        local sizes=(4 8 16 32 64 128 256 512 1024)
+        for size in "${sizes[@]}"; do
+            # If within 10% of a standard size, snap to it
+            if (( gb >= size * 90 / 100 && gb <= size * 110 / 100 )); then
+                echo "$size"
+                return
+            fi
+        done
+        echo "$gb"
+    }
     if [[ "$OSTYPE" == "darwin"* ]]; then
         mem_bytes=$(sysctl -n hw.memsize 2>/dev/null)
         if [[ -n "$mem_bytes" ]]; then
-            # Round to nearest GB
-            mem_gb=$(( (mem_bytes + 536870912) / 1073741824 ))
+            mem_gb=$(( mem_bytes / 1073741824 ))
+            mem_gb=$(snap_to_standard_ram "$mem_gb")
             mem_display="${mem_gb} GB"
         else
             mem_display="unknown"
         fi
     elif [[ -f /proc/meminfo ]]; then
         mem_kb=$(grep MemTotal /proc/meminfo | awk '{print $2}')
-        # Round to nearest GB (1 GB = 1048576 KB, add half for rounding)
-        mem_gb=$(( (mem_kb + 524288) / 1048576 ))
+        mem_gb=$(( mem_kb / 1048576 ))
+        mem_gb=$(snap_to_standard_ram "$mem_gb")
         mem_display="${mem_gb} GB"
     else
         mem_display="unknown"
