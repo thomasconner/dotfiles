@@ -6,246 +6,142 @@ OS=$(detect_os)
 PKG_MGR=$(get_package_manager)
 
 # ============================================================================
-# Helper: git pull default branch
+# Version detection helpers
 # ============================================================================
+
+get_apt_upgradable() {
+    apt list --upgradable 2>/dev/null | grep -v "^Listing" | while read -r line; do
+        local pkg ver_new ver_old
+        pkg=$(echo "$line" | cut -d'/' -f1)
+        ver_new=$(echo "$line" | awk '{print $2}')
+        ver_old=$(echo "$line" | sed -n 's/.*\[\(.*\)\].*/\1/p')
+        if [[ -n "$ver_old" ]]; then
+            echo "$pkg: $ver_old → $ver_new"
+        else
+            echo "$pkg: → $ver_new"
+        fi
+    done
+}
+
+get_brew_upgradable() {
+    brew outdated --verbose 2>/dev/null | while read -r line; do
+        echo "$line" | sed 's/ (.*) < / → /' | sed 's/ \[pinned at .*\]//'
+    done
+}
+
+git_repo_has_updates() {
+    local repo_path="$1"
+    [[ -d "$repo_path/.git" ]] || return 1
+    git -C "$repo_path" fetch --quiet 2>/dev/null || return 1
+    local behind
+    behind=$(git -C "$repo_path" rev-list --count 'HEAD..@{upstream}' 2>/dev/null) || return 1
+    [[ "$behind" -gt 0 ]]
+}
 
 git_pull_default_branch() {
     local repo_path="$1"
     local name="$2"
-
-    if [[ ! -d "$repo_path/.git" ]]; then
-        log_warning "$name: Not a git repository"
-        return 1
-    fi
-
+    [[ -d "$repo_path/.git" ]] || return 1
     local default_branch
     default_branch=$(git -C "$repo_path" symbolic-ref refs/remotes/origin/HEAD 2>/dev/null | sed 's@^refs/remotes/origin/@@')
-    if [[ -z "$default_branch" ]]; then
-        default_branch="main"
-    fi
-
+    [[ -z "$default_branch" ]] && default_branch="main"
     git -C "$repo_path" pull origin "$default_branch" --ff-only 2>/dev/null || \
         log_warning "$name: Could not pull (may have local changes)"
 }
 
 # ============================================================================
-# System Upgrade Functions
+# System Upgrade
 # ============================================================================
 
 upgrade_system_packages() {
-    log_step "Upgrading System Packages"
-
     case "$PKG_MGR" in
         apt)
-            log_info "Upgrading apt packages..."
             run_cmd maybe_sudo apt full-upgrade -y --fix-missing
-
-            log_info "Removing unnecessary packages..."
-            run_cmd maybe_sudo apt autoremove -y
-
-            log_info "Cleaning package cache..."
-            run_cmd maybe_sudo apt autoclean
+            run_cmd maybe_sudo apt autoremove -y --quiet
+            run_cmd maybe_sudo apt autoclean --quiet
             ;;
         dnf)
-            log_info "Upgrading dnf packages..."
             run_cmd maybe_sudo dnf upgrade -y
-
-            log_info "Removing unnecessary packages..."
             run_cmd maybe_sudo dnf autoremove -y
             ;;
         pacman)
-            log_info "Upgrading pacman packages..."
             run_cmd maybe_sudo pacman -Syu --noconfirm
-
-            log_info "Removing orphaned packages..."
             run_cmd maybe_sudo pacman -Rns "$(pacman -Qtdq)" --noconfirm 2>/dev/null || true
             ;;
         brew)
-            log_info "Upgrading Homebrew packages..."
             run_cmd brew upgrade
-
-            log_info "Upgrading casks..."
-            if [[ "$DRY_RUN" == "true" ]]; then
-                log_info "[DRY-RUN] Would run: brew upgrade --cask"
-            else
-                brew upgrade --cask 2>&1 | while read -r line; do
-                    if [[ "$line" == *"has been disabled"* ]] || [[ "$line" == *"Error"* ]]; then
-                        log_warning "$line"
-                    else
-                        echo "$line"
-                    fi
-                done || true
-            fi
-
-            log_info "Cleaning up old versions..."
-            run_cmd brew cleanup
-            ;;
-        pkg)
-            log_info "Upgrading FreeBSD packages..."
-            run_cmd maybe_sudo pkg upgrade -y
-            run_cmd maybe_sudo pkg autoremove -y
-            ;;
-        *)
-            log_warning "Unknown package manager: $PKG_MGR"
+            brew upgrade --cask 2>/dev/null || true
+            run_cmd brew cleanup --quiet
             ;;
     esac
-
-    log_success "System packages upgraded"
 }
 
 # ============================================================================
-# Component Upgrade Functions
+# Component-specific upgrades (only for components with special upgrade needs)
 # ============================================================================
 
+check_zsh_updates() {
+    is_component_installed "zsh" || return 1
+    git_repo_has_updates "$HOME/.oh-my-zsh" && return 0
+    git_repo_has_updates "$HOME/.zsh/pure" && return 0
+    return 1
+}
+
 upgrade_zsh() {
-    if ! is_component_installed "zsh"; then
-        return
-    fi
+    is_component_installed "zsh" || return
+    [[ -d "$HOME/.oh-my-zsh/.git" ]] && git_pull_default_branch "$HOME/.oh-my-zsh" "Oh My Zsh"
+    [[ -d "$HOME/.oh-my-zsh/custom/plugins/zsh-autosuggestions/.git" ]] && \
+        git_pull_default_branch "$HOME/.oh-my-zsh/custom/plugins/zsh-autosuggestions" "zsh-autosuggestions"
+    [[ -d "$HOME/.oh-my-zsh/custom/plugins/zsh-completions/.git" ]] && \
+        git_pull_default_branch "$HOME/.oh-my-zsh/custom/plugins/zsh-completions" "zsh-completions"
+    [[ -d "$HOME/.zsh/pure/.git" ]] && git_pull_default_branch "$HOME/.zsh/pure" "Pure prompt"
+}
 
-    log_info "Upgrading zsh components..."
-
-    # Oh My Zsh
-    if [[ -d "$HOME/.oh-my-zsh/.git" ]]; then
-        if [[ "$DRY_RUN" == "true" ]]; then
-            log_info "[DRY-RUN] Would update Oh My Zsh"
-        else
-            git_pull_default_branch "$HOME/.oh-my-zsh" "Oh My Zsh"
-        fi
-    fi
-
-    # Plugins
-    local plugins=(
-        "$HOME/.oh-my-zsh/custom/plugins/zsh-autosuggestions"
-        "$HOME/.oh-my-zsh/custom/plugins/zsh-completions"
-    )
-
-    for plugin_dir in "${plugins[@]}"; do
-        if [[ -d "$plugin_dir/.git" ]]; then
-            local plugin_name
-            plugin_name=$(basename "$plugin_dir")
-            if [[ "$DRY_RUN" == "true" ]]; then
-                log_info "[DRY-RUN] Would update $plugin_name"
-            else
-                git_pull_default_branch "$plugin_dir" "$plugin_name"
-            fi
-        fi
-    done
-
-    # Pure prompt
-    if [[ -d "$HOME/.zsh/pure/.git" ]]; then
-        if [[ "$DRY_RUN" == "true" ]]; then
-            log_info "[DRY-RUN] Would update Pure prompt"
-        else
-            git_pull_default_branch "$HOME/.zsh/pure" "Pure prompt"
-        fi
-    fi
+check_node_updates() {
+    is_component_installed "node" || return 1
+    git_repo_has_updates "$HOME/.nodenv" && return 0
+    git_repo_has_updates "$HOME/.nodenv/plugins/node-build" && return 0
+    return 1
 }
 
 upgrade_node() {
-    if ! is_component_installed "node"; then
-        return
-    fi
+    is_component_installed "node" || return
+    [[ -d "$HOME/.nodenv/.git" ]] && git_pull_default_branch "$HOME/.nodenv" "nodenv"
+    [[ -d "$HOME/.nodenv/plugins/node-build/.git" ]] && \
+        git_pull_default_branch "$HOME/.nodenv/plugins/node-build" "node-build"
+}
 
-    log_info "Upgrading node components..."
-
-    # Update nodenv if installed via git
-    if [[ -d "$HOME/.nodenv/.git" ]]; then
-        if [[ "$DRY_RUN" == "true" ]]; then
-            log_info "[DRY-RUN] Would update nodenv"
-        else
-            git_pull_default_branch "$HOME/.nodenv" "nodenv"
-            if [[ -d "$HOME/.nodenv/plugins/node-build/.git" ]]; then
-                git_pull_default_branch "$HOME/.nodenv/plugins/node-build" "node-build"
-            fi
-        fi
-    fi
-
-    # Update npm packages
-    if command -v npm >/dev/null 2>&1; then
-        if [[ "$DRY_RUN" == "true" ]]; then
-            log_info "[DRY-RUN] Would run: npm update -g"
-        else
-            npm update -g 2>/dev/null || log_warning "Could not update npm global packages"
-        fi
-    fi
+check_ruby_updates() {
+    is_component_installed "ruby" || return 1
+    git_repo_has_updates "$HOME/.rbenv" && return 0
+    git_repo_has_updates "$HOME/.rbenv/plugins/ruby-build" && return 0
+    return 1
 }
 
 upgrade_ruby() {
-    if ! is_component_installed "ruby"; then
-        return
-    fi
+    is_component_installed "ruby" || return
+    [[ -d "$HOME/.rbenv/.git" ]] && git_pull_default_branch "$HOME/.rbenv" "rbenv"
+    [[ -d "$HOME/.rbenv/plugins/ruby-build/.git" ]] && \
+        git_pull_default_branch "$HOME/.rbenv/plugins/ruby-build" "ruby-build"
+    command -v gem >/dev/null 2>&1 && {
+        gem update --system --silent 2>/dev/null || true
+        gem update --silent 2>/dev/null || true
+    }
+}
 
-    log_info "Upgrading ruby components..."
-
-    # Update rbenv if installed via git
-    if [[ -d "$HOME/.rbenv/.git" ]]; then
-        if [[ "$DRY_RUN" == "true" ]]; then
-            log_info "[DRY-RUN] Would update rbenv"
-        else
-            git_pull_default_branch "$HOME/.rbenv" "rbenv"
-            if [[ -d "$HOME/.rbenv/plugins/ruby-build/.git" ]]; then
-                git_pull_default_branch "$HOME/.rbenv/plugins/ruby-build" "ruby-build"
-            fi
-        fi
-    fi
-
-    # Update gems
-    if command -v gem >/dev/null 2>&1; then
-        if [[ "$DRY_RUN" == "true" ]]; then
-            log_info "[DRY-RUN] Would update gems"
-        else
-            gem update --system 2>/dev/null || log_warning "Could not update RubyGems"
-            gem update 2>/dev/null || log_warning "Could not update gems"
-        fi
-    fi
+check_bun_updates() {
+    is_component_installed "bun" || return 1
+    command -v bun >/dev/null 2>&1 || return 1
+    # Bun doesn't have a good way to check without upgrading
+    return 1
 }
 
 upgrade_bun() {
-    if ! is_component_installed "bun"; then
-        return
-    fi
-
-    log_info "Upgrading bun..."
-
-    if [[ "$DRY_RUN" == "true" ]]; then
-        log_info "[DRY-RUN] Would run: bun upgrade"
-    else
-        if command -v bun >/dev/null 2>&1; then
-            bun upgrade 2>/dev/null || log_warning "Could not upgrade bun"
-        elif [[ -x "$HOME/.bun/bin/bun" ]]; then
-            "$HOME/.bun/bin/bun" upgrade 2>/dev/null || log_warning "Could not upgrade bun"
-        fi
-    fi
-}
-
-upgrade_gh() {
-    if ! is_component_installed "gh"; then
-        return
-    fi
-
-    log_info "Upgrading gh extensions..."
-
-    if [[ "$DRY_RUN" == "true" ]]; then
-        log_info "[DRY-RUN] Would run: gh extension upgrade --all"
-    else
-        gh extension upgrade --all 2>/dev/null || log_info "No gh extensions to update"
-    fi
-}
-
-upgrade_claude_code() {
-    if ! is_component_installed "claude-code"; then
-        return
-    fi
-
-    log_info "Upgrading claude-code..."
-
-    # Claude Code auto-updates via native installer, but we can trigger it
-    if [[ "$DRY_RUN" == "true" ]]; then
-        log_info "[DRY-RUN] Would run: claude update"
-    else
-        if command -v claude >/dev/null 2>&1; then
-            claude update 2>/dev/null || log_info "Claude Code is up to date or auto-updates"
-        fi
+    is_component_installed "bun" || return
+    if command -v bun >/dev/null 2>&1; then
+        bun upgrade 2>/dev/null || true
+    elif [[ -x "$HOME/.bun/bin/bun" ]]; then
+        "$HOME/.bun/bin/bun" upgrade 2>/dev/null || true
     fi
 }
 
@@ -255,110 +151,124 @@ upgrade_claude_code() {
 
 cmd_upgrade() {
     local skip_prompt=false
-    local components=()
 
-    # Parse subcommand arguments
     for arg in "$@"; do
         case "$arg" in
-            -h|--help|-v|--verbose|-n|--dry-run)
-                # Already handled by main dispatcher
-                ;;
-            -y|--yes)
-                skip_prompt=true
-                ;;
-            *)
-                components+=("$arg")
-                ;;
+            -y|--yes) skip_prompt=true ;;
         esac
     done
 
     log_step "Checking for upgrades"
-
-    if [[ "$DRY_RUN" == "true" ]]; then
-        log_warning "DRY-RUN MODE: No changes will be made"
-    fi
-
-    log_info "OS: $OS"
-    log_info "Package manager: $PKG_MGR"
     echo
 
-    # Determine what will be upgraded
-    local to_upgrade=()
+    # Collect what needs upgrading with version info
+    local upgrades=()
+    local has_system_updates=false
 
-    if [[ ${#components[@]} -gt 0 ]]; then
-        # Validate specified components
-        if ! validate_components "${components[@]}"; then
-            return 1
-        fi
-        for comp in "${components[@]}"; do
-            if is_component_installed "$comp"; then
-                to_upgrade+=("$comp")
-            else
-                log_warning "$comp is not installed"
+    # Check system packages
+    case "$PKG_MGR" in
+        apt)
+            maybe_sudo apt update -qq 2>/dev/null
+            local apt_updates
+            apt_updates=$(get_apt_upgradable)
+            if [[ -n "$apt_updates" ]]; then
+                has_system_updates=true
+                upgrades+=("system (apt):")
+                while IFS= read -r line; do
+                    [[ -n "$line" ]] && upgrades+=("  $line")
+                done <<< "$apt_updates"
             fi
-        done
-    else
-        # Upgrade all installed components
-        to_upgrade=("system")
-        while IFS= read -r comp; do
-            to_upgrade+=("$comp")
-        done < <(list_installed_components)
+            ;;
+        brew)
+            brew update --quiet 2>/dev/null
+            local brew_updates
+            brew_updates=$(get_brew_upgradable)
+            if [[ -n "$brew_updates" ]]; then
+                has_system_updates=true
+                upgrades+=("system (brew):")
+                while IFS= read -r line; do
+                    [[ -n "$line" ]] && upgrades+=("  $line")
+                done <<< "$brew_updates"
+            fi
+            ;;
+        dnf|pacman)
+            # These don't have easy ways to list upgradable without running upgrade
+            has_system_updates=true
+            upgrades+=("system ($PKG_MGR)")
+            ;;
+    esac
+
+    # Check component-specific updates
+    if check_zsh_updates; then
+        upgrades+=("zsh (oh-my-zsh, plugins, pure prompt)")
+    fi
+    if check_node_updates; then
+        upgrades+=("node (nodenv, node-build)")
+    fi
+    if check_ruby_updates; then
+        upgrades+=("ruby (rbenv, ruby-build, gems)")
     fi
 
-    if [[ ${#to_upgrade[@]} -eq 0 ]]; then
-        log_info "Nothing to upgrade"
+    # Nothing to upgrade?
+    if [[ ${#upgrades[@]} -eq 0 ]]; then
+        log_success "Everything is up to date"
         return 0
     fi
 
     # Show what will be upgraded
     echo "The following will be upgraded:"
-    for item in "${to_upgrade[@]}"; do
+    for item in "${upgrades[@]}"; do
         echo "  $item"
     done
     echo
 
-    # Prompt for confirmation unless -y flag
-    if [[ "$skip_prompt" != "true" ]] && [[ "$DRY_RUN" != "true" ]]; then
-        if [[ -t 0 ]]; then
-            printf "Proceed? [y/N] "
-            if ! read -r -t 30 answer || [[ ! "$answer" =~ ^[Yy]$ ]]; then
-                log_info "Aborted"
-                return 0
-            fi
-            echo
-        fi
+    # Prompt for confirmation
+    if [[ "$skip_prompt" != "true" ]] && [[ "$DRY_RUN" != "true" ]] && [[ -t 0 ]]; then
+        printf "Proceed? [y/N] "
+        read -r answer
+        [[ "$answer" =~ ^[Yy]$ ]] || { log_info "Aborted"; return 0; }
+        echo
+    fi
+
+    if [[ "$DRY_RUN" == "true" ]]; then
+        log_info "[DRY-RUN] Would upgrade the above"
+        return 0
     fi
 
     # Run upgrades
     local upgraded=()
 
-    # System packages first (if no specific components requested)
-    if [[ ${#components[@]} -eq 0 ]]; then
+    if [[ "$has_system_updates" == "true" ]]; then
+        log_step "Upgrading system packages"
         upgrade_system_packages
         upgraded+=("system")
         echo
     fi
 
-    # Component-specific upgrades
-    upgrade_zsh && upgraded+=("zsh")
-    upgrade_node && upgraded+=("node")
-    upgrade_ruby && upgraded+=("ruby")
-    upgrade_bun && upgraded+=("bun")
-    upgrade_gh && upgraded+=("gh")
-    upgrade_claude_code && upgraded+=("claude-code")
+    if check_zsh_updates 2>/dev/null; then
+        log_info "Upgrading zsh components..."
+        upgrade_zsh
+        upgraded+=("zsh")
+    fi
+
+    if check_node_updates 2>/dev/null; then
+        log_info "Upgrading node components..."
+        upgrade_node
+        upgraded+=("node")
+    fi
+
+    if check_ruby_updates 2>/dev/null; then
+        log_info "Upgrading ruby components..."
+        upgrade_ruby
+        upgraded+=("ruby")
+    fi
+
+    # Always try bun if installed (no good check available)
+    if is_component_installed "bun"; then
+        upgrade_bun && upgraded+=("bun")
+    fi
 
     echo
     log_step "Upgrade Complete"
-
-    if [[ ${#upgraded[@]} -gt 0 ]]; then
-        log_success "Upgraded: ${upgraded[*]}"
-    fi
-
-    if [[ "$DRY_RUN" == "true" ]]; then
-        log_info "This was a dry-run. Run without --dry-run to apply changes."
-    else
-        log_info "You may need to restart your shell for some changes to take effect"
-    fi
-
-    return 0
+    [[ ${#upgraded[@]} -gt 0 ]] && log_success "Upgraded: ${upgraded[*]}"
 }
