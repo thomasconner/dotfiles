@@ -3,6 +3,10 @@
 # Logging and progress indicator functions for ctdev CLI
 # Part of the Conner Technology dotfiles
 
+# Guard against multiple sourcing
+[[ -n "${_CTDEV_LOGGING_LOADED:-}" ]] && return 0
+_CTDEV_LOGGING_LOADED=1
+
 ###############################################################################
 # Color Configuration
 ###############################################################################
