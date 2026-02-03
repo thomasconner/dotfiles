@@ -41,7 +41,7 @@ ctdev setup                     # Symlink ctdev to ~/.local/bin
 | --------- | --------------------------------------------------------------------------------------------------------- |
 | `zsh`     | Zsh, Oh My Zsh, Pure prompt, plugins                                                                      |
 | `git`     | Git configuration and global gitignore                                                                    |
-| `cli`     | CLI tools (jq, gh, kubectl, helm, terraform, btop, docker, git-spice, etc.)                               |
+| `cli`     | CLI tools (jq, gh, kubectl, helm, terraform, btop, docker, git-spice, bun, etc.)                               |
 | `claude`  | Claude Code configuration (CLAUDE.md, settings)                                                           |
 | `node`    | Node.js via nodenv                                                                                        |
 | `ruby`    | Ruby via rbenv                                                                                            |

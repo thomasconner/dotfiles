@@ -25,5 +25,6 @@ log_step "Installing CLI tools"
 "$SCRIPT_DIR/tmux/install.sh"
 "$SCRIPT_DIR/git-spice.sh"
 "$SCRIPT_DIR/claude-code.sh"
+"$SCRIPT_DIR/bun.sh"
 
 log_success "CLI tools installation complete"

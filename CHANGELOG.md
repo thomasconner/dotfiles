@@ -2,6 +2,11 @@
 
 All notable changes to this project will be documented in this file.
 
+## [6.1.0] - 2026-02-02
+
+### Added
+- Bun JavaScript runtime installer (macOS via Homebrew, Linux via official installer)
+
 ## [6.0.1] - 2026-01-31
 
 ### Fixed

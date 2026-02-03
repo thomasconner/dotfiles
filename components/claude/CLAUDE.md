@@ -22,9 +22,20 @@
 - Use the humanizer skill to write comments that explain the "why" behind complex code
 - Don't write unnecessary comments for self-explanatory code
 
+### Go Specific
+
+- Use `inst` as the receiver name instead of single letters (e.g., `func (inst *Handler)` not `func (h *Handler)`)
+- Don't use sleeps for timing in tests. Use channels and waitgroups instead to synchronize goroutines.
+
 ## Communication
 
 - Be concise and direct
 - Skip unnecessary preamble
 - When uncertain, ask rather than assume
 - Don't be lazy. If you don't know something, look it up or ask me.
+
+## Blue-Water-Autonomony PowerModule
+
+- Ask me to run commands for: tests, builds, code generation, git operations
+- I have a terminal open in the devcontainer and will run them manually
+- Don't run these commands directly via Bash tool - just tell me what to run
