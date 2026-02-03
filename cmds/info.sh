@@ -111,6 +111,9 @@ cmd_info() {
     if command -v df >/dev/null 2>&1; then
         local disk_used disk_total disk_percent
         read -r disk_total disk_used disk_percent <<< "$(df -h / 2>/dev/null | awk 'NR==2 {print $2, $3, $5}')"
+        # Format: 1.8T -> 1.8 TB, 500G -> 500 GB
+        disk_total=$(echo "$disk_total" | sed 's/T$/ TB/; s/G$/ GB/; s/M$/ MB/')
+        disk_used=$(echo "$disk_used" | sed 's/T$/ TB/; s/G$/ GB/; s/M$/ MB/')
         echo "  Disk (/):        $disk_used / $disk_total ($disk_percent used)"
     fi
 
