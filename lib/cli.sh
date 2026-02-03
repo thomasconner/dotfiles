@@ -199,31 +199,6 @@ Options:
 EOF
 }
 
-# Show help for macos command
-show_macos_help() {
-    cat << 'EOF'
-ctdev macos - Configure macOS system defaults
-
-Usage: ctdev macos [OPTIONS]
-
-Configures macOS system preferences:
-- Dock: hide recent apps, speed up animations
-- Finder: show extensions, path bar, status bar
-- Keyboard: disable smart quotes/dashes, fast key repeat
-- Security: require password immediately after sleep
-
-Options:
-    --reset          Reset to macOS system defaults
-    -h, --help       Show this help message
-    -n, --dry-run    Preview changes without applying
-
-Examples:
-    ctdev macos              Apply preferred settings
-    ctdev macos --reset      Reset to Apple defaults
-    ctdev macos --dry-run    Preview changes
-EOF
-}
-
 # Show help for configure command
 show_configure_help() {
     cat << 'EOF'
@@ -238,6 +213,7 @@ Targets:
 Git Options:
     --name NAME      Set git user.name
     --email EMAIL    Set git user.email
+    --local          Configure for current repo only (not global)
 
 macOS Options:
     --reset          Reset to macOS system defaults
@@ -247,7 +223,8 @@ General Options:
     -n, --dry-run    Preview changes without applying
 
 Examples:
-    ctdev configure git                       Interactive git configuration
+    ctdev configure git                       Interactive git configuration (global)
+    ctdev configure git --local               Configure git for current repo only
     ctdev configure git --name "Name" --email "email@example.com"
     ctdev configure macos                     Apply macOS preferences
     ctdev configure macos --reset             Reset to Apple defaults
@@ -339,7 +316,7 @@ parse_global_flags() {
 # Validate that a command exists
 require_command() {
     local cmd="$1"
-    local valid_commands="install uninstall update upgrade list info configure macos gpu"
+    local valid_commands="install uninstall update upgrade list info configure gpu"
 
     if [[ -z "$cmd" ]]; then
         return 1

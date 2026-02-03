@@ -5,6 +5,7 @@ set -euo pipefail
 # Usage: configure.sh [OPTIONS]
 #   --name NAME       Set git user.name
 #   --email EMAIL     Set git user.email
+#   --local           Configure for current repo only (not global)
 #   --skip            Skip if already configured (for install)
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
@@ -15,6 +16,7 @@ source "$DOTFILES_ROOT/lib/utils.sh"
 GIT_USER_NAME=""
 GIT_USER_EMAIL=""
 SKIP_IF_CONFIGURED=false
+LOCAL_CONFIG=false
 
 # Parse arguments
 while [[ $# -gt 0 ]]; do
@@ -26,6 +28,10 @@ while [[ $# -gt 0 ]]; do
         --email)
             GIT_USER_EMAIL="$2"
             shift 2
+            ;;
+        --local)
+            LOCAL_CONFIG=true
+            shift
             ;;
         --skip)
             SKIP_IF_CONFIGURED=true
@@ -45,16 +51,23 @@ validate_email() {
 
 # Get current git user configuration
 get_current_git_user() {
+    local scope="$1"
     local name email
-    name=$(git config --global user.name 2>/dev/null || echo "")
-    email=$(git config --global user.email 2>/dev/null || echo "")
+    if [[ "$scope" == "local" ]]; then
+        name=$(git config --local user.name 2>/dev/null || echo "")
+        email=$(git config --local user.email 2>/dev/null || echo "")
+    else
+        name=$(git config --global user.name 2>/dev/null || echo "")
+        email=$(git config --global user.email 2>/dev/null || echo "")
+    fi
     echo "$name|$email"
 }
 
-# Configure git user in ~/.gitconfig
+# Configure git user
 configure_git_user() {
     local name="$1"
     local email="$2"
+    local scope="$3"
 
     if [[ -z "$name" ]]; then
         log_error "Git user name cannot be empty"
@@ -71,23 +84,38 @@ configure_git_user() {
     fi
 
     if [[ "${DRY_RUN:-false}" == "true" ]]; then
-        log_info "[DRY-RUN] Would configure git user: $name <$email>"
+        log_info "[DRY-RUN] Would configure git user ($scope): $name <$email>"
         return 0
     fi
 
-    git config --global user.name "$name"
-    git config --global user.email "$email"
-
-    log_success "Git user configured: $name <$email>"
+    if [[ "$scope" == "local" ]]; then
+        git config --local user.name "$name"
+        git config --local user.email "$email"
+        log_success "Git user configured (local): $name <$email>"
+    else
+        git config --global user.name "$name"
+        git config --global user.email "$email"
+        log_success "Git user configured (global): $name <$email>"
+    fi
 }
 
 # Prompt for git user info interactively
 prompt_git_user() {
+    local scope="$1"
     local current_name current_email
-    IFS='|' read -r current_name current_email <<< "$(get_current_git_user)"
+    IFS='|' read -r current_name current_email <<< "$(get_current_git_user "$scope")"
+
+    # If local and no local config, show global as default
+    if [[ "$scope" == "local" && -z "$current_name" ]]; then
+        IFS='|' read -r current_name current_email <<< "$(get_current_git_user "global")"
+    fi
 
     echo ""
-    log_info "Git user configuration"
+    if [[ "$scope" == "local" ]]; then
+        log_info "Git user configuration (local - this repo only)"
+    else
+        log_info "Git user configuration (global)"
+    fi
     echo ""
 
     # Prompt for name
@@ -107,23 +135,35 @@ prompt_git_user() {
     fi
 }
 
+# Determine scope
+if [[ "$LOCAL_CONFIG" == "true" ]]; then
+    SCOPE="local"
+    # Check if we're in a git repo
+    if ! git rev-parse --git-dir >/dev/null 2>&1; then
+        log_error "Not in a git repository. --local requires being in a git repo."
+        exit 1
+    fi
+else
+    SCOPE="global"
+fi
+
 # Main logic
-IFS='|' read -r current_name current_email <<< "$(get_current_git_user)"
+IFS='|' read -r current_name current_email <<< "$(get_current_git_user "$SCOPE")"
 
 # Skip if already configured and --skip was passed
 if [[ "$SKIP_IF_CONFIGURED" == "true" && -n "$current_name" && -n "$current_email" ]]; then
-    log_info "Git user already configured: $current_name <$current_email>"
+    log_info "Git user already configured ($SCOPE): $current_name <$current_email>"
     exit 0
 fi
 
 # If name and email provided via args, use them
 if [[ -n "$GIT_USER_NAME" && -n "$GIT_USER_EMAIL" ]]; then
-    configure_git_user "$GIT_USER_NAME" "$GIT_USER_EMAIL"
+    configure_git_user "$GIT_USER_NAME" "$GIT_USER_EMAIL" "$SCOPE"
 elif [[ -t 0 ]]; then
     # Interactive terminal - prompt for input
-    prompt_git_user
+    prompt_git_user "$SCOPE"
     if [[ -n "$GIT_USER_NAME" && -n "$GIT_USER_EMAIL" ]]; then
-        configure_git_user "$GIT_USER_NAME" "$GIT_USER_EMAIL"
+        configure_git_user "$GIT_USER_NAME" "$GIT_USER_EMAIL" "$SCOPE"
     else
         log_error "Name and email are required"
         exit 1

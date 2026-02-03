@@ -48,13 +48,15 @@ fonts, git, node, ruby, zsh
 ## Examples
 
 ```bash
-ctdev install zsh git       # Install shell and git config
-ctdev install node bun      # Install Node.js and Bun
-ctdev list                  # Show all components with status
-ctdev upgrade               # Upgrade all installed components
-ctdev upgrade -y            # Upgrade without prompting
-ctdev macos                 # Configure macOS defaults
-ctdev macos --reset         # Reset macOS defaults
+ctdev install zsh git            # Install shell and git config
+ctdev install node bun           # Install Node.js and Bun
+ctdev list                       # Show all components with status
+ctdev upgrade                    # Upgrade all installed components
+ctdev upgrade -y                 # Upgrade without prompting
+ctdev configure git              # Configure git user (global)
+ctdev configure git --local      # Configure git for current repo
+ctdev configure macos            # Configure macOS defaults
+ctdev configure macos --reset    # Reset macOS defaults
 ```
 
 ## DevContainers
@@ -93,7 +95,6 @@ dotfiles/
 - `components/zsh/aliases.zsh` - Command aliases
 - `components/zsh/exports.zsh` - Environment variables
 - `components/zsh/path.zsh` - PATH configuration
-- `~/.gitconfig.local` - Git user config (auto-generated)
 
 ## Uninstall
 

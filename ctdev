@@ -77,7 +77,6 @@ if [[ "$SHOW_HELP" == "true" ]]; then
         list)      show_list_help ;;
         info)      show_info_help ;;
         configure) show_configure_help ;;
-        macos)     show_macos_help ;;
         gpu)       show_gpu_help ;;
         *)         show_main_help ;;
     esac
