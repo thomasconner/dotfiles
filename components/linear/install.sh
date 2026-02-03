@@ -18,10 +18,9 @@ if [[ "$OS" == "macos" ]]; then
     exit 0
   fi
 else
-  # Linux: Linear desktop app is macOS only
-  log_warning "Linear desktop app is only available for macOS"
-  log_info "For Linux, use Linear via web at https://linear.app"
-  exit 0
+  log_warning "Linear desktop app installation not supported on $OS"
+  log_info "Use Linear via web at https://linear.app"
+  exit 2
 fi
 
 log_info "Linear is not installed. Installing..."

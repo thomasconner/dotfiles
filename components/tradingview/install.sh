@@ -51,6 +51,6 @@ elif [[ "$OS" == "ubuntu" || "$OS" == "debian" ]]; then
 
 else
   log_warning "TradingView desktop app installation not supported on $OS"
-  log_info "For other platforms, download from https://www.tradingview.com/desktop/"
-  exit 0
+  log_info "Download from https://www.tradingview.com/desktop/"
+  exit 2
 fi

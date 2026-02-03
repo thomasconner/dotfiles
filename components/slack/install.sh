@@ -34,9 +34,9 @@ if [[ "$OS" == "macos" ]]; then
 elif [[ "$PM" == "apt" ]]; then
   # Debian/Ubuntu: Download and install .deb package
   if [[ "$ARCH" != "amd64" ]]; then
-    log_warning "Slack .deb is only available for amd64 architecture"
-    log_info "Your architecture: $ARCH - please install Slack via snap or web"
-    exit 0
+    log_warning "Slack installation not supported on $ARCH architecture"
+    log_info "Install Slack via snap or use https://slack.com"
+    exit 2
   fi
   ensure_wget_installed
 

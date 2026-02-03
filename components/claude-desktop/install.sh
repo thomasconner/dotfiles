@@ -19,9 +19,9 @@ if [[ "$OS" == "macos" ]]; then
   fi
 else
   # Linux: Claude desktop app is currently macOS only
-  log_warning "Claude desktop app is currently only available for macOS"
-  log_info "For Linux, use Claude via web at https://claude.ai"
-  exit 0
+  log_warning "Claude desktop app installation not supported on $OS"
+  log_info "Use Claude via web at https://claude.ai"
+  exit 2
 fi
 
 log_info "Claude is not installed. Installing..."

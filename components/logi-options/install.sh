@@ -19,9 +19,9 @@ if [[ "$OS" == "macos" ]]; then
   fi
 else
   # Linux: Logi Options+ is macOS/Windows only
-  log_warning "Logi Options+ is only available for macOS and Windows"
-  log_info "For Linux Logitech device support, consider Solaar: https://pwr-solaar.github.io/Solaar/"
-  exit 0
+  log_warning "Logi Options+ installation not supported on $OS"
+  log_info "For Linux, consider Solaar: https://pwr-solaar.github.io/Solaar/"
+  exit 2
 fi
 
 log_info "Logi Options+ is not installed. Installing..."

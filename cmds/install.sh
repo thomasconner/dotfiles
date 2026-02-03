@@ -54,6 +54,7 @@ cmd_install() {
 
     local failed=()
     local installed=()
+    local skipped=()
     local already_installed=()
 
     for component in "${components[@]}"; do
@@ -72,13 +73,23 @@ cmd_install() {
         else
             log_step "Installing $component"
 
-            if bash "$script"; then
-                installed+=("$component")
-                create_install_marker "$component"
-            else
-                log_error "Failed to install $component"
-                failed+=("$component")
-            fi
+            local exit_code=0
+            bash "$script" || exit_code=$?
+
+            case $exit_code in
+                0)
+                    installed+=("$component")
+                    create_install_marker "$component"
+                    ;;
+                2)
+                    # Exit code 2 = skipped (not supported on this platform)
+                    skipped+=("$component")
+                    ;;
+                *)
+                    log_error "Failed to install $component"
+                    failed+=("$component")
+                    ;;
+            esac
         fi
 
         echo ""
@@ -95,11 +106,12 @@ cmd_install() {
         log_info "Already installed: ${already_installed[*]}"
     fi
 
-    if [[ ${#failed[@]} -gt 0 ]]; then
-        log_error "Failed: ${failed[*]}"
+    if [[ ${#skipped[@]} -gt 0 ]]; then
+        log_info "Skipped (not supported): ${skipped[*]}"
     fi
 
     if [[ ${#failed[@]} -gt 0 ]]; then
+        log_error "Failed: ${failed[*]}"
         return 1
     fi
 

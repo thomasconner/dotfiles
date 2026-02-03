@@ -34,9 +34,9 @@ if [[ "$OS" == "macos" ]]; then
 elif [[ "$PM" == "apt" ]]; then
   # Debian/Ubuntu: Download and install .deb package
   if [[ "$ARCH" != "amd64" ]]; then
-    log_warning "Google Chrome .deb is only available for amd64 architecture"
-    log_info "Your architecture: $ARCH - please install Chrome manually or use Chromium"
-    exit 0
+    log_warning "Google Chrome installation not supported on $ARCH architecture"
+    log_info "Install Chrome manually or use Chromium"
+    exit 2
   fi
   ensure_wget_installed
 

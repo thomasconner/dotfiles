@@ -122,7 +122,11 @@ is_component_installed() {
             fi
             ;;
         cleanmymac)
-            [[ -d "/Applications/CleanMyMac X.app" ]]
+            if [[ "$(uname -s)" == "Darwin" ]]; then
+                [[ -d "/Applications/CleanMyMac.app" ]] || [[ -d "/Applications/CleanMyMac X.app" ]]
+            else
+                command -v bleachbit >/dev/null 2>&1
+            fi
             ;;
         claude-desktop)
             [[ -d "/Applications/Claude.app" ]]
