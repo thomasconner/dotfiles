@@ -214,9 +214,11 @@ Git Options:
     --name NAME      Set git user.name
     --email EMAIL    Set git user.email
     --local          Configure for current repo only (not global)
+    --show           Show current git configuration
 
 macOS Options:
     --reset          Reset to macOS system defaults
+    --show           Show current macOS configuration
 
 General Options:
     -h, --help       Show this help message
@@ -224,9 +226,11 @@ General Options:
 
 Examples:
     ctdev configure git                       Interactive git configuration (global)
+    ctdev configure git --show                Show current git configuration
     ctdev configure git --local               Configure git for current repo only
     ctdev configure git --name "Name" --email "email@example.com"
     ctdev configure macos                     Apply macOS preferences
+    ctdev configure macos --show              Show current macOS configuration
     ctdev configure macos --reset             Reset to Apple defaults
 EOF
 }

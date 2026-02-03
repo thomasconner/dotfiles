@@ -17,6 +17,7 @@ GIT_USER_NAME=""
 GIT_USER_EMAIL=""
 SKIP_IF_CONFIGURED=false
 LOCAL_CONFIG=false
+SHOW_CONFIG=false
 
 # Parse arguments
 while [[ $# -gt 0 ]]; do
@@ -37,11 +38,48 @@ while [[ $# -gt 0 ]]; do
             SKIP_IF_CONFIGURED=true
             shift
             ;;
+        --show)
+            SHOW_CONFIG=true
+            shift
+            ;;
         *)
             shift
             ;;
     esac
 done
+
+# Show current git configuration
+show_git_config() {
+    local global_name global_email local_name local_email
+    global_name=$(git config --global user.name 2>/dev/null || echo "")
+    global_email=$(git config --global user.email 2>/dev/null || echo "")
+
+    echo ""
+    log_info "Git Configuration"
+    echo ""
+    echo "Global:"
+    if [[ -n "$global_name" || -n "$global_email" ]]; then
+        echo "  user.name:  ${global_name:-<not set>}"
+        echo "  user.email: ${global_email:-<not set>}"
+    else
+        echo "  <not configured>"
+    fi
+
+    # Show local config if in a git repo
+    if git rev-parse --git-dir >/dev/null 2>&1; then
+        local_name=$(git config --local user.name 2>/dev/null || echo "")
+        local_email=$(git config --local user.email 2>/dev/null || echo "")
+        echo ""
+        echo "Local (this repo):"
+        if [[ -n "$local_name" || -n "$local_email" ]]; then
+            echo "  user.name:  ${local_name:-<not set>}"
+            echo "  user.email: ${local_email:-<not set>}"
+        else
+            echo "  <not configured>"
+        fi
+    fi
+    echo ""
+}
 
 # Validate email format
 validate_email() {
@@ -134,6 +172,12 @@ prompt_git_user() {
         read -r -p "Enter your email: " GIT_USER_EMAIL
     fi
 }
+
+# Handle --show flag
+if [[ "$SHOW_CONFIG" == "true" ]]; then
+    show_git_config
+    exit 0
+fi
 
 # Determine scope
 if [[ "$LOCAL_CONFIG" == "true" ]]; then

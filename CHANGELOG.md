@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [7.1.0] - 2026-02-03
+
+### Added
+- `ctdev configure git --show` to display current git user configuration (global and local)
+- `ctdev configure macos --show` to display current macOS defaults (Dock, Finder, Keyboard, Dialogs, Security)
+
 ## [7.0.1] - 2026-02-03
 
 ### Fixed

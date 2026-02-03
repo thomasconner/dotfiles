@@ -20,9 +20,11 @@ Git Options:
     --name NAME      Set git user.name
     --email EMAIL    Set git user.email
     --local          Configure for current repo only (not global)
+    --show           Show current git configuration
 
 macOS Options:
     --reset          Reset to macOS system defaults
+    --show           Show current macOS configuration
 
 General Options:
     -h, --help       Show this help message
@@ -30,10 +32,12 @@ General Options:
 
 Examples:
     ctdev configure git                       Interactive git configuration (global)
+    ctdev configure git --show                Show current git configuration
     ctdev configure git --local               Configure git for current repo only
     ctdev configure git --name "Name" --email "email@example.com"
     ctdev configure git --local --name "Work Name" --email "work@example.com"
     ctdev configure macos                     Apply macOS preferences
+    ctdev configure macos --show              Show current macOS configuration
     ctdev configure macos --reset             Reset to Apple defaults
 EOF
 }
@@ -102,6 +106,7 @@ configure_git() {
 # Configure macOS
 configure_macos() {
     local reset_mode=false
+    local show_mode=false
 
     # Parse arguments
     for arg in "$@"; do
@@ -109,13 +114,16 @@ configure_macos() {
             --reset)
                 reset_mode=true
                 ;;
+            --show)
+                show_mode=true
+                ;;
             -*)
                 # Ignore other flags (handled by main dispatcher)
                 ;;
             *)
                 log_error "Unknown option: $arg"
                 echo ""
-                echo "Usage: ctdev configure macos [--reset] [--dry-run]"
+                echo "Usage: ctdev configure macos [--show] [--reset] [--dry-run]"
                 return 1
                 ;;
         esac
@@ -127,11 +135,70 @@ configure_macos() {
         return 1
     fi
 
-    if [[ "$reset_mode" == "true" ]]; then
+    if [[ "$show_mode" == "true" ]]; then
+        macos_show
+    elif [[ "$reset_mode" == "true" ]]; then
         macos_reset
     else
         macos_apply
     fi
+}
+
+macos_show() {
+    echo ""
+    log_info "macOS Configuration"
+    echo ""
+
+    # Helper to read and display a default
+    show_default() {
+        local domain="$1"
+        local key="$2"
+        local label="$3"
+        local value
+        value=$(defaults read "$domain" "$key" 2>/dev/null || echo "<system default>")
+        printf "  %-40s %s\n" "$label:" "$value"
+    }
+
+    echo "Dock:"
+    show_default "com.apple.dock" "autohide-delay" "Auto-hide delay"
+    show_default "com.apple.dock" "autohide-time-modifier" "Auto-hide animation"
+    show_default "com.apple.dock" "launchanim" "Launch animation"
+    show_default "com.apple.dock" "show-recents" "Show recent apps"
+    show_default "com.apple.dock" "minimize-to-application" "Minimize to app"
+    echo ""
+
+    echo "Finder:"
+    show_default "NSGlobalDomain" "AppleShowAllExtensions" "Show all extensions"
+    show_default "com.apple.finder" "ShowPathbar" "Show path bar"
+    show_default "com.apple.finder" "ShowStatusBar" "Show status bar"
+    show_default "com.apple.desktopservices" "DSDontWriteNetworkStores" "No .DS_Store on network"
+    show_default "com.apple.desktopservices" "DSDontWriteUSBStores" "No .DS_Store on USB"
+    show_default "com.apple.finder" "FXDefaultSearchScope" "Default search scope"
+    show_default "com.apple.finder" "FXPreferredViewStyle" "Preferred view style"
+    show_default "com.apple.finder" "QuitMenuItem" "Allow quit"
+    echo ""
+
+    echo "Keyboard:"
+    show_default "NSGlobalDomain" "NSAutomaticQuoteSubstitutionEnabled" "Smart quotes"
+    show_default "NSGlobalDomain" "NSAutomaticDashSubstitutionEnabled" "Smart dashes"
+    show_default "NSGlobalDomain" "NSAutomaticSpellingCorrectionEnabled" "Auto-correct"
+    show_default "NSGlobalDomain" "NSAutomaticCapitalizationEnabled" "Auto-capitalize"
+    show_default "NSGlobalDomain" "NSAutomaticPeriodSubstitutionEnabled" "Double-space period"
+    show_default "NSGlobalDomain" "KeyRepeat" "Key repeat rate"
+    show_default "NSGlobalDomain" "InitialKeyRepeat" "Initial key repeat delay"
+    echo ""
+
+    echo "Dialogs:"
+    show_default "NSGlobalDomain" "NSNavPanelExpandedStateForSaveMode" "Expand save dialogs"
+    show_default "NSGlobalDomain" "NSNavPanelExpandedStateForSaveMode2" "Expand save dialogs 2"
+    show_default "NSGlobalDomain" "PMPrintingExpandedStateForPrint" "Expand print dialogs"
+    show_default "NSGlobalDomain" "PMPrintingExpandedStateForPrint2" "Expand print dialogs 2"
+    echo ""
+
+    echo "Security:"
+    show_default "com.apple.screensaver" "askForPassword" "Require password"
+    show_default "com.apple.screensaver" "askForPasswordDelay" "Password delay (seconds)"
+    echo ""
 }
 
 macos_apply() {
