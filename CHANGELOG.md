@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [7.1.1] - 2026-02-04
+
+### Fixed
+- `ctdev configure git` no longer fails with "unbound variable" when called without arguments
+- `ctdev info` now shows accurate disk usage on macOS APFS volumes (uses diskutil instead of df)
+
 ## [7.1.0] - 2026-02-03
 
 ### Added
