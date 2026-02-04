@@ -14,14 +14,13 @@ cmd_list() {
     for component in "${COMPONENTS[@]}"; do
         IFS=':' read -r name desc _script <<< "$component"
 
-        # Skip components not supported on this OS
-        if ! is_component_supported "$name"; then
-            continue
-        fi
-
         local status_text status_color
 
-        if is_component_installed "$name"; then
+        # Check OS support first
+        if ! is_component_supported "$name"; then
+            status_text="not supported"
+            status_color="$GREY"
+        elif is_component_installed "$name"; then
             # Check if updates available (for components that support it)
             if has_updates_available "$name"; then
                 status_text="installed (update available)"

@@ -34,16 +34,18 @@ ctdev configure macos           # Configure macOS defaults
 
 ## Components
 
-31 components available. Run `ctdev list` to see all with status.
+34 components available. Run `ctdev list` to see all with status.
 
 **Desktop Applications:**
-1password, chrome, cleanmymac, claude-desktop, dbeaver, ghostty, linear, logi-options, slack, tradingview, vscode
+1password, chatgpt, chrome, cleanmymac, claude-desktop, dbeaver, ghostty, linear, logi-options, slack, tradingview, vscode
 
 **CLI Tools:**
-age, btop, bun, claude-code, docker, doctl, gh, git-spice, helm, jq, kubectl, shellcheck, sops, terraform, tmux
+age, bleachbit, btop, bun, claude-code, codex, docker, doctl, gh, git-spice, helm, jq, kubectl, shellcheck, sops, terraform, tmux
 
 **Configuration & Languages:**
 fonts, git, node, ruby, zsh
+
+Components are defined in `lib/components.sh`. Each component has an `install.sh` and `uninstall.sh` in `components/<name>/`.
 
 ## Examples
 

@@ -129,22 +129,6 @@ upgrade_ruby() {
     }
 }
 
-check_bun_updates() {
-    is_component_installed "bun" || return 1
-    command -v bun >/dev/null 2>&1 || return 1
-    # Bun doesn't have a good way to check without upgrading
-    return 1
-}
-
-upgrade_bun() {
-    is_component_installed "bun" || return
-    if command -v bun >/dev/null 2>&1; then
-        bun upgrade 2>/dev/null || true
-    elif [[ -x "$HOME/.bun/bin/bun" ]]; then
-        "$HOME/.bun/bin/bun" upgrade 2>/dev/null || true
-    fi
-}
-
 # ============================================================================
 # Main command
 # ============================================================================
@@ -263,12 +247,12 @@ cmd_upgrade() {
         upgraded+=("ruby")
     fi
 
-    # Always try bun if installed (no good check available)
-    if is_component_installed "bun"; then
-        upgrade_bun && upgraded+=("bun")
-    fi
-
     echo
     log_step "Upgrade Complete"
     [[ ${#upgraded[@]} -gt 0 ]] && log_success "Upgraded: ${upgraded[*]}"
+
+    # Remind about manual upgrades
+    if is_component_installed "bun"; then
+        log_info "To upgrade bun: bun upgrade"
+    fi
 }

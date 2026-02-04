@@ -19,16 +19,16 @@ ctdev configure macos           # Configure macOS defaults (macOS only)
 
 ## Components
 
-31 flat components (run `ctdev list` to see all):
+34 components (run `ctdev list` to see all):
 
-1password, age, btop, bun, chrome, cleanmymac, claude-code, claude-desktop, dbeaver, docker, doctl, fonts, gh, ghostty, git, git-spice, helm, jq, kubectl, linear, logi-options, node, ruby, shellcheck, slack, sops, terraform, tmux, tradingview, vscode, zsh
+1password, age, bleachbit, btop, bun, chatgpt, chrome, cleanmymac, claude-code, claude-desktop, codex, dbeaver, docker, doctl, fonts, gh, ghostty, git, git-spice, helm, jq, kubectl, linear, logi-options, node, ruby, shellcheck, slack, sops, terraform, tmux, tradingview, vscode, zsh
 
 ## Directory structure
 
 ```
 lib/           Shared utilities (logging, platform detection, packages)
 cmds/          CLI command implementations
-components/    Installable components (one dir per component with install.sh)
+components/    Installable components (one dir per component with install.sh and uninstall.sh)
 ```
 
 ## Key utilities
@@ -72,6 +72,32 @@ else
     install_package <name>
 fi
 ```
+
+Create `components/<name>/uninstall.sh`:
+
+```bash
+#!/usr/bin/env bash
+set -euo pipefail
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+DOTFILES_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
+source "$DOTFILES_ROOT/lib/utils.sh"
+
+OS=$(detect_os)
+PM=$(get_package_manager)
+
+log_info "Uninstalling <name>..."
+
+if [[ "$OS" == "macos" ]]; then
+    run_cmd brew uninstall <name> || true
+elif [[ "$PM" == "apt" ]]; then
+    run_cmd maybe_sudo apt remove -y <name> || true
+fi
+```
+
+Exit codes for uninstall scripts:
+- `0`: success
+- `2`: unsupported on this OS (component will be skipped)
 
 Then add to `lib/components.sh` COMPONENTS array.
 
