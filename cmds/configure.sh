@@ -77,10 +77,10 @@ cmd_configure() {
 
     case "$target" in
         git)
-            configure_git "${args[@]}"
+            configure_git ${args[@]+"${args[@]}"}
             ;;
         macos)
-            configure_macos "${args[@]}"
+            configure_macos ${args[@]+"${args[@]}"}
             ;;
         *)
             log_error "Unknown target: $target"

@@ -117,8 +117,21 @@ cmd_info() {
     fi
 
     # Disk (root filesystem) - show used/total and percentage
-    if command -v df >/dev/null 2>&1; then
-        local disk_used disk_total disk_percent
+    local disk_used disk_total disk_percent
+    if [[ "$OSTYPE" == "darwin"* ]]; then
+        # macOS APFS: df reports misleading numbers, use diskutil instead
+        local container_total container_free
+        container_total=$(diskutil info / 2>/dev/null | grep "Container Total Space" | awk -F'[()]' '{print $2}' | awk '{print $1}')
+        container_free=$(diskutil info / 2>/dev/null | grep "Container Free Space" | awk -F'[()]' '{print $2}' | awk '{print $1}')
+        if [[ -n "$container_total" && -n "$container_free" ]]; then
+            local used_bytes=$(( container_total - container_free ))
+            # Convert to human readable
+            disk_total=$(echo "$container_total" | awk '{printf "%.0f GB", $1/1000000000}')
+            disk_used=$(echo "$used_bytes" | awk '{printf "%.0f GB", $1/1000000000}')
+            disk_percent=$(awk "BEGIN {printf \"%.0f%%\", ($used_bytes/$container_total)*100}")
+            echo "  Disk (/):        $disk_used / $disk_total ($disk_percent used)"
+        fi
+    elif command -v df >/dev/null 2>&1; then
         read -r disk_total disk_used disk_percent <<< "$(df -h / 2>/dev/null | awk 'NR==2 {print $2, $3, $5}')"
         # Format: 1.8T -> 1.8 TB, 500G -> 500 GB
         disk_total=$(echo "$disk_total" | sed 's/T$/ TB/; s/G$/ GB/; s/M$/ MB/')
