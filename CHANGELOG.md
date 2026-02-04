@@ -2,6 +2,23 @@
 
 All notable changes to this project will be documented in this file.
 
+## [7.2.0] - 2026-02-04
+
+### Added
+- Per-component `uninstall.sh` scripts for all 34 components
+- `ctdev list` now shows unsupported components with "not supported" status
+- `ctdev uninstall` summary now shows skipped (unsupported) components separately
+
+### Changed
+- `ctdev uninstall` refactored to dispatch to component scripts (464 → 140 lines)
+- `ctdev upgrade` no longer auto-upgrades bun (no reliable update detection)
+- `ctdev upgrade` now shows reminder: "To upgrade bun: bun upgrade"
+- Uninstall scripts now use `apt remove` on Linux instead of just logging
+- Updated README and CLAUDE.md with correct component count (34)
+
+### Removed
+- Monolithic uninstall functions from `cmds/uninstall.sh`
+
 ## [7.1.1] - 2026-02-04
 
 ### Fixed
