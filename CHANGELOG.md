@@ -2,6 +2,19 @@
 
 All notable changes to this project will be documented in this file.
 
+## [7.3.0] - 2026-02-05
+
+### Added
+- `ctdev configure linux-mint` command for configuring Linux Mint (Cinnamon) system defaults
+  - Power: performance profile, display/inactive sleep timers, lock on suspend
+  - Screensaver: idle delay, lock settings
+  - Keyboard: repeat rate, repeat delay, numlock state
+  - Mouse: flat acceleration, speed, natural scroll
+  - Sound: disable event sounds
+  - Nemo: list view default
+- `ctdev configure linux-mint --show` to display current settings
+- `ctdev configure linux-mint --reset` to reset to Cinnamon defaults
+
 ## [7.2.0] - 2026-02-04
 
 ### Added
