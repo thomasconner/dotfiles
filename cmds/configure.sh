@@ -15,6 +15,7 @@ Usage: ctdev configure <TARGET> [OPTIONS]
 Targets:
     git              Configure git user (name and email)
     macos            Configure macOS system defaults
+    linux-mint       Configure Linux Mint system defaults
 
 Git Options:
     --name NAME      Set git user.name
@@ -25,6 +26,10 @@ Git Options:
 macOS Options:
     --reset          Reset to macOS system defaults
     --show           Show current macOS configuration
+
+Linux Mint Options:
+    --reset          Reset to Cinnamon system defaults
+    --show           Show current Linux Mint configuration
 
 General Options:
     -h, --help       Show this help message
@@ -39,6 +44,9 @@ Examples:
     ctdev configure macos                     Apply macOS preferences
     ctdev configure macos --show              Show current macOS configuration
     ctdev configure macos --reset             Reset to Apple defaults
+    ctdev configure linux-mint                Apply Linux Mint preferences
+    ctdev configure linux-mint --show         Show current Linux Mint configuration
+    ctdev configure linux-mint --reset        Reset to Cinnamon defaults
 EOF
 }
 
@@ -68,8 +76,9 @@ cmd_configure() {
         echo "Usage: ctdev configure <TARGET>"
         echo ""
         echo "Targets:"
-        echo "  git     Configure git user (name and email)"
-        echo "  macos   Configure macOS system defaults"
+        echo "  git         Configure git user (name and email)"
+        echo "  macos       Configure macOS system defaults"
+        echo "  linux-mint  Configure Linux Mint system defaults"
         echo ""
         echo "Run 'ctdev configure --help' for more information."
         return 1
@@ -82,10 +91,13 @@ cmd_configure() {
         macos)
             configure_macos ${args[@]+"${args[@]}"}
             ;;
+        linux-mint)
+            configure_linux_mint ${args[@]+"${args[@]}"}
+            ;;
         *)
             log_error "Unknown target: $target"
             echo ""
-            echo "Valid targets: git, macos"
+            echo "Valid targets: git, macos, linux-mint"
             return 1
             ;;
     esac
@@ -319,6 +331,200 @@ macos_reset() {
     killall Finder 2>/dev/null || true
 
     log_success "macOS defaults reset to system defaults"
+    log_info "Some settings may require logout/restart to take full effect"
+}
+
+# Configure Linux Mint
+configure_linux_mint() {
+    local reset_mode=false
+    local show_mode=false
+
+    # Parse arguments
+    for arg in "$@"; do
+        case "$arg" in
+            --reset)
+                reset_mode=true
+                ;;
+            --show)
+                show_mode=true
+                ;;
+            -*)
+                # Ignore other flags (handled by main dispatcher)
+                ;;
+            *)
+                log_error "Unknown option: $arg"
+                echo ""
+                echo "Usage: ctdev configure linux-mint [--show] [--reset] [--dry-run]"
+                return 1
+                ;;
+        esac
+    done
+
+    # Only run on Linux Mint
+    if [[ "$(detect_os)" != "linuxmint" ]]; then
+        log_error "This command is only available on Linux Mint"
+        return 1
+    fi
+
+    if [[ "$show_mode" == "true" ]]; then
+        linux_mint_show
+    elif [[ "$reset_mode" == "true" ]]; then
+        linux_mint_reset
+    else
+        linux_mint_apply
+    fi
+}
+
+linux_mint_show() {
+    echo ""
+    log_info "Linux Mint Configuration"
+    echo ""
+
+    show_dconf() {
+        local key="$1"
+        local label="$2"
+        local value
+        value=$(dconf read "$key" 2>/dev/null || echo "<system default>")
+        [[ -z "$value" ]] && value="<system default>"
+        printf "  %-40s %s\n" "$label:" "$value"
+    }
+
+    show_gsetting() {
+        local schema="$1"
+        local key="$2"
+        local label="$3"
+        local value
+        value=$(gsettings get "$schema" "$key" 2>/dev/null || echo "<system default>")
+        printf "  %-40s %s\n" "$label:" "$value"
+    }
+
+    echo "Power:"
+    local profile
+    profile=$(powerprofilesctl get 2>/dev/null || echo "<unavailable>")
+    printf "  %-40s %s\n" "Power profile:" "$profile"
+    show_dconf "/org/cinnamon/settings-daemon/plugins/power/sleep-display-ac" "Display sleep on AC (seconds)"
+    show_dconf "/org/cinnamon/settings-daemon/plugins/power/sleep-inactive-ac-timeout" "Inactive sleep on AC (seconds)"
+    show_dconf "/org/cinnamon/settings-daemon/plugins/power/lock-on-suspend" "Lock on suspend"
+    echo ""
+
+    echo "Screensaver:"
+    show_dconf "/org/cinnamon/desktop/session/idle-delay" "Idle delay (seconds)"
+    show_dconf "/org/cinnamon/desktop/screensaver/lock-enabled" "Lock enabled"
+    show_dconf "/org/cinnamon/desktop/screensaver/lock-delay" "Lock delay (seconds)"
+    echo ""
+
+    echo "Keyboard:"
+    show_gsetting "org.cinnamon.desktop.peripherals.keyboard" "repeat" "Key repeat"
+    show_gsetting "org.cinnamon.desktop.peripherals.keyboard" "delay" "Repeat delay (ms)"
+    show_gsetting "org.cinnamon.desktop.peripherals.keyboard" "repeat-interval" "Repeat interval (ms)"
+    show_gsetting "org.cinnamon.desktop.peripherals.keyboard" "numlock-state" "Numlock state"
+    echo ""
+
+    echo "Mouse:"
+    show_dconf "/org/cinnamon/desktop/peripherals/mouse/accel-profile" "Acceleration profile"
+    show_dconf "/org/cinnamon/desktop/peripherals/mouse/speed" "Speed"
+    show_dconf "/org/cinnamon/desktop/peripherals/mouse/natural-scroll" "Natural scroll"
+    echo ""
+
+    echo "Sound:"
+    show_dconf "/org/cinnamon/desktop/sound/event-sounds" "Event sounds"
+    echo ""
+
+    echo "Nemo (File Manager):"
+    show_dconf "/org/nemo/preferences/default-folder-viewer" "Default view"
+    echo ""
+}
+
+linux_mint_apply() {
+    log_step "Configuring Linux Mint System Defaults"
+
+    if [[ "${DRY_RUN:-false}" == "true" ]]; then
+        log_info "[DRY-RUN] Would configure Power settings (performance profile, sleep timers)"
+        log_info "[DRY-RUN] Would configure Screensaver settings (idle delay, lock)"
+        log_info "[DRY-RUN] Would configure Keyboard settings (repeat rate, numlock)"
+        log_info "[DRY-RUN] Would configure Mouse settings (acceleration, speed, natural scroll)"
+        log_info "[DRY-RUN] Would configure Sound settings (disable event sounds)"
+        log_info "[DRY-RUN] Would configure Nemo settings (list view)"
+        log_success "Linux Mint defaults would be configured"
+        return 0
+    fi
+
+    # Power Settings
+    log_info "Configuring Power..."
+    powerprofilesctl set performance
+    dconf write /org/cinnamon/settings-daemon/plugins/power/sleep-display-ac 3600
+    dconf write /org/cinnamon/settings-daemon/plugins/power/sleep-inactive-ac-timeout 2700
+    dconf write /org/cinnamon/settings-daemon/plugins/power/lock-on-suspend true
+
+    # Screensaver Settings
+    log_info "Configuring Screensaver..."
+    dconf write /org/cinnamon/desktop/session/idle-delay "uint32 1800"
+    dconf write /org/cinnamon/desktop/screensaver/lock-enabled false
+    dconf write /org/cinnamon/desktop/screensaver/lock-delay "uint32 2"
+
+    # Keyboard Settings
+    log_info "Configuring Keyboard..."
+    gsettings set org.cinnamon.desktop.peripherals.keyboard repeat true
+    gsettings set org.cinnamon.desktop.peripherals.keyboard delay 500
+    gsettings set org.cinnamon.desktop.peripherals.keyboard repeat-interval 30
+    gsettings set org.cinnamon.desktop.peripherals.keyboard numlock-state true
+
+    # Mouse Settings
+    log_info "Configuring Mouse..."
+    dconf write /org/cinnamon/desktop/peripherals/mouse/accel-profile "'flat'"
+    dconf write /org/cinnamon/desktop/peripherals/mouse/speed 0.65126050420168058
+    dconf write /org/cinnamon/desktop/peripherals/mouse/natural-scroll true
+
+    # Sound Settings
+    log_info "Configuring Sound..."
+    dconf write /org/cinnamon/desktop/sound/event-sounds false
+
+    # Nemo Settings
+    log_info "Configuring Nemo..."
+    dconf write /org/nemo/preferences/default-folder-viewer "'list-view'"
+
+    log_success "Linux Mint defaults configured"
+    log_info "Some settings may require logout/restart to take full effect"
+}
+
+linux_mint_reset() {
+    log_step "Resetting Linux Mint System Defaults"
+
+    if [[ "${DRY_RUN:-false}" == "true" ]]; then
+        log_info "[DRY-RUN] Would reset Power, Screensaver, Keyboard, Mouse, Sound, Nemo settings"
+        log_success "Linux Mint defaults would be reset"
+        return 0
+    fi
+
+    log_info "Resetting Power settings..."
+    powerprofilesctl set balanced
+    dconf reset /org/cinnamon/settings-daemon/plugins/power/sleep-display-ac
+    dconf reset /org/cinnamon/settings-daemon/plugins/power/sleep-inactive-ac-timeout
+    dconf reset /org/cinnamon/settings-daemon/plugins/power/lock-on-suspend
+
+    log_info "Resetting Screensaver settings..."
+    dconf reset /org/cinnamon/desktop/session/idle-delay
+    dconf reset /org/cinnamon/desktop/screensaver/lock-enabled
+    dconf reset /org/cinnamon/desktop/screensaver/lock-delay
+
+    log_info "Resetting Keyboard settings..."
+    gsettings reset org.cinnamon.desktop.peripherals.keyboard repeat
+    gsettings reset org.cinnamon.desktop.peripherals.keyboard delay
+    gsettings reset org.cinnamon.desktop.peripherals.keyboard repeat-interval
+    gsettings reset org.cinnamon.desktop.peripherals.keyboard numlock-state
+
+    log_info "Resetting Mouse settings..."
+    dconf reset /org/cinnamon/desktop/peripherals/mouse/accel-profile
+    dconf reset /org/cinnamon/desktop/peripherals/mouse/speed
+    dconf reset /org/cinnamon/desktop/peripherals/mouse/natural-scroll
+
+    log_info "Resetting Sound settings..."
+    dconf reset /org/cinnamon/desktop/sound/event-sounds
+
+    log_info "Resetting Nemo settings..."
+    dconf reset /org/nemo/preferences/default-folder-viewer
+
+    log_success "Linux Mint defaults reset to system defaults"
     log_info "Some settings may require logout/restart to take full effect"
 }
 

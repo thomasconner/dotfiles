@@ -39,7 +39,7 @@ Commands:
     upgrade [-y]              Upgrade installed components
     list                      List components with status
     info                      Show system information
-    configure <target>        Configure git or macos settings
+    configure <target>        Configure git, macos, or linux-mint settings
     gpu <subcommand>          Manage GPU driver signing for Secure Boot
 
 Options:
@@ -57,6 +57,7 @@ Examples:
     ctdev upgrade -y           Upgrade without prompting
     ctdev configure git        Configure git user
     ctdev configure macos      Configure macOS settings
+    ctdev configure linux-mint Configure Linux Mint settings
 
 For help on a specific command:
     ctdev COMMAND --help
@@ -209,6 +210,7 @@ Usage: ctdev configure <TARGET> [OPTIONS]
 Targets:
     git              Configure git user (name and email)
     macos            Configure macOS system defaults
+    linux-mint       Configure Linux Mint system defaults
 
 Git Options:
     --name NAME      Set git user.name
@@ -219,6 +221,10 @@ Git Options:
 macOS Options:
     --reset          Reset to macOS system defaults
     --show           Show current macOS configuration
+
+Linux Mint Options:
+    --reset          Reset to Cinnamon system defaults
+    --show           Show current Linux Mint configuration
 
 General Options:
     -h, --help       Show this help message
@@ -232,6 +238,9 @@ Examples:
     ctdev configure macos                     Apply macOS preferences
     ctdev configure macos --show              Show current macOS configuration
     ctdev configure macos --reset             Reset to Apple defaults
+    ctdev configure linux-mint                Apply Linux Mint preferences
+    ctdev configure linux-mint --show         Show current Linux Mint configuration
+    ctdev configure linux-mint --reset        Reset to Cinnamon defaults
 EOF
 }
 
