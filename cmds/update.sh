@@ -6,6 +6,16 @@ OS=$(detect_os)
 PKG_MGR=$(get_package_manager)
 
 cmd_update() {
+    local do_refresh_keys=false
+    local key_filter=()
+
+    for arg in "$@"; do
+        case "$arg" in
+            --refresh-keys) do_refresh_keys=true ;;
+            *) key_filter+=("$arg") ;;
+        esac
+    done
+
     log_step "Updating package sources"
 
     if [[ "$DRY_RUN" == "true" ]]; then
@@ -15,6 +25,18 @@ cmd_update() {
     log_info "OS: $OS"
     log_info "Package manager: $PKG_MGR"
     echo
+
+    # Refresh GPG keys if requested (apt only)
+    if [[ "$do_refresh_keys" == "true" ]]; then
+        if [[ "$PKG_MGR" == "apt" ]]; then
+            source "$DOTFILES_ROOT/lib/keys.sh"
+            log_step "Refreshing APT repository keys"
+            refresh_keys "${key_filter[@]}" || true
+            echo
+        else
+            log_warning "--refresh-keys is only supported on apt-based systems"
+        fi
+    fi
 
     # Update system package lists
     case "$PKG_MGR" in

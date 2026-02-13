@@ -128,12 +128,15 @@ Refreshes package sources without upgrading anything:
 This is a fast operation that checks for available updates.
 
 Options:
-    -h, --help       Show this help message
-    -v, --verbose    Enable verbose output
-    -n, --dry-run    Preview changes without applying
+    -h, --help                       Show this help message
+    -v, --verbose                    Enable verbose output
+    -n, --dry-run                    Preview changes without applying
+    --refresh-keys [COMPONENT...]    Re-download APT repository GPG keys
 
 Examples:
-    ctdev update               Refresh all package sources
+    ctdev update                          Refresh all package sources
+    ctdev update --refresh-keys           Refresh all GPG keys, then update
+    ctdev update --refresh-keys docker gh Refresh only docker and gh keys
 
 To actually upgrade components, use 'ctdev upgrade'.
 EOF
