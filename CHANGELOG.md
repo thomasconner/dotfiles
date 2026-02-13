@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file.
 
+## [7.4.0] - 2026-02-13
+
+### Added
+- `ctdev update --refresh-keys` to re-download expired APT repository GPG keys
+  - Supports optional component filter: `ctdev update --refresh-keys docker gh`
+  - Central key registry in `lib/keys.sh` for 6 components (docker, gh, 1password, terraform, vscode, dbeaver)
+  - Respects `--dry-run` flag
+
 ## [7.3.0] - 2026-02-05
 
 ### Added
