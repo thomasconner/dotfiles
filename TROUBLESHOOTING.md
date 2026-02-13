@@ -42,6 +42,12 @@ eval "$(/usr/local/bin/brew shellenv)"     # Intel
 
 ## Linux
 
+**Expired APT GPG key (EXPKEYSIG):** Re-download signing keys for installed components:
+```bash
+ctdev update --refresh-keys              # Refresh all keys
+ctdev update --refresh-keys docker gh    # Refresh specific components
+```
+
 **Fonts not showing:** Run `fc-cache -fv` and restart terminal.
 
 **Package manager not detected:** Run `ctdev info` to see what was detected, then install packages manually.

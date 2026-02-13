@@ -23,6 +23,7 @@ git clone https://github.com/thomasconner/dotfiles.git ~/dotfiles
 ctdev install <component...>    # Install specific components
 ctdev uninstall <component...>  # Remove specific components
 ctdev update                    # Refresh package metadata
+ctdev update --refresh-keys    # Re-download expired APT GPG keys
 ctdev upgrade [-y]              # Upgrade installed components
 ctdev list                      # List components with status
 ctdev info                      # Show system information
