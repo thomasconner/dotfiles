@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file.
 
+## [7.5.0] - 2026-02-14
+
+### Added
+- NVIDIA suspend stability in `ctdev configure linux-mint` (auto-detected when NVIDIA driver is loaded)
+  - Adds `nvidia.NVreg_PreserveVideoMemoryAllocations=1` to GRUB kernel parameters
+  - Enables `nvidia-suspend`, `nvidia-resume`, `nvidia-hibernate` systemd services
+  - Warns if `amdgpu` module is loaded on dual-GPU systems
+  - Supported in `--show`, `--reset`, and `--dry-run` modes
+- Desktop freeze troubleshooting guide for NVIDIA + dual-GPU systems in TROUBLESHOOTING.md
+
 ## [7.4.0] - 2026-02-13
 
 ### Added
