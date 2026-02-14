@@ -161,55 +161,114 @@ macos_show() {
     log_info "macOS Configuration"
     echo ""
 
-    # Helper to read and display a default
+    format_macos_bool() {
+        case "$1" in
+            1|true) echo "yes" ;;
+            0|false) echo "no" ;;
+            *) echo "$1" ;;
+        esac
+    }
+
+    format_seconds() {
+        local val="$1"
+        if [[ "$val" == "<system default>" ]]; then
+            echo "$val"
+            return
+        fi
+        if ! [[ "$val" =~ ^[0-9]+$ ]]; then
+            echo "$val"
+            return
+        fi
+        if (( val >= 3600 && val % 3600 == 0 )); then
+            echo "$(( val / 3600 )) hr"
+        elif (( val >= 60 && val % 60 == 0 )); then
+            echo "$(( val / 60 )) min"
+        elif (( val >= 60 )); then
+            echo "$(( val / 60 )) min $(( val % 60 )) sec"
+        else
+            echo "${val} sec"
+        fi
+    }
+
+    format_search_scope() {
+        case "$1" in
+            SCcf) echo "current folder" ;;
+            SCsp) echo "previous scope" ;;
+            SCev) echo "this Mac" ;;
+            *) echo "$1" ;;
+        esac
+    }
+
+    format_view_style() {
+        case "$1" in
+            Nlsv) echo "list" ;;
+            icnv) echo "icon" ;;
+            clmv) echo "column" ;;
+            glyv) echo "gallery" ;;
+            *) echo "$1" ;;
+        esac
+    }
+
+    # show_default DOMAIN KEY LABEL [FORMAT]
+    # FORMAT: raw (default), bool, seconds, float_seconds, search_scope, view_style
     show_default() {
         local domain="$1"
         local key="$2"
         local label="$3"
+        local format="${4:-raw}"
         local value
         value=$(defaults read "$domain" "$key" 2>/dev/null || echo "<system default>")
+        case "$format" in
+            bool) value=$(format_macos_bool "$value") ;;
+            seconds) value=$(format_seconds "$value") ;;
+            float_seconds)
+                [[ "$value" != "<system default>" ]] && value="${value} sec"
+                ;;
+            search_scope) value=$(format_search_scope "$value") ;;
+            view_style) value=$(format_view_style "$value") ;;
+        esac
         printf "  %-40s %s\n" "$label:" "$value"
     }
 
     echo "Dock:"
-    show_default "com.apple.dock" "autohide-delay" "Auto-hide delay"
-    show_default "com.apple.dock" "autohide-time-modifier" "Auto-hide animation"
-    show_default "com.apple.dock" "launchanim" "Launch animation"
-    show_default "com.apple.dock" "show-recents" "Show recent apps"
-    show_default "com.apple.dock" "minimize-to-application" "Minimize to app"
+    show_default "com.apple.dock" "autohide-delay" "Auto-hide delay" float_seconds
+    show_default "com.apple.dock" "autohide-time-modifier" "Auto-hide animation" float_seconds
+    show_default "com.apple.dock" "launchanim" "Launch animation" bool
+    show_default "com.apple.dock" "show-recents" "Show recent apps" bool
+    show_default "com.apple.dock" "minimize-to-application" "Minimize to app" bool
     echo ""
 
     echo "Finder:"
-    show_default "NSGlobalDomain" "AppleShowAllExtensions" "Show all extensions"
-    show_default "com.apple.finder" "ShowPathbar" "Show path bar"
-    show_default "com.apple.finder" "ShowStatusBar" "Show status bar"
-    show_default "com.apple.desktopservices" "DSDontWriteNetworkStores" "No .DS_Store on network"
-    show_default "com.apple.desktopservices" "DSDontWriteUSBStores" "No .DS_Store on USB"
-    show_default "com.apple.finder" "FXDefaultSearchScope" "Default search scope"
-    show_default "com.apple.finder" "FXPreferredViewStyle" "Preferred view style"
-    show_default "com.apple.finder" "QuitMenuItem" "Allow quit"
+    show_default "NSGlobalDomain" "AppleShowAllExtensions" "Show all extensions" bool
+    show_default "com.apple.finder" "ShowPathbar" "Show path bar" bool
+    show_default "com.apple.finder" "ShowStatusBar" "Show status bar" bool
+    show_default "com.apple.desktopservices" "DSDontWriteNetworkStores" "No .DS_Store on network" bool
+    show_default "com.apple.desktopservices" "DSDontWriteUSBStores" "No .DS_Store on USB" bool
+    show_default "com.apple.finder" "FXDefaultSearchScope" "Default search scope" search_scope
+    show_default "com.apple.finder" "FXPreferredViewStyle" "Preferred view style" view_style
+    show_default "com.apple.finder" "QuitMenuItem" "Allow quit" bool
     echo ""
 
     echo "Keyboard:"
-    show_default "NSGlobalDomain" "NSAutomaticQuoteSubstitutionEnabled" "Smart quotes"
-    show_default "NSGlobalDomain" "NSAutomaticDashSubstitutionEnabled" "Smart dashes"
-    show_default "NSGlobalDomain" "NSAutomaticSpellingCorrectionEnabled" "Auto-correct"
-    show_default "NSGlobalDomain" "NSAutomaticCapitalizationEnabled" "Auto-capitalize"
-    show_default "NSGlobalDomain" "NSAutomaticPeriodSubstitutionEnabled" "Double-space period"
+    show_default "NSGlobalDomain" "NSAutomaticQuoteSubstitutionEnabled" "Smart quotes" bool
+    show_default "NSGlobalDomain" "NSAutomaticDashSubstitutionEnabled" "Smart dashes" bool
+    show_default "NSGlobalDomain" "NSAutomaticSpellingCorrectionEnabled" "Auto-correct" bool
+    show_default "NSGlobalDomain" "NSAutomaticCapitalizationEnabled" "Auto-capitalize" bool
+    show_default "NSGlobalDomain" "NSAutomaticPeriodSubstitutionEnabled" "Double-space period" bool
     show_default "NSGlobalDomain" "KeyRepeat" "Key repeat rate"
     show_default "NSGlobalDomain" "InitialKeyRepeat" "Initial key repeat delay"
     echo ""
 
     echo "Dialogs:"
-    show_default "NSGlobalDomain" "NSNavPanelExpandedStateForSaveMode" "Expand save dialogs"
-    show_default "NSGlobalDomain" "NSNavPanelExpandedStateForSaveMode2" "Expand save dialogs 2"
-    show_default "NSGlobalDomain" "PMPrintingExpandedStateForPrint" "Expand print dialogs"
-    show_default "NSGlobalDomain" "PMPrintingExpandedStateForPrint2" "Expand print dialogs 2"
+    show_default "NSGlobalDomain" "NSNavPanelExpandedStateForSaveMode" "Expand save dialogs" bool
+    show_default "NSGlobalDomain" "NSNavPanelExpandedStateForSaveMode2" "Expand save dialogs 2" bool
+    show_default "NSGlobalDomain" "PMPrintingExpandedStateForPrint" "Expand print dialogs" bool
+    show_default "NSGlobalDomain" "PMPrintingExpandedStateForPrint2" "Expand print dialogs 2" bool
     echo ""
 
     echo "Security:"
-    show_default "com.apple.screensaver" "askForPassword" "Require password"
-    show_default "com.apple.screensaver" "askForPasswordDelay" "Password delay (seconds)"
+    show_default "com.apple.screensaver" "askForPassword" "Require password" bool
+    show_default "com.apple.screensaver" "askForPasswordDelay" "Password delay" seconds
     echo ""
 }
 
@@ -380,12 +439,73 @@ linux_mint_show() {
     log_info "Linux Mint Configuration"
     echo ""
 
+    # Strip type prefixes (uint32, int32) and surrounding quotes from raw values
+    clean_value() {
+        local val="$1"
+        val="${val#uint32 }"
+        val="${val#int32 }"
+        val="${val#int64 }"
+        val="${val#\'}"
+        val="${val%\'}"
+        echo "$val"
+    }
+
+    format_bool() {
+        local val
+        val=$(clean_value "$1")
+        case "$val" in
+            true) echo "yes" ;;
+            false) echo "no" ;;
+            *) echo "$val" ;;
+        esac
+    }
+
+    format_seconds() {
+        local val
+        val=$(clean_value "$1")
+        if [[ "$val" == "<system default>" || "$val" == "<unavailable>" ]]; then
+            echo "$val"
+            return
+        fi
+        if ! [[ "$val" =~ ^[0-9]+$ ]]; then
+            echo "$val"
+            return
+        fi
+        if (( val >= 3600 && val % 3600 == 0 )); then
+            echo "$(( val / 3600 )) hr"
+        elif (( val >= 60 && val % 60 == 0 )); then
+            echo "$(( val / 60 )) min"
+        elif (( val >= 60 )); then
+            echo "$(( val / 60 )) min $(( val % 60 )) sec"
+        else
+            echo "${val} sec"
+        fi
+    }
+
+    # show_dconf KEY LABEL [FORMAT]
+    # FORMAT: raw (default), bool, seconds, ms, speed
     show_dconf() {
         local key="$1"
         local label="$2"
+        local format="${3:-raw}"
         local value
         value=$(dconf read "$key" 2>/dev/null || echo "<system default>")
         [[ -z "$value" ]] && value="<system default>"
+        case "$format" in
+            bool) value=$(format_bool "$value") ;;
+            seconds) value=$(format_seconds "$value") ;;
+            ms)
+                value=$(clean_value "$value")
+                [[ "$value" != "<system default>" ]] && value="${value} ms"
+                ;;
+            speed)
+                value=$(clean_value "$value")
+                if [[ "$value" != "<system default>" ]]; then
+                    value=$(awk "BEGIN { printf \"%.0f%%\", $value * 100 }")
+                fi
+                ;;
+            *) value=$(clean_value "$value") ;;
+        esac
         printf "  %-40s %s\n" "$label:" "$value"
     }
 
@@ -393,8 +513,18 @@ linux_mint_show() {
         local schema="$1"
         local key="$2"
         local label="$3"
+        local format="${4:-raw}"
         local value
         value=$(gsettings get "$schema" "$key" 2>/dev/null || echo "<system default>")
+        case "$format" in
+            bool) value=$(format_bool "$value") ;;
+            seconds) value=$(format_seconds "$value") ;;
+            ms)
+                value=$(clean_value "$value")
+                [[ "$value" != "<system default>" ]] && value="${value} ms"
+                ;;
+            *) value=$(clean_value "$value") ;;
+        esac
         printf "  %-40s %s\n" "$label:" "$value"
     }
 
@@ -402,32 +532,32 @@ linux_mint_show() {
     local profile
     profile=$(powerprofilesctl get 2>/dev/null || echo "<unavailable>")
     printf "  %-40s %s\n" "Power profile:" "$profile"
-    show_dconf "/org/cinnamon/settings-daemon/plugins/power/sleep-display-ac" "Display sleep on AC (seconds)"
-    show_dconf "/org/cinnamon/settings-daemon/plugins/power/sleep-inactive-ac-timeout" "Inactive sleep on AC (seconds)"
-    show_dconf "/org/cinnamon/settings-daemon/plugins/power/lock-on-suspend" "Lock on suspend"
+    show_dconf "/org/cinnamon/settings-daemon/plugins/power/sleep-display-ac" "Display sleep on AC" seconds
+    show_dconf "/org/cinnamon/settings-daemon/plugins/power/sleep-inactive-ac-timeout" "Inactive sleep on AC" seconds
+    show_dconf "/org/cinnamon/settings-daemon/plugins/power/lock-on-suspend" "Lock on suspend" bool
     echo ""
 
     echo "Screensaver:"
-    show_dconf "/org/cinnamon/desktop/session/idle-delay" "Idle delay (seconds)"
-    show_dconf "/org/cinnamon/desktop/screensaver/lock-enabled" "Lock enabled"
-    show_dconf "/org/cinnamon/desktop/screensaver/lock-delay" "Lock delay (seconds)"
+    show_dconf "/org/cinnamon/desktop/session/idle-delay" "Idle delay" seconds
+    show_dconf "/org/cinnamon/desktop/screensaver/lock-enabled" "Lock enabled" bool
+    show_dconf "/org/cinnamon/desktop/screensaver/lock-delay" "Lock delay" seconds
     echo ""
 
     echo "Keyboard:"
-    show_gsetting "org.cinnamon.desktop.peripherals.keyboard" "repeat" "Key repeat"
-    show_gsetting "org.cinnamon.desktop.peripherals.keyboard" "delay" "Repeat delay (ms)"
-    show_gsetting "org.cinnamon.desktop.peripherals.keyboard" "repeat-interval" "Repeat interval (ms)"
-    show_gsetting "org.cinnamon.desktop.peripherals.keyboard" "numlock-state" "Numlock state"
+    show_gsetting "org.cinnamon.desktop.peripherals.keyboard" "repeat" "Key repeat" bool
+    show_gsetting "org.cinnamon.desktop.peripherals.keyboard" "delay" "Repeat delay" ms
+    show_gsetting "org.cinnamon.desktop.peripherals.keyboard" "repeat-interval" "Repeat interval" ms
+    show_gsetting "org.cinnamon.desktop.peripherals.keyboard" "numlock-state" "Numlock state" bool
     echo ""
 
     echo "Mouse:"
     show_dconf "/org/cinnamon/desktop/peripherals/mouse/accel-profile" "Acceleration profile"
-    show_dconf "/org/cinnamon/desktop/peripherals/mouse/speed" "Speed"
-    show_dconf "/org/cinnamon/desktop/peripherals/mouse/natural-scroll" "Natural scroll"
+    show_dconf "/org/cinnamon/desktop/peripherals/mouse/speed" "Speed" speed
+    show_dconf "/org/cinnamon/desktop/peripherals/mouse/natural-scroll" "Natural scroll" bool
     echo ""
 
     echo "Sound:"
-    show_dconf "/org/cinnamon/desktop/sound/event-sounds" "Event sounds"
+    show_dconf "/org/cinnamon/desktop/sound/event-sounds" "Event sounds" bool
     echo ""
 
     echo "Nemo (File Manager):"
