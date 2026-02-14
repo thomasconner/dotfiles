@@ -60,6 +60,7 @@ ctdev upgrade -y                 # Upgrade without prompting
 ctdev configure git              # Configure git user (global)
 ctdev configure git --local      # Configure git for current repo
 ctdev configure macos            # Configure macOS defaults
+ctdev configure macos --show     # Show current macOS settings
 ctdev configure macos --reset    # Reset macOS defaults
 ctdev configure linux-mint       # Configure Linux Mint + NVIDIA suspend
 ctdev configure linux-mint --show # Show current Linux Mint settings
