@@ -433,6 +433,23 @@ linux_mint_show() {
     echo "Nemo (File Manager):"
     show_dconf "/org/nemo/preferences/default-folder-viewer" "Default view"
     echo ""
+
+    if lsmod | grep -q "^nvidia "; then
+        echo "NVIDIA Suspend:"
+        local cmdline
+        cmdline=$(cat /proc/cmdline 2>/dev/null || echo "")
+        if echo "$cmdline" | grep -q "NVreg_PreserveVideoMemoryAllocations=1"; then
+            printf "  %-40s %s\n" "PreserveVideoMemoryAllocations:" "enabled"
+        else
+            printf "  %-40s %s\n" "PreserveVideoMemoryAllocations:" "not set"
+        fi
+        for svc in nvidia-suspend nvidia-resume nvidia-hibernate; do
+            local state
+            state=$(systemctl is-enabled "${svc}.service" 2>/dev/null || echo "not found")
+            printf "  %-40s %s\n" "${svc}.service:" "$state"
+        done
+        echo ""
+    fi
 }
 
 linux_mint_apply() {
@@ -445,6 +462,9 @@ linux_mint_apply() {
         log_info "[DRY-RUN] Would configure Mouse settings (acceleration, speed, natural scroll)"
         log_info "[DRY-RUN] Would configure Sound settings (disable event sounds)"
         log_info "[DRY-RUN] Would configure Nemo settings (list view)"
+        if lsmod | grep -q "^nvidia "; then
+            log_info "[DRY-RUN] Would configure NVIDIA suspend (GRUB parameter, systemd services)"
+        fi
         log_success "Linux Mint defaults would be configured"
         return 0
     fi
@@ -483,8 +503,39 @@ linux_mint_apply() {
     log_info "Configuring Nemo..."
     dconf write /org/nemo/preferences/default-folder-viewer "'list-view'"
 
+    # NVIDIA Suspend Stability (only if NVIDIA driver is loaded)
+    if lsmod | grep -q "^nvidia "; then
+        log_info "Configuring NVIDIA suspend stability..."
+
+        # Add PreserveVideoMemoryAllocations kernel parameter to GRUB
+        local grub_file="/etc/default/grub"
+        local nvidia_param="nvidia.NVreg_PreserveVideoMemoryAllocations=1"
+        if [[ -f "$grub_file" ]] && ! grep -q "$nvidia_param" "$grub_file"; then
+            log_info "Adding $nvidia_param to GRUB..."
+            maybe_sudo sed -i "s/\\(GRUB_CMDLINE_LINUX_DEFAULT=\"[^\"]*\\)\"/\\1 ${nvidia_param}\"/" "$grub_file"
+            maybe_sudo update-grub
+        else
+            log_info "NVIDIA GRUB parameter already configured"
+        fi
+
+        # Enable NVIDIA suspend/resume/hibernate services
+        for svc in nvidia-suspend nvidia-resume nvidia-hibernate; do
+            if systemctl list-unit-files "${svc}.service" &>/dev/null; then
+                maybe_sudo systemctl enable "${svc}.service" 2>/dev/null || true
+            fi
+        done
+        log_success "NVIDIA suspend stability configured"
+    fi
+
     log_success "Linux Mint defaults configured"
     log_info "Some settings may require logout/restart to take full effect"
+
+    # Hint about manual steps that can't be automated
+    if lsmod | grep -q "^amdgpu "; then
+        log_warning "amdgpu module is loaded — if you have a dual-GPU system (Ryzen iGPU + NVIDIA),"
+        log_warning "consider disabling the iGPU in BIOS to prevent suspend/freeze issues."
+        log_warning "See: TROUBLESHOOTING.md → Linux → Desktop Freezes"
+    fi
 }
 
 linux_mint_reset() {
@@ -492,6 +543,9 @@ linux_mint_reset() {
 
     if [[ "${DRY_RUN:-false}" == "true" ]]; then
         log_info "[DRY-RUN] Would reset Power, Screensaver, Keyboard, Mouse, Sound, Nemo settings"
+        if lsmod | grep -q "^nvidia "; then
+            log_info "[DRY-RUN] Would reset NVIDIA suspend settings (GRUB parameter, systemd services)"
+        fi
         log_success "Linux Mint defaults would be reset"
         return 0
     fi
@@ -523,6 +577,19 @@ linux_mint_reset() {
 
     log_info "Resetting Nemo settings..."
     dconf reset /org/nemo/preferences/default-folder-viewer
+
+    if lsmod | grep -q "^nvidia "; then
+        log_info "Resetting NVIDIA suspend settings..."
+        local grub_file="/etc/default/grub"
+        local nvidia_param="nvidia.NVreg_PreserveVideoMemoryAllocations=1"
+        if [[ -f "$grub_file" ]] && grep -q "$nvidia_param" "$grub_file"; then
+            maybe_sudo sed -i "s/ ${nvidia_param}//" "$grub_file"
+            maybe_sudo update-grub
+        fi
+        for svc in nvidia-suspend nvidia-resume nvidia-hibernate; do
+            maybe_sudo systemctl disable "${svc}.service" 2>/dev/null || true
+        done
+    fi
 
     log_success "Linux Mint defaults reset to system defaults"
     log_info "Some settings may require logout/restart to take full effect"
