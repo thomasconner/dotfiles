@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file.
 
+## [7.5.1] - 2026-02-14
+
+### Fixed
+- `ctdev configure --show` output now human-readable for both macOS and Linux Mint
+  - Booleans display as `yes`/`no` instead of `true`/`false`/`0`/`1`
+  - Time values display as `30 min`, `1 hr` instead of raw seconds with `uint32` prefixes
+  - Mouse speed displays as `65%` instead of raw float
+  - macOS Finder codes translated to names (`current folder`, `list`)
+  - Quotes and type annotations stripped from all values
+
 ## [7.5.0] - 2026-02-14
 
 ### Added
