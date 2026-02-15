@@ -2,6 +2,17 @@
 
 All notable changes to this project will be documented in this file.
 
+## [7.6.0] - 2026-02-14
+
+### Added
+- Zsh tab completion for `ctdev` CLI
+  - Completes all commands, global flags, and command-specific options
+  - Component names with descriptions for `install`, `uninstall`, and `upgrade`
+  - Configure targets (`git`, `macos`, `linux-mint`) with per-target flags
+  - GPU subcommands (`status`, `setup`, `sign`, `info`)
+  - Dynamically reads components from `lib/components.sh`
+  - Installed via `ctdev install zsh`, symlinked to `~/.zfunc/_ctdev`
+
 ## [7.5.1] - 2026-02-14
 
 ### Fixed
