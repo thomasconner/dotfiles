@@ -66,6 +66,10 @@ safe_symlink "$HOME/.zsh/pure/async.zsh" "$HOME/.zsh/functions/async"
 
 log_success "Pure prompt installed"
 
+# ctdev completions
+mkdir -p "$HOME/.zfunc"
+safe_symlink "$SCRIPT_DIR/completions/_ctdev" "$HOME/.zfunc/_ctdev"
+
 safe_symlink "$SCRIPT_DIR/aliases.zsh" "$HOME/.oh-my-zsh/custom/aliases.zsh"
 safe_symlink "$SCRIPT_DIR/exports.zsh" "$HOME/.oh-my-zsh/custom/exports.zsh"
 safe_symlink "$SCRIPT_DIR/path.zsh" "$HOME/.zsh/path.zsh"

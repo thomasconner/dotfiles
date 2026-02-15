@@ -1,0 +1,142 @@
+#compdef ctdev
+
+# Zsh completion for ctdev CLI
+# Symlinked to ~/.zfunc/_ctdev by components/zsh/install.sh
+
+_ctdev_components() {
+    local -a components
+    local dotfiles_root
+
+    # Find lib/components.sh relative to the ctdev binary
+    local ctdev_bin="${commands[ctdev]:-$(whence -p ctdev 2>/dev/null)}"
+    if [[ -n "$ctdev_bin" ]]; then
+        # Resolve symlinks to find the real dotfiles root
+        dotfiles_root="${ctdev_bin:A:h}"
+    fi
+
+    local components_file="${dotfiles_root}/lib/components.sh"
+
+    if [[ -f "$components_file" ]]; then
+        # Parse name:description from COMPONENTS array
+        while IFS=: read -r name desc _; do
+            components+=("${name}:${desc}")
+        done < <(awk -F'"' '/^[[:space:]]+"/{print $2}' "$components_file")
+    fi
+
+    _describe -t components 'component' components
+}
+
+_ctdev_configure_targets() {
+    local -a targets
+    targets=(
+        'git:Configure git user (name and email)'
+        'macos:Configure macOS system defaults'
+        'linux-mint:Configure Linux Mint system defaults'
+    )
+    _describe -t targets 'target' targets
+}
+
+_ctdev_configure_git_opts() {
+    _arguments -s \
+        '--name[Set git user.name]:name' \
+        '--email[Set git user.email]:email' \
+        '--local[Configure for current repo only]' \
+        '--show[Show current git configuration]' \
+        '(-h --help)'{-h,--help}'[Show help]'
+}
+
+_ctdev_configure_macos_opts() {
+    _arguments -s \
+        '--reset[Reset to macOS system defaults]' \
+        '--show[Show current macOS configuration]' \
+        '(-h --help)'{-h,--help}'[Show help]'
+}
+
+_ctdev_configure_linux_mint_opts() {
+    _arguments -s \
+        '--reset[Reset to Cinnamon system defaults]' \
+        '--show[Show current Linux Mint configuration]' \
+        '(-h --help)'{-h,--help}'[Show help]'
+}
+
+_ctdev_gpu_subcommands() {
+    local -a subcommands
+    subcommands=(
+        'status:Check secure boot and driver signing status'
+        'setup:Configure MOK signing for NVIDIA drivers'
+        'sign:Sign current NVIDIA kernel modules'
+        'info:Show GPU hardware information'
+    )
+    _describe -t subcommands 'subcommand' subcommands
+}
+
+_ctdev() {
+    local -a global_flags
+    global_flags=(
+        '(-h --help)'{-h,--help}'[Show help]'
+        '(-v --verbose)'{-v,--verbose}'[Enable verbose output]'
+        '(-n --dry-run)'{-n,--dry-run}'[Preview changes without applying]'
+        '(-f --force)'{-f,--force}'[Force re-run install scripts]'
+        '--version[Show version information]'
+    )
+
+    local -a commands
+    commands=(
+        'install:Install specific components'
+        'uninstall:Remove specific components'
+        'update:Refresh package metadata'
+        'upgrade:Upgrade installed components'
+        'list:List components with status'
+        'info:Show system information'
+        'configure:Configure git, macOS, or Linux Mint settings'
+        'gpu:Manage GPU driver signing for Secure Boot'
+    )
+
+    _arguments -s \
+        "${global_flags[@]}" \
+        '1:command:->command' \
+        '*::arg:->args'
+
+    case "$state" in
+        command)
+            _describe -t commands 'ctdev command' commands
+            ;;
+        args)
+            case "${words[1]}" in
+                install|uninstall)
+                    _arguments -s \
+                        "${global_flags[@]}" \
+                        '*:component:_ctdev_components'
+                    ;;
+                upgrade)
+                    _arguments -s \
+                        "${global_flags[@]}" \
+                        '(-y --yes)'{-y,--yes}'[Skip confirmation prompt]' \
+                        '*:component:_ctdev_components'
+                    ;;
+                update)
+                    _arguments -s \
+                        "${global_flags[@]}" \
+                        '--refresh-keys[Re-download APT repository GPG keys]'
+                    ;;
+                configure)
+                    local target="${words[2]}"
+                    case "$target" in
+                        git) _ctdev_configure_git_opts ;;
+                        macos) _ctdev_configure_macos_opts ;;
+                        linux-mint) _ctdev_configure_linux_mint_opts ;;
+                        *) _ctdev_configure_targets ;;
+                    esac
+                    ;;
+                gpu)
+                    _ctdev_gpu_subcommands
+                    ;;
+                list|info)
+                    _arguments -s "${global_flags[@]}"
+                    ;;
+            esac
+            ;;
+    esac
+}
+
+_ctdev "$@"

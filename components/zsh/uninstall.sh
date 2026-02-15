@@ -18,6 +18,7 @@ fi
 [[ -d "$HOME/.zsh/pure" ]] && run_cmd rm -rf "$HOME/.zsh/pure"
 [[ -d "$HOME/.oh-my-zsh/custom/plugins/zsh-autosuggestions" ]] && run_cmd rm -rf "$HOME/.oh-my-zsh/custom/plugins/zsh-autosuggestions"
 [[ -d "$HOME/.oh-my-zsh/custom/plugins/zsh-completions" ]] && run_cmd rm -rf "$HOME/.oh-my-zsh/custom/plugins/zsh-completions"
+[[ -L "$HOME/.zfunc/_ctdev" ]] && run_cmd rm -f "$HOME/.zfunc/_ctdev"
 [[ -L "$HOME/.zshrc" ]] && run_cmd rm -f "$HOME/.zshrc"
 
 log_info "Oh My Zsh kept. Run 'uninstall_oh_my_zsh' to remove it."
