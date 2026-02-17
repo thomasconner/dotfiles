@@ -2,6 +2,11 @@
 
 All notable changes to this project will be documented in this file.
 
+## [7.6.1] - 2026-02-17
+
+### Fixed
+- Removed SSH URL rewrite from gitconfig that forced HTTPS clones to use SSH
+
 ## [7.6.0] - 2026-02-14
 
 ### Added
