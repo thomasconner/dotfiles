@@ -2,6 +2,23 @@
 
 All notable changes to this project will be documented in this file.
 
+## [7.7.0] - 2026-02-18
+
+### Added
+- `check_installed_cmd` and `check_installed_app` utility functions in `lib/utils.sh`
+- FORCE flag support for 9 macOS GUI app installs (1password, chrome, claude-desktop, cleanmymac, dbeaver, linear, logi-options, slack, vscode)
+- Documented `ctdev gpu`, `ctdev configure linux-mint`, and `--refresh-keys` flag in CLAUDE.md
+
+### Changed
+- Refactored 23 component install scripts to use shared `check_installed_cmd`/`check_installed_app` utilities
+- Standardized initial logging to `log_info` across all components (was mixed `log_step`/`log_info`)
+
+### Fixed
+- TradingView macOS install now uses Homebrew cask instead of manual DMG download
+- Ghostty and tmux install scripts had wrong `DOTFILES_ROOT` path (`../../..` instead of `../..`)
+- Ghostty macOS install now uses `install_brew_cask` instead of raw `brew install --cask`
+- TradingView quarantine flag removed after install to prevent macOS Gatekeeper hang
+
 ## [7.6.1] - 2026-02-17
 
 ### Fixed
