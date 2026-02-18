@@ -10,10 +10,7 @@ source "$DOTFILES_ROOT/lib/utils.sh"
 OS=$(detect_os)
 PM=$(get_package_manager)
 
-# Install Ghostty if not present
-if [[ "${FORCE:-false}" != "true" ]] && command -v ghostty >/dev/null 2>&1; then
-  log_info "Ghostty is already installed: $(ghostty --version)"
-else
+if ! check_installed_cmd "ghostty" "ghostty --version"; then
   log_info "Installing Ghostty"
 
   if [[ "$OS" == "macos" ]]; then

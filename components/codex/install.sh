@@ -8,11 +8,7 @@ source "$DOTFILES_ROOT/lib/utils.sh"
 
 log_info "Installing OpenAI Codex CLI"
 
-# Check if already installed
-if [[ "${FORCE:-false}" != "true" ]] && command -v codex >/dev/null 2>&1; then
-    log_info "Codex CLI is already installed"
-    exit 0
-fi
+check_installed_cmd "codex" && exit 0
 
 OS=$(detect_os)
 

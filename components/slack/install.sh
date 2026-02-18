@@ -13,17 +13,10 @@ OS=$(detect_os)
 ARCH=$(detect_arch)
 PM=$(get_package_manager)
 
-# Check if Slack is already installed
 if [[ "$OS" == "macos" ]]; then
-  if [[ -d "/Applications/Slack.app" ]]; then
-    log_info "Slack is already installed"
-    exit 0
-  fi
+  check_installed_app "Slack" && exit 0
 else
-  if command -v slack >/dev/null 2>&1; then
-    log_info "Slack is already installed: $(slack --version 2>/dev/null || echo 'version unknown')"
-    exit 0
-  fi
+  check_installed_cmd "slack" "slack --version" && exit 0
 fi
 
 log_info "Slack is not installed. Installing..."

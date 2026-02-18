@@ -12,12 +12,7 @@ log_info "Installing doctl (DigitalOcean CLI)"
 OS=$(detect_os)
 ARCH=$(detect_arch)
 
-if [[ "${FORCE:-false}" != "true" ]]; then
-    if command -v doctl >/dev/null 2>&1; then
-        log_info "doctl is already installed: $(doctl version | head -n1)"
-        exit 0
-    fi
-fi
+check_installed_cmd "doctl" "doctl version" && exit 0
 
 log_info "doctl is not installed. Installing..."
 

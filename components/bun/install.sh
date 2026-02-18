@@ -11,12 +11,7 @@ log_info "Installing Bun"
 
 OS=$(detect_os)
 
-if [[ "${FORCE:-false}" != "true" ]]; then
-    if command -v bun >/dev/null 2>&1; then
-        log_info "Bun is already installed: $(bun --version)"
-        exit 0
-    fi
-fi
+check_installed_cmd "bun" "bun --version" && exit 0
 
 log_info "Bun is not installed. Installing..."
 

@@ -13,11 +13,7 @@ OS=$(detect_os)
 LINUX_DEB_URL="https://tvd-packages.tradingview.com/stable/latest/linux/TradingView.deb"
 
 if [[ "$OS" == "macos" ]]; then
-  # Check if already installed
-  if [[ "${FORCE:-false}" != "true" ]] && [[ -d "/Applications/TradingView.app" ]]; then
-    log_info "TradingView already installed"
-    exit 0
-  fi
+  check_installed_app "TradingView" && exit 0
 
   install_brew_cask tradingview
 

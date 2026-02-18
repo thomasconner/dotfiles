@@ -41,7 +41,7 @@ while [[ $# -gt 0 ]]; do
     esac
 done
 
-log_step "Installing git configuration"
+log_info "Installing git configuration"
 
 # Ensure git is installed
 ensure_git_installed

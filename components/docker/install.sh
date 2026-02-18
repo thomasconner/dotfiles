@@ -12,13 +12,7 @@ log_info "Installing Docker"
 OS=$(detect_os)
 PM=$(get_package_manager)
 
-# Check if Docker is already installed
-if [[ "${FORCE:-false}" != "true" ]]; then
-    if command -v docker >/dev/null 2>&1; then
-        log_info "Docker is already installed: $(docker --version)"
-        exit 0
-    fi
-fi
+check_installed_cmd "docker" "docker --version" && exit 0
 
 log_info "Docker is not installed. Installing..."
 

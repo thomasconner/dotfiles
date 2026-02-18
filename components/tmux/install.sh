@@ -9,9 +9,7 @@ source "$DOTFILES_ROOT/lib/utils.sh"
 
 log_info "Installing tmux"
 
-if [[ "${FORCE:-false}" != "true" ]] && command -v tmux >/dev/null 2>&1; then
-  log_info "tmux is already installed: $(tmux -V)"
-else
+if ! check_installed_cmd "tmux" "tmux -V"; then
   log_info "Installing tmux..."
   install_package tmux
   log_success "tmux installed: $(tmux -V)"

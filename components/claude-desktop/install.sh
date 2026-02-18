@@ -11,18 +11,13 @@ log_info "Installing Claude desktop app"
 
 OS=$(detect_os)
 
-# Check if Claude is already installed
-if [[ "$OS" == "macos" ]]; then
-  if [[ -d "/Applications/Claude.app" ]]; then
-    log_info "Claude is already installed"
-    exit 0
-  fi
-else
-  # Linux: Claude desktop app is currently macOS only
+if [[ "$OS" != "macos" ]]; then
   log_warning "Claude desktop app installation not supported on $OS"
   log_info "Use Claude via web at https://claude.ai"
   exit 2
 fi
+
+check_installed_app "Claude" && exit 0
 
 log_info "Claude is not installed. Installing..."
 

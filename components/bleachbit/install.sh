@@ -16,10 +16,7 @@ fi
 
 log_info "Installing BleachBit"
 
-if command -v bleachbit >/dev/null 2>&1; then
-  log_info "BleachBit is already installed"
-  exit 0
-fi
+check_installed_cmd "bleachbit" && exit 0
 
 install_package bleachbit
 log_success "BleachBit installed"

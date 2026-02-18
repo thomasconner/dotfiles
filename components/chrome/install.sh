@@ -13,17 +13,10 @@ OS=$(detect_os)
 ARCH=$(detect_arch)
 PM=$(get_package_manager)
 
-# Check if Chrome is already installed
 if [[ "$OS" == "macos" ]]; then
-  if [[ -d "/Applications/Google Chrome.app" ]]; then
-    log_info "Google Chrome is already installed"
-    exit 0
-  fi
+  check_installed_app "Google Chrome" && exit 0
 else
-  if command -v google-chrome >/dev/null 2>&1; then
-    log_info "Google Chrome is already installed: $(google-chrome --version)"
-    exit 0
-  fi
+  check_installed_cmd "google-chrome" "google-chrome --version" && exit 0
 fi
 
 log_info "Google Chrome is not installed. Installing..."

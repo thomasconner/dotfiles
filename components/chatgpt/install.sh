@@ -11,11 +11,7 @@ log_info "Installing ChatGPT desktop app"
 OS=$(detect_os)
 
 if [[ "$OS" == "macos" ]]; then
-    # Check if already installed
-    if [[ "${FORCE:-false}" != "true" ]] && [[ -d "/Applications/ChatGPT.app" ]]; then
-        log_info "ChatGPT is already installed"
-        exit 0
-    fi
+    check_installed_app "ChatGPT" && exit 0
 
     log_info "Installing ChatGPT via Homebrew..."
     install_brew_cask chatgpt

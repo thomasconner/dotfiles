@@ -12,17 +12,10 @@ log_info "Installing 1Password"
 OS=$(detect_os)
 PM=$(get_package_manager)
 
-# Check if 1Password is already installed
 if [[ "$OS" == "macos" ]]; then
-  if [[ -d "/Applications/1Password.app" ]]; then
-    log_info "1Password is already installed"
-    exit 0
-  fi
+  check_installed_app "1Password" && exit 0
 else
-  if command -v 1password >/dev/null 2>&1; then
-    log_info "1Password is already installed"
-    exit 0
-  fi
+  check_installed_cmd "1password" && exit 0
 fi
 
 log_info "1Password is not installed. Installing..."

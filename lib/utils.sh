@@ -112,6 +112,41 @@ get_install_date() {
 }
 
 ###############################################################################
+# Already-Installed Check Functions
+###############################################################################
+
+# Check if a CLI tool is already installed (respects FORCE flag)
+# Usage: check_installed_cmd "tool" ["version_cmd"]
+# Returns 0 if already installed (caller should exit 0), 1 otherwise
+check_installed_cmd() {
+  local cmd="$1"
+  local version_cmd="${2:-}"
+
+  if [[ "${FORCE:-false}" != "true" ]] && command -v "$cmd" >/dev/null 2>&1; then
+    if [[ -n "$version_cmd" ]]; then
+      log_info "$cmd is already installed: $(eval "$version_cmd" 2>&1 | head -n1)"
+    else
+      log_info "$cmd is already installed"
+    fi
+    return 0
+  fi
+  return 1
+}
+
+# Check if a macOS .app is already installed (respects FORCE flag)
+# Usage: check_installed_app "App Name"
+# Returns 0 if already installed (caller should exit 0), 1 otherwise
+check_installed_app() {
+  local app_name="$1"
+
+  if [[ "${FORCE:-false}" != "true" ]] && [[ -d "/Applications/${app_name}.app" ]]; then
+    log_info "$app_name is already installed"
+    return 0
+  fi
+  return 1
+}
+
+###############################################################################
 # Cleanup and Trap Functions
 ###############################################################################
 

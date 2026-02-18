@@ -7,7 +7,7 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 DOTFILES_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
 source "$DOTFILES_ROOT/lib/utils.sh"
 
-log_step "Installing Ruby"
+log_info "Installing Ruby"
 
 # Check for dry-run mode
 if [[ "${DRY_RUN:-false}" == "true" ]]; then

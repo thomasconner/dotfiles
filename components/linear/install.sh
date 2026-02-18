@@ -11,17 +11,13 @@ log_info "Installing Linear"
 
 OS=$(detect_os)
 
-# Check if Linear is already installed
-if [[ "$OS" == "macos" ]]; then
-  if [[ -d "/Applications/Linear.app" ]]; then
-    log_info "Linear is already installed"
-    exit 0
-  fi
-else
+if [[ "$OS" != "macos" ]]; then
   log_warning "Linear desktop app installation not supported on $OS"
   log_info "Use Linear via web at https://linear.app"
   exit 2
 fi
+
+check_installed_app "Linear" && exit 0
 
 log_info "Linear is not installed. Installing..."
 

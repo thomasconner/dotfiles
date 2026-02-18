@@ -9,12 +9,7 @@ source "$DOTFILES_ROOT/lib/utils.sh"
 
 log_info "Installing shellcheck"
 
-if [[ "${FORCE:-false}" != "true" ]]; then
-    if command -v shellcheck >/dev/null 2>&1; then
-        log_info "shellcheck is already installed: $(shellcheck --version | head -2 | tail -1)"
-        exit 0
-    fi
-fi
+check_installed_cmd "shellcheck" "shellcheck --version | head -2 | tail -1" && exit 0
 
 log_info "shellcheck is not installed. Installing..."
 install_package shellcheck

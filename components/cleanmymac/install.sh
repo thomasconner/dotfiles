@@ -16,7 +16,7 @@ fi
 
 log_info "Installing CleanMyMac"
 
-if [[ -d "/Applications/CleanMyMac.app" ]] || [[ -d "/Applications/CleanMyMac X.app" ]]; then
+if [[ "${FORCE:-false}" != "true" ]] && { [[ -d "/Applications/CleanMyMac.app" ]] || [[ -d "/Applications/CleanMyMac X.app" ]]; }; then
   log_info "CleanMyMac is already installed"
   exit 0
 fi

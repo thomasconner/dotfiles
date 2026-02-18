@@ -15,12 +15,12 @@ PM=$(get_package_manager)
 
 # Check if DBeaver is already installed
 if [[ "$OS" == "macos" ]]; then
-  if [[ -d "/Applications/DBeaver.app" ]]; then
+  if [[ "${FORCE:-false}" != "true" ]] && [[ -d "/Applications/DBeaver.app" ]]; then
     log_info "DBeaver is already installed"
     exit 0
   fi
 else
-  if command -v dbeaver >/dev/null 2>&1 || command -v dbeaver-ce >/dev/null 2>&1; then
+  if [[ "${FORCE:-false}" != "true" ]] && { command -v dbeaver >/dev/null 2>&1 || command -v dbeaver-ce >/dev/null 2>&1; }; then
     log_info "DBeaver is already installed"
     exit 0
   fi

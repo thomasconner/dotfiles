@@ -14,7 +14,7 @@ PM=$(get_package_manager)
 
 # Check if VS Code is already installed
 if [[ "$OS" == "macos" ]]; then
-  if [[ -d "/Applications/Visual Studio Code.app" ]] || command -v code >/dev/null 2>&1; then
+  if [[ "${FORCE:-false}" != "true" ]] && { [[ -d "/Applications/Visual Studio Code.app" ]] || command -v code >/dev/null 2>&1; }; then
     log_info "Visual Studio Code is already installed"
     if command -v code >/dev/null 2>&1; then
       log_info "Version: $(code --version | head -n1)"
@@ -22,7 +22,7 @@ if [[ "$OS" == "macos" ]]; then
     exit 0
   fi
 else
-  if command -v code >/dev/null 2>&1; then
+  if [[ "${FORCE:-false}" != "true" ]] && command -v code >/dev/null 2>&1; then
     log_info "Visual Studio Code is already installed: $(code --version | head -n1)"
     exit 0
   fi
