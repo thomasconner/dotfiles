@@ -10,25 +10,20 @@ source "$DOTFILES_ROOT/lib/utils.sh"
 OS=$(detect_os)
 
 # Download URLs
-MACOS_DMG_URL="https://tvd-packages.tradingview.com/stable/latest/darwin/TradingView.dmg"
 LINUX_DEB_URL="https://tvd-packages.tradingview.com/stable/latest/linux/TradingView.deb"
 
 if [[ "$OS" == "macos" ]]; then
   # Check if already installed
-  if [[ -d "/Applications/TradingView.app" ]]; then
+  if [[ "${FORCE:-false}" != "true" ]] && [[ -d "/Applications/TradingView.app" ]]; then
     log_info "TradingView already installed"
     exit 0
   fi
 
-  log_step "Downloading TradingView for macOS..."
-  TEMP_DMG=$(mktemp /tmp/TradingView.XXXXXX.dmg)
-  run_cmd curl -fSL -o "$TEMP_DMG" "$MACOS_DMG_URL"
+  install_brew_cask tradingview
 
-  log_step "Mounting and installing TradingView..."
-  MOUNT_POINT=$(hdiutil attach "$TEMP_DMG" -nobrowse | grep "/Volumes" | sed 's/.*\/Volumes/\/Volumes/')
-  run_cmd cp -R "$MOUNT_POINT/TradingView.app" /Applications/
-  hdiutil detach "$MOUNT_POINT" >/dev/null 2>&1 || true
-  rm -f "$TEMP_DMG"
+  # Remove quarantine flag — TradingView's Electron app hangs on macOS
+  # during Gatekeeper assessment without this
+  xattr -dr com.apple.quarantine "/Applications/TradingView.app" 2>/dev/null || true
 
   log_success "TradingView installed"
 

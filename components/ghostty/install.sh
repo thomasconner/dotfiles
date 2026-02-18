@@ -4,21 +4,20 @@ set -euo pipefail
 
 # Source shared utilities
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-DOTFILES_ROOT="$(cd "$SCRIPT_DIR/../../.." && pwd)"
+DOTFILES_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
 source "$DOTFILES_ROOT/lib/utils.sh"
 
 OS=$(detect_os)
 PM=$(get_package_manager)
 
 # Install Ghostty if not present
-if command -v ghostty >/dev/null 2>&1; then
+if [[ "${FORCE:-false}" != "true" ]] && command -v ghostty >/dev/null 2>&1; then
   log_info "Ghostty is already installed: $(ghostty --version)"
 else
   log_info "Installing Ghostty"
 
   if [[ "$OS" == "macos" ]]; then
-    # macOS: Install Ghostty via Homebrew
-    brew install --cask ghostty
+    install_brew_cask ghostty
     log_success "Ghostty installed successfully"
 
   elif [[ "$PM" == "apt" ]]; then

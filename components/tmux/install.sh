@@ -4,12 +4,12 @@ set -euo pipefail
 
 # Source shared utilities
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-DOTFILES_ROOT="$(cd "$SCRIPT_DIR/../../.." && pwd)"
+DOTFILES_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
 source "$DOTFILES_ROOT/lib/utils.sh"
 
 log_info "Installing tmux"
 
-if command -v tmux >/dev/null 2>&1; then
+if [[ "${FORCE:-false}" != "true" ]] && command -v tmux >/dev/null 2>&1; then
   log_info "tmux is already installed: $(tmux -V)"
 else
   log_info "Installing tmux..."
