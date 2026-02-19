@@ -84,8 +84,7 @@ _ctdev() {
     commands=(
         'install:Install specific components'
         'uninstall:Remove specific components'
-        'update:Refresh package metadata'
-        'upgrade:Upgrade installed components'
+        'upgrade:Upgrade system packages and components'
         'list:List components with status'
         'info:Show system information'
         'configure:Configure git, macOS, or Linux Mint settings'
@@ -112,12 +111,8 @@ _ctdev() {
                     _arguments -s \
                         "${global_flags[@]}" \
                         '(-y --yes)'{-y,--yes}'[Skip confirmation prompt]' \
-                        '*:component:_ctdev_components'
-                    ;;
-                update)
-                    _arguments -s \
-                        "${global_flags[@]}" \
-                        '--refresh-keys[Re-download APT repository GPG keys]'
+                        '--check[List available updates without installing]' \
+                        '--refresh-keys[Refresh APT GPG keys before upgrading]'
                     ;;
                 configure)
                     local target="${words[2]}"

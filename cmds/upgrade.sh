@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-# ctdev upgrade - Upgrade installed components
+# ctdev upgrade - Upgrade system packages and components
 
 OS=$(detect_os)
 PKG_MGR=$(get_package_manager)
@@ -77,6 +77,42 @@ upgrade_system_packages() {
 }
 
 # ============================================================================
+# Additional upgrade sources
+# ============================================================================
+
+check_softwareupdate_available() {
+    [[ "$OS" == "macos" ]] || return 1
+    local updates
+    updates=$(softwareupdate --list 2>&1)
+    echo "$updates" | grep -q "Software Update found" && return 0
+    return 1
+}
+
+check_flatpak_updates() {
+    command -v flatpak >/dev/null 2>&1 || return 1
+    local updates
+    updates=$(flatpak remote-ls --updates 2>/dev/null)
+    [[ -n "$updates" ]]
+}
+
+# Whether NVIDIA modules need re-signing after a system upgrade
+needs_nvidia_signing() {
+    [[ "$OS" != "macos" ]] || return 1
+    source "$DOTFILES_ROOT/lib/gpu.sh"
+    is_secure_boot_enabled || return 1
+    mok_key_exists || return 1
+    local modules
+    modules=$(find_nvidia_modules)
+    [[ -n "$modules" ]] || return 1
+    # Check if any modules are unsigned
+    while IFS= read -r module; do
+        [[ -z "$module" ]] && continue
+        is_module_signed "$module" || return 0
+    done <<< "$modules"
+    return 1
+}
+
+# ============================================================================
 # Component-specific upgrades (only for components with special upgrade needs)
 # ============================================================================
 
@@ -135,12 +171,42 @@ upgrade_ruby() {
 
 cmd_upgrade() {
     local skip_prompt=false
+    local check_only=false
+    local do_refresh_keys=false
+    local key_filter=()
+    local collecting_keys=false
 
     for arg in "$@"; do
+        if [[ "$collecting_keys" == "true" ]]; then
+            case "$arg" in
+                -*) collecting_keys=false ;;
+                *)
+                    key_filter+=("$arg")
+                    continue
+                    ;;
+            esac
+        fi
         case "$arg" in
             -y|--yes) skip_prompt=true ;;
+            --check) check_only=true ;;
+            --refresh-keys)
+                do_refresh_keys=true
+                collecting_keys=true
+                ;;
         esac
     done
+
+    # Refresh GPG keys if requested (apt only)
+    if [[ "$do_refresh_keys" == "true" ]]; then
+        if [[ "$PKG_MGR" == "apt" ]]; then
+            source "$DOTFILES_ROOT/lib/keys.sh"
+            log_step "Refreshing APT repository keys"
+            refresh_keys "${key_filter[@]}" || true
+            echo
+        else
+            log_warning "--refresh-keys is only supported on apt-based systems"
+        fi
+    fi
 
     log_step "Checking for upgrades"
     echo
@@ -182,6 +248,16 @@ cmd_upgrade() {
             ;;
     esac
 
+    # Check macOS softwareupdate
+    if check_softwareupdate_available 2>/dev/null; then
+        upgrades+=("macOS software updates")
+    fi
+
+    # Check flatpak
+    if check_flatpak_updates 2>/dev/null; then
+        upgrades+=("flatpak packages")
+    fi
+
     # Check component-specific updates
     if check_zsh_updates; then
         upgrades+=("zsh (oh-my-zsh, plugins, pure prompt)")
@@ -191,6 +267,18 @@ cmd_upgrade() {
     fi
     if check_ruby_updates; then
         upgrades+=("ruby (rbenv, ruby-build, gems)")
+    fi
+
+    # Bun: no reliable pre-check, always show if installed
+    if is_component_installed "bun"; then
+        upgrades+=("bun")
+    fi
+
+    # Check NVIDIA module signing
+    local needs_nvidia=false
+    if needs_nvidia_signing 2>/dev/null; then
+        needs_nvidia=true
+        upgrades+=("nvidia module signing")
     fi
 
     # Nothing to upgrade?
@@ -205,6 +293,12 @@ cmd_upgrade() {
         echo "  $item"
     done
     echo
+
+    # --check: list only, don't install
+    if [[ "$check_only" == "true" ]]; then
+        log_info "Run 'ctdev upgrade' to install these updates"
+        return 0
+    fi
 
     # Prompt for confirmation
     if [[ "$skip_prompt" != "true" ]] && [[ "$DRY_RUN" != "true" ]] && [[ -t 0 ]]; then
@@ -222,6 +316,7 @@ cmd_upgrade() {
     # Run upgrades
     local upgraded=()
 
+    # 1. System packages
     if [[ "$has_system_updates" == "true" ]]; then
         log_step "Upgrading system packages"
         upgrade_system_packages
@@ -229,6 +324,28 @@ cmd_upgrade() {
         echo
     fi
 
+    # 2. macOS softwareupdate
+    if [[ "$OS" == "macos" ]]; then
+        if check_softwareupdate_available 2>/dev/null; then
+            log_step "Installing macOS software updates"
+            softwareupdate --install --all --agree-to-license 2>&1 || \
+                log_warning "Some macOS updates may require a restart"
+            upgraded+=("macos-softwareupdate")
+            echo
+        fi
+    fi
+
+    # 3. Flatpak
+    if command -v flatpak >/dev/null 2>&1; then
+        if check_flatpak_updates 2>/dev/null; then
+            log_step "Upgrading flatpak packages"
+            run_cmd flatpak update -y
+            upgraded+=("flatpak")
+            echo
+        fi
+    fi
+
+    # 4. Component upgrades
     if check_zsh_updates 2>/dev/null; then
         log_info "Upgrading zsh components..."
         upgrade_zsh
@@ -247,12 +364,23 @@ cmd_upgrade() {
         upgraded+=("ruby")
     fi
 
+    # 5. Bun
+    if is_component_installed "bun"; then
+        log_info "Upgrading bun..."
+        bun upgrade 2>/dev/null || log_warning "bun upgrade failed"
+        upgraded+=("bun")
+    fi
+
+    # 6. NVIDIA module re-signing
+    if [[ "$needs_nvidia" == "true" ]]; then
+        log_step "Re-signing NVIDIA kernel modules"
+        source "$DOTFILES_ROOT/lib/gpu.sh"
+        sign_nvidia_modules || log_warning "NVIDIA module signing failed"
+        upgraded+=("nvidia-signing")
+        echo
+    fi
+
     echo
     log_step "Upgrade Complete"
     [[ ${#upgraded[@]} -gt 0 ]] && log_success "Upgraded: ${upgraded[*]}"
-
-    # Remind about manual upgrades
-    if is_component_installed "bun"; then
-        log_info "To upgrade bun: bun upgrade"
-    fi
 }

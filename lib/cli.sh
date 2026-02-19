@@ -35,8 +35,7 @@ Usage: ctdev [OPTIONS] COMMAND [ARGS]
 Commands:
     install <component...>    Install specific components
     uninstall <component...>  Remove specific components
-    update                    Refresh package metadata (does not upgrade)
-    upgrade [-y]              Upgrade installed components
+    upgrade [OPTIONS]         Upgrade system packages and components
     list                      List components with status
     info                      Show system information
     configure <target>        Configure git, macos, or linux-mint settings
@@ -50,14 +49,15 @@ Options:
     --version        Show version information
 
 Examples:
-    ctdev install zsh git      Install specific components
-    ctdev list                 Show all components with status
-    ctdev update               Refresh package sources
-    ctdev upgrade              Upgrade installed components
-    ctdev upgrade -y           Upgrade without prompting
-    ctdev configure git        Configure git user
-    ctdev configure macos      Configure macOS settings
-    ctdev configure linux-mint Configure Linux Mint settings
+    ctdev install zsh git                Install specific components
+    ctdev list                           Show all components with status
+    ctdev upgrade                        Upgrade installed components
+    ctdev upgrade -y                     Upgrade without prompting
+    ctdev upgrade --check                List available updates
+    ctdev upgrade --refresh-keys         Refresh APT keys before upgrading
+    ctdev configure git                  Configure git user
+    ctdev configure macos                Configure macOS settings
+    ctdev configure linux-mint           Configure Linux Mint settings
 
 For help on a specific command:
     ctdev COMMAND --help
@@ -113,56 +113,54 @@ Examples:
 EOF
 }
 
-# Show help for update command
+# Show help for update command (deprecated)
 show_update_help() {
     cat << 'EOF'
-ctdev update - Refresh package metadata
+ctdev update - DEPRECATED
 
-Usage: ctdev update [OPTIONS]
+This command has been merged into 'ctdev upgrade'.
 
-Refreshes package sources without upgrading anything:
-- brew update (macOS)
-- apt update (Debian/Ubuntu)
-- git fetch for nodenv, rbenv, oh-my-zsh
+Use instead:
+    ctdev upgrade --check                List available updates
+    ctdev upgrade --refresh-keys         Refresh APT GPG keys before upgrading
+    ctdev upgrade --refresh-keys docker  Refresh specific component keys
 
-This is a fast operation that checks for available updates.
-
-Options:
-    -h, --help                       Show this help message
-    -v, --verbose                    Enable verbose output
-    -n, --dry-run                    Preview changes without applying
-    --refresh-keys [COMPONENT...]    Re-download APT repository GPG keys
-
-Examples:
-    ctdev update                          Refresh all package sources
-    ctdev update --refresh-keys           Refresh all GPG keys, then update
-    ctdev update --refresh-keys docker gh Refresh only docker and gh keys
-
-To actually upgrade components, use 'ctdev upgrade'.
+Running 'ctdev update' will forward to 'ctdev upgrade --check'.
 EOF
 }
 
 # Show help for upgrade command
 show_upgrade_help() {
     cat << 'EOF'
-ctdev upgrade - Upgrade installed components
+ctdev upgrade - Upgrade system packages and components
 
-Usage: ctdev upgrade [OPTIONS] [COMPONENT...]
+Usage: ctdev upgrade [OPTIONS]
 
 Upgrades system packages and installed components to latest versions.
-If no components specified, upgrades all installed components.
+
+Upgrade sources:
+    - System packages (apt/brew/dnf/pacman)
+    - macOS software updates (macOS only)
+    - Flatpak packages (if installed)
+    - Component repos: zsh, node, ruby (git pull)
+    - Bun (if installed)
+    - NVIDIA module re-signing (Linux, Secure Boot)
 
 Options:
-    -h, --help       Show this help message
-    -y, --yes        Skip confirmation prompt
-    -v, --verbose    Enable verbose output
-    -n, --dry-run    Preview changes without applying
+    -h, --help                       Show this help message
+    -y, --yes                        Skip confirmation prompt
+    -v, --verbose                    Enable verbose output
+    -n, --dry-run                    Preview changes without applying
+    --check                          List available updates without installing
+    --refresh-keys [COMPONENT...]    Refresh APT GPG keys before upgrading
 
 Examples:
-    ctdev upgrade              Upgrade all (with confirmation)
-    ctdev upgrade -y           Upgrade all without prompting
-    ctdev upgrade node ruby    Upgrade specific components
-    ctdev upgrade --dry-run    Preview what would be upgraded
+    ctdev upgrade                        Upgrade all (with confirmation)
+    ctdev upgrade -y                     Upgrade all without prompting
+    ctdev upgrade --check                List available updates
+    ctdev upgrade --dry-run              Preview what would be upgraded
+    ctdev upgrade --refresh-keys         Refresh all APT keys, then upgrade
+    ctdev upgrade --refresh-keys docker  Refresh only docker keys, then upgrade
 EOF
 }
 
