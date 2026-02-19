@@ -2,6 +2,20 @@
 
 All notable changes to this project will be documented in this file.
 
+## [7.8.0] - 2026-02-19
+
+### Added
+- `ctdev upgrade --check` flag to list available updates without installing
+- `ctdev upgrade --refresh-keys` flag (absorbed from `ctdev update`)
+- macOS `softwareupdate` as an upgrade source
+- Flatpak packages as an upgrade source
+- Bun self-upgrade as an upgrade source
+- NVIDIA kernel module re-signing after system upgrades (Linux, Secure Boot)
+
+### Changed
+- Merged `ctdev update` into `ctdev upgrade` — single command for all upgrade operations
+- `ctdev update` now shows deprecation warning and forwards to `ctdev upgrade --check`
+
 ## [7.7.0] - 2026-02-18
 
 ### Added
