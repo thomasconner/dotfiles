@@ -35,7 +35,7 @@ Usage: ctdev [OPTIONS] COMMAND [ARGS]
 Commands:
     install <component...>    Install specific components
     uninstall <component...>  Remove specific components
-    upgrade [OPTIONS]         Upgrade system packages and components
+    update [OPTIONS]          Update system packages and components
     list                      List components with status
     info                      Show system information
     configure <target>        Configure git, macos, or linux-mint settings
@@ -51,10 +51,10 @@ Options:
 Examples:
     ctdev install zsh git                Install specific components
     ctdev list                           Show all components with status
-    ctdev upgrade                        Upgrade installed components
-    ctdev upgrade -y                     Upgrade without prompting
-    ctdev upgrade --check                List available updates
-    ctdev upgrade --refresh-keys         Refresh APT keys before upgrading
+    ctdev update                         Update installed components
+    ctdev update -y                      Update without prompting
+    ctdev update --check                 List available updates
+    ctdev update --refresh-keys          Refresh APT keys before updating
     ctdev configure git                  Configure git user
     ctdev configure macos                Configure macOS settings
     ctdev configure linux-mint           Configure Linux Mint settings
@@ -86,7 +86,7 @@ Examples:
     ctdev install node ruby    Install multiple components
     ctdev install --dry-run jq Preview installation
 
-To upgrade installed components, use 'ctdev upgrade'.
+To update installed components, use 'ctdev update'.
 EOF
 }
 
@@ -113,32 +113,16 @@ Examples:
 EOF
 }
 
-# Show help for update command (deprecated)
+# Show help for update command
 show_update_help() {
     cat << 'EOF'
-ctdev update - DEPRECATED
+ctdev update - Update system packages and components
 
-This command has been merged into 'ctdev upgrade'.
+Usage: ctdev update [OPTIONS]
 
-Use instead:
-    ctdev upgrade --check                List available updates
-    ctdev upgrade --refresh-keys         Refresh APT GPG keys before upgrading
-    ctdev upgrade --refresh-keys docker  Refresh specific component keys
+Updates system packages and installed components to latest versions.
 
-Running 'ctdev update' will forward to 'ctdev upgrade --check'.
-EOF
-}
-
-# Show help for upgrade command
-show_upgrade_help() {
-    cat << 'EOF'
-ctdev upgrade - Upgrade system packages and components
-
-Usage: ctdev upgrade [OPTIONS]
-
-Upgrades system packages and installed components to latest versions.
-
-Upgrade sources:
+Update sources:
     - System packages (apt/brew/dnf/pacman)
     - macOS software updates (macOS only)
     - Flatpak packages (if installed)
@@ -152,15 +136,15 @@ Options:
     -v, --verbose                    Enable verbose output
     -n, --dry-run                    Preview changes without applying
     --check                          List available updates without installing
-    --refresh-keys [COMPONENT...]    Refresh APT GPG keys before upgrading
+    --refresh-keys [COMPONENT...]    Refresh APT GPG keys before updating
 
 Examples:
-    ctdev upgrade                        Upgrade all (with confirmation)
-    ctdev upgrade -y                     Upgrade all without prompting
-    ctdev upgrade --check                List available updates
-    ctdev upgrade --dry-run              Preview what would be upgraded
-    ctdev upgrade --refresh-keys         Refresh all APT keys, then upgrade
-    ctdev upgrade --refresh-keys docker  Refresh only docker keys, then upgrade
+    ctdev update                         Update all (with confirmation)
+    ctdev update -y                      Update all without prompting
+    ctdev update --check                 List available updates
+    ctdev update --dry-run               Preview what would be updated
+    ctdev update --refresh-keys          Refresh all APT keys, then update
+    ctdev update --refresh-keys docker   Refresh only docker keys, then update
 EOF
 }
 
@@ -330,7 +314,7 @@ parse_global_flags() {
 # Validate that a command exists
 require_command() {
     local cmd="$1"
-    local valid_commands="install uninstall update upgrade list info configure gpu"
+    local valid_commands="install uninstall update list info configure gpu"
 
     if [[ -z "$cmd" ]]; then
         return 1

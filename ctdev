@@ -73,7 +73,6 @@ if [[ "$SHOW_HELP" == "true" ]]; then
         install)   show_install_help ;;
         uninstall) show_uninstall_help ;;
         update)    show_update_help ;;
-        upgrade)   show_upgrade_help ;;
         list)      show_list_help ;;
         info)      show_info_help ;;
         configure) show_configure_help ;;
