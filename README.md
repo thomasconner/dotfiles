@@ -22,9 +22,9 @@ git clone https://github.com/thomasconner/dotfiles.git ~/dotfiles
 ```bash
 ctdev install <component...>    # Install specific components
 ctdev uninstall <component...>  # Remove specific components
-ctdev update                    # Refresh package metadata
-ctdev update --refresh-keys    # Re-download expired APT GPG keys
-ctdev upgrade [-y]              # Upgrade installed components
+ctdev update [-y]               # Update system packages and components
+ctdev update --check            # List available updates without installing
+ctdev update --refresh-keys     # Refresh APT GPG keys before updating
 ctdev list                      # List components with status
 ctdev info                      # Show system information
 ctdev configure git             # Configure git user
@@ -55,8 +55,8 @@ Components are defined in `lib/components.sh`. Each component has an `install.sh
 ctdev install zsh git            # Install shell and git config
 ctdev install node bun           # Install Node.js and Bun
 ctdev list                       # Show all components with status
-ctdev upgrade                    # Upgrade all installed components
-ctdev upgrade -y                 # Upgrade without prompting
+ctdev update                     # Update all installed components
+ctdev update -y                  # Update without prompting
 ctdev configure git              # Configure git user (global)
 ctdev configure git --local      # Configure git for current repo
 ctdev configure macos            # Configure macOS defaults
