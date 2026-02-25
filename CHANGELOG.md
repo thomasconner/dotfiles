@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file.
 
+## [7.9.0] - 2026-02-25
+
+### Changed
+- Renamed `ctdev upgrade` to `ctdev update` — all flags and behavior preserved
+
+### Removed
+- `ctdev upgrade` command (replaced by `ctdev update`)
+
 ## [7.8.0] - 2026-02-19
 
 ### Added

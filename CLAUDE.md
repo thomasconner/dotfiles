@@ -7,9 +7,9 @@ Instructions for Claude Code when working with this repository.
 ```bash
 ctdev install <component...>    # Install specific components
 ctdev uninstall <component...>  # Remove specific components
-ctdev upgrade [-y]              # Upgrade system packages and components
-ctdev upgrade --check           # List available updates without installing
-ctdev upgrade --refresh-keys    # Refresh APT GPG keys before upgrading
+ctdev update [-y]               # Update system packages and components
+ctdev update --check            # List available updates without installing
+ctdev update --refresh-keys     # Refresh APT GPG keys before updating
 ctdev list                      # List components with status
 ctdev info                      # Show system information
 ctdev configure git             # Configure git user
