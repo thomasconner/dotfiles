@@ -235,7 +235,6 @@ macos_show() {
     show_default "com.apple.dock" "autohide-time-modifier" "Auto-hide animation" float_seconds
     show_default "com.apple.dock" "launchanim" "Launch animation" bool
     show_default "com.apple.dock" "show-recents" "Show recent apps" bool
-    show_default "com.apple.dock" "minimize-to-application" "Minimize to app" bool
     echo ""
 
     echo "Finder:"
@@ -291,7 +290,6 @@ macos_apply() {
     defaults write com.apple.dock autohide-time-modifier -float 0
     defaults write com.apple.dock launchanim -bool false
     defaults write com.apple.dock show-recents -bool false
-    defaults write com.apple.dock minimize-to-application -bool true
 
     # Finder Settings
     log_info "Configuring Finder..."
@@ -349,7 +347,6 @@ macos_reset() {
     defaults delete com.apple.dock autohide-time-modifier 2>/dev/null || true
     defaults delete com.apple.dock launchanim 2>/dev/null || true
     defaults delete com.apple.dock show-recents 2>/dev/null || true
-    defaults delete com.apple.dock minimize-to-application 2>/dev/null || true
 
     log_info "Resetting Finder settings..."
     defaults delete com.apple.finder AppleShowAllFiles 2>/dev/null || true
