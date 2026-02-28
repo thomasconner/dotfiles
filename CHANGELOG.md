@@ -2,6 +2,11 @@
 
 All notable changes to this project will be documented in this file.
 
+## [7.9.1] - 2026-02-28
+
+### Removed
+- `AppleShowAllExtensions` from macOS defaults (prevents .app extensions showing on applications)
+
 ## [7.9.0] - 2026-02-25
 
 ### Changed
