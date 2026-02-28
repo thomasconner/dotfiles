@@ -6,6 +6,7 @@ All notable changes to this project will be documented in this file.
 
 ### Removed
 - `AppleShowAllExtensions` from macOS defaults (prevents .app extensions showing on applications)
+- `minimize-to-application` from macOS defaults (windows now minimize as separate dock tiles)
 
 ## [7.9.0] - 2026-02-25
 
