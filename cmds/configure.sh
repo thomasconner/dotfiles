@@ -239,7 +239,6 @@ macos_show() {
     echo ""
 
     echo "Finder:"
-    show_default "NSGlobalDomain" "AppleShowAllExtensions" "Show all extensions" bool
     show_default "com.apple.finder" "ShowPathbar" "Show path bar" bool
     show_default "com.apple.finder" "ShowStatusBar" "Show status bar" bool
     show_default "com.apple.desktopservices" "DSDontWriteNetworkStores" "No .DS_Store on network" bool
@@ -277,7 +276,7 @@ macos_apply() {
 
     if [[ "${DRY_RUN:-false}" == "true" ]]; then
         log_info "[DRY-RUN] Would configure Dock settings (auto-hide, animations, recent apps)"
-        log_info "[DRY-RUN] Would configure Finder settings (extensions, path bar, status bar)"
+        log_info "[DRY-RUN] Would configure Finder settings (path bar, status bar)"
         log_info "[DRY-RUN] Would configure Keyboard settings (disable smart quotes/dashes)"
         log_info "[DRY-RUN] Would configure Dialog settings (expand save/print dialogs)"
         log_info "[DRY-RUN] Would configure Security settings (require password after sleep)"
@@ -296,7 +295,6 @@ macos_apply() {
 
     # Finder Settings
     log_info "Configuring Finder..."
-    defaults write NSGlobalDomain AppleShowAllExtensions -bool true
     defaults write com.apple.finder ShowPathbar -bool true
     defaults write com.apple.finder ShowStatusBar -bool true
     defaults write com.apple.desktopservices DSDontWriteNetworkStores -bool true
@@ -355,7 +353,6 @@ macos_reset() {
 
     log_info "Resetting Finder settings..."
     defaults delete com.apple.finder AppleShowAllFiles 2>/dev/null || true
-    defaults delete NSGlobalDomain AppleShowAllExtensions 2>/dev/null || true
     defaults delete com.apple.finder ShowPathbar 2>/dev/null || true
     defaults delete com.apple.finder ShowStatusBar 2>/dev/null || true
     defaults delete com.apple.desktopservices DSDontWriteNetworkStores 2>/dev/null || true
