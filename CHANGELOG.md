@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file.
 
+## [7.10.0] - 2026-03-01
+
+### Added
+- Dock auto-hide to macOS defaults
+- Volume change feedback to macOS defaults
+
+### Removed
+- Design and implementation plan documents from `docs/plans`
+
 ## [7.9.1] - 2026-02-28
 
 ### Removed
